@@ -1,0 +1,69 @@
+Name PHEMTO_config3
+Version 1.0
+
+####################
+#  Model options   #
+####################
+
+// Choose Materials.geo to include passive material
+// Choose Materials_v.geo to remove passive material
+#Include Materials.geo
+Include ../detectors/geometry/Materials_v.geo
+
+Include ../detectors/geometry/si.geo
+Include ../detectors/geometry/czt_10mm.geo
+
+#Include ACD.det
+Include ../detectors/CZTdetector_10mm.det
+Include ../detectors/Sidetector.det
+
+DefaultRangeCut 0.000002
+StoreScientific true 6
+
+// The code runs faster with a smaller sphere
+SurroundingSphere 		220.0 0.0 0.0 0.0 220.0		// Use for stowed or 1m mask
+ShowSurroundingSphere false
+
+Volume WorldVolume
+WorldVolume.Material Vacuum
+WorldVolume.Visibility 0
+WorldVolume.Shape BRIK 1000. 1000. 1000.
+WorldVolume.Mother 0
+
+####################
+#     Triggers     #
+####################
+
+// Include trigger information
+Trigger CZTtrigger1
+CZTtrigger1.Veto false
+CZTtrigger1.TriggerByDetector true
+CZTtrigger1.Detector CZTcal10mm_U 1
+
+Trigger SItrigger
+SItrigger.Veto False
+SItrigger.TriggerByDetector true
+SItrigger.Detector SiSDDet 1
+
+
+####################
+#  Detector layout #
+####################
+
+// ----- Si -----
+Si.Mother WorldVolume
+Si.Position 0. 0. 0.
+
+// ----- CZT -----
+CZT_10mm.Mother WorldVolume
+CZT_10mm.Position 0. 0. -5.75
+#jose: shifted the detector down, the ammount of the increased thickness
+
+
+# ----- ACD -----
+#ACD.Position 0 0 1.25
+#ACD.Mother WorldVolume
+
+#ACDsupport.Position 0 0 0.5
+#ACDsupport.Mother WorldVolume
+

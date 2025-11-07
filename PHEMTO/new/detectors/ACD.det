@@ -1,0 +1,14 @@
+// Detector properties of the lower ACD
+Scintillator      ACDdet
+
+ACDdet.SensitiveVolume       ACD
+ACDdet.DetectorVolume        ACD
+
+ACDdet.TriggerThreshold 200							// Values borrowed from Alex
+ACDdet.NoiseThresholdEqualsTriggerThreshold true
+
+ACDdet.EnergyResolution Gauss 100 100 10			// Values borrowed from Alex
+ACDdet.EnergyResolution Gauss 500 500 50
+ACDdet.EnergyResolution Gauss 2000 2000 120
+ACDdet.EnergyResolution Gauss 5000 5000 300
+

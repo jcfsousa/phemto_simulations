@@ -1,0 +1,13 @@
+// Si strip detector information:
+AngerCamera                  SiSDDet
+SiSDDet.SensitiveVolume    Si
+SiSDDet.DetectorVolume     Si
+
+SiSDDet.Positioning XY
+SiSDDet.PositionResolution  200 0.014
+
+// Threshold in keV
+SiSDDet.NoiseThreshold         0.01
+SiSDDet.TriggerThreshold       2.
+SiSDDet.EnergyResolution       Gauss 4.0 4.0 0.15
+SiSDDet.EnergyResolution       Gauss 6.0 6.0 0.15

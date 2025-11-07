@@ -1,0 +1,26 @@
+# Global parameters:
+Version               1
+Geometry             ../PHEMTO_config1.geo.setup
+ 
+# Physics list
+PhysicsListEM                        LivermorePol
+PhysicsListEMActivateFluorescence	false
+
+# Output formats
+StoreCalibrated			true
+StoreSimulationInfo		true
+StoreSimulationInfoIonization	true
+DiscretizeHits			true
+
+
+Run MyHomogeneousBeam
+MyHomogeneousBeam.FileName	HomogeneousTestBeam
+MyHomogeneousBeam.Time	100.0
+
+MyHomogeneousBeam.Source	MyHomogeneousBeamSource
+MyHomogeneousBeamSource.ParticleType	1
+MyHomogeneousBeamSource.Beam	HomogeneousBeam  0 0 20  0 0 -1  0.075
+MyHomogeneousBeamSource.Spectrum	Mono 200.0
+MyHomogeneousBeamSource.Flux	1000.0
+
+
