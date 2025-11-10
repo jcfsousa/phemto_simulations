@@ -56,7 +56,7 @@ Si.Position 0. 0. 0.
 
 // ----- CZT -----
 CZT_10mm.Mother WorldVolume
-CZT_10mm.Position 0. 0. -5.75
+CZT_10mm.Position 0. 0. -5.5
 #jose: shifted the detector down, the ammount of the increased thickness
 
 

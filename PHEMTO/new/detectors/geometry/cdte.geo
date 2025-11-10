@@ -3,4 +3,4 @@ Volume CdTe
 CdTe.Color 4
 CdTe.Material CZT 
 CdTe.Visibility 1
-CdTe.Shape BRIK 12.8 12.8 0.25
+CdTe.Shape BRIK 3.2 3.2 0.1   // REMEMBER: this is half-size
