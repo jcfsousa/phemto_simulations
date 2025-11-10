@@ -1,0 +1,22 @@
+# An example run for Cosima 
+
+Version          1 
+Geometry         /local/home/jf285468/Documents/PHEMTO/new/instruments/PHEMTO_config1.geo.setup // Update this to your path  
+PhysicsListEM    LivermorePol 
+
+# Output formats
+StoreSimulationInfo       all
+StoreCalibrated   true
+StoreSimulationInfoIonization true
+DiscretizeHits    true
+
+Run MyHomogeneousBeam 
+MyHomogeneousBeam.FileName              ./sources/simTra_files/HomogeneousBeam193keV_config1 
+MyHomogeneousBeam.NEvents               1000000
+
+
+MyHomogeneousBeam.Source One 
+One.ParticleType        1 
+One.Beam                HomogeneousBeam  0 0 20 0 0 -1 0.075  
+One.Spectrum            Mono  193
+One.Flux                1
