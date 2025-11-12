@@ -1,0 +1,80 @@
+import matplotlib.pyplot as plt
+import csv
+import numpy as np
+
+energy_lst_config1 = []
+sensitivity_lst_config1 = []
+with open ('./PHEMTO_config1_sensitivity_simLaue.csv', mode='r') as f:
+    lines= f.readlines()
+    a=0
+    for line in lines:
+        if a == 0:
+            a = 1
+            continue
+        line = line.split('\n')[0]
+        energy = float(line.split(',')[0])
+        sensitivity = float(line.split(',')[1])
+        energy_lst_config1.append(energy) 
+        sensitivity_lst_config1.append(sensitivity)
+
+    f.close()
+
+energy_lst_old = []
+sensitivity_lst_old = []
+with open ('./PHEMTO_old_sensitivity.csv', mode='r') as f:
+    lines= f.readlines()
+    a=0
+    for line in lines:
+        if a == 0:
+            a = 1
+            continue
+        line = line.split('\n')[0]
+        energy = float(line.split(',')[0])
+        sensitivity = float(line.split(',')[1])
+        energy_lst_old.append(energy) 
+        sensitivity_lst_old.append(sensitivity)
+
+    f.close()
+
+energy_lst_old = np.array(energy_lst_old)
+energy_lst_config1 = np.array(energy_lst_config1)
+sensitivity_lst_config1 = np.array(sensitivity_lst_config1)
+sensitivity_lst_old = np.array(sensitivity_lst_old)
+
+
+plt.plot(energy_lst_old*0.001, sensitivity_lst_old, label = 'Lauret')
+plt.plot(energy_lst_config1*0.001, sensitivity_lst_config1, label = 'config1', color = 'k', alpha = 0.5)
+plt.xlabel('Energy (MeV)')
+plt.ylabel(r'Sensitivity (erg cm$^{-2}$ s$^{-1}$)')
+
+plt.legend()
+plt.xlim(1e-4, 1e11)
+plt.ylim(1e-16, 1e-7)
+plt.yscale('log')
+plt.xscale('log')
+plt.show()
+
+#plt.savefig('config1_sensitivity.png', dpi=700, transparent=True)
+
+
+
+
+energy_lst_config1 = []
+area_lst_config1 = []
+eff_lst_config1 = []
+with open ('./eff_area_config1.csv', mode='r') as f:
+    lines= f.readlines()
+    a=0
+    for line in lines:
+        if a == 0:
+            a = 1
+            continue
+        line = line.split('\n')[0]
+        energy = float(line.split(',')[0])
+        area = float(line.split(',')[1])
+        eff = float(line.split(',')[2])
+        area_eff = area*eff
+        energy_lst_old.append(energy) 
+        eff_lst_config1.append(sensitivity)
+
+    f.close()

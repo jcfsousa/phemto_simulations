@@ -2,4 +2,5 @@
 *.tra
 *.sim.gz
 *.tra.gz
-/PHEMTO/new/env-py
+*.source
+PHEMTO/v1.1/env-py/
