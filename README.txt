@@ -3,10 +3,6 @@
 Megalib Folder organization:
     .
     ├── analysis_overall
-    │   ├── config1
-    │   ├── config2
-    │   ├── config3
-    │   └── old
     ├── archive
     │   ├── v1.0
     │   └── v1.1
