@@ -1,0 +1,20 @@
+// AngerCamera detector type used for positioning capabilities
+
+
+AngerCamera				CZTcal10mm_U
+CZTcal10mm_U.SensitiveVolume		CZT_10mm
+
+CZTcal10mm_U.Positioning XY
+CZTcal10mm_U.PositionResolution		200 0.025
+
+// Use 90 for 100 kev 'classic mask mode'
+CZTcal10mm_U.TriggerThreshold			4		// values borrowed from Alex
+CZTcal10mm_U.NoiseThreshold				0.5
+
+
+CZTcal10mm_U.EnergyResolution Gauss   40    40   1.8   // values borrowed from Alex
+CZTcal10mm_U.EnergyResolution Gauss  100   100   2
+CZTcal10mm_U.EnergyResolution Gauss  500   500   2.5
+CZTcal10mm_U.EnergyResolution Gauss  1000  1000  5
+CZTcal10mm_U.EnergyResolution Gauss  2000  2000  10
+CZTcal10mm_U.EnergyResolution Gauss  5000  5000  25
