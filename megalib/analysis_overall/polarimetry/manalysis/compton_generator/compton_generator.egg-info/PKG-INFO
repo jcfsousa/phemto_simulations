@@ -1,0 +1,10 @@
+Metadata-Version: 2.1
+Name: compton_generator
+Version: 1.0
+Summary: Generates compton events and distributies the compton electron and compton photon over the 256x256 pixels. It outputs a .t3pa file
+Author-email: José Sousa <jose.sousa@coimbra.lip.pt>
+Requires-Dist: numpy
+Requires-Dist: matplotlib
+Requires-Dist: pandas
+Requires-Dist: tqdm
+Requires-Dist: pyqt6

@@ -1,0 +1,43 @@
+{
+    "config_chips": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/config/chip_config.txt",
+    "input_dir": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/input_polarimetry",
+    "sources": [
+        "pol_300keV"
+    ],
+    "sources_peaks": {
+        "HomogeneousBeam661keV_config1": [661],
+        "HomogeneousBeam206keV_config1": [206],
+        "pol_420keV": [420],
+        "pol_300keV": [300],
+        "duarte_test": [80.99, 356.01],
+        "Cs137": [661.65],
+        "Na22": [511, 1274.5],
+        "Am241": [59.54],
+        "background": [1000],
+        "Scan_DET3K10_E300kev_220umx220um_F20_5s_0deg": [300],
+        "Scan_DET3K10_E150kev_220umx220um_F38_5s_0deg": [150],
+        "Scan_DET3K10_E200kev_220umx220um_F30_5s_0deg": [200],
+        "Scan_DET3K10_E100kev_220umx220um_F51_5s_0deg": [100],
+        "Scan_DET3K10_E300kev_220umx220um_F20_5s_0deg": [300],
+        "Scan_DET3K10_E250kev_220umx220um_F25_5s_0deg": [250],
+        "test_Polarimetry_PhotonsDET3K10_250kev_10umx10um_F13_5s_3deg": [250],
+        "test_LARIX_T_4PlaneConfig_1mmx1mm_1mA_200kV_Tilt0deg": [150],
+        "test_Monochromatic_1PlaneConfig_1mmx1mm_8mA_180kV_E150keV_0deg": [150],
+        "Polarimetry_PhotonsDET3K10_200kev_10umx10um_F18_5s_0deg": [200],
+        "Polarimetry_PhotonsDET3K10_250kev_10umx10um_F13_5s_0deg": [250],
+        "Polarimetry_PhotonsDET3K10_250kev_10umx10um_F13_5s_1deg": [250],
+        "Polarimetry_PhotonsDET3K10_250kev_10umx10um_F13_5s_2deg": [250],
+        "Polarimetry_PhotonsDET3K10_250kev_10umx10um_F13_5s_3deg": [250],
+        "Polarimetry_PhotonsDET3K10_250kev_10umx10um_F13_5s_5deg": [250],
+        "Polarimetry_PhotonsDET3K10_250kev_10umx10um_F13_5s_7-5deg": [250],
+        "Polarimetry_PhotonsDET3K10_250kev_10umx10um_F13_5s_10deg": [250],
+        "Polarimetry_PhotonsDET3K10_250kev_10umx10um_F13_5s_20deg": [250],
+        "Polarimetry_PhotonsDET3K10_250kev_10umx10um_F13_5s_45deg": [250]
+        
+    },
+    "output_folder": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/output_polarimetry",
+    "abct_folder": "/home/josesousa/Documents/thor/detector/detSoftware/calibration/pp-calib/",
+    "calib_folder": "/media/josesousa/joseHard/quad_characterization/1-QuadCharacterizationResults/calib_grenoble",
+    "res_folder": "/media/josesousa/joseHard/quad_characterization/1-QuadCharacterizationResults/resolution_grenoble",
+    "scratch_folder": "/media/josesousa/joseScratch/quad_characterization"
+}

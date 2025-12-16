@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "compton_generator"
+version = "1.0"
+description = "Generates compton events and distributies the compton electron and compton photon over the 256x256 pixels. It outputs a .t3pa file"
+authors = [{ name = "José Sousa", email = "jose.sousa@coimbra.lip.pt" }]
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "pandas",  
+    "tqdm",
+    "pyqt6",        
+]
+
+[tool.setuptools.packages]
+find = {}
+
+[project.scripts]
+start = "compton_generator:main"

@@ -1,0 +1,5 @@
+./env-phemto/
+./input_polarimetry/
+*.parquet
+*.tra*
+*.sim*

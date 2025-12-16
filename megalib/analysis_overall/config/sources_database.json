@@ -1,0 +1,89 @@
+{	
+	"esrf_250kev_20deg":{
+	        "e0": [250]
+    },
+	"pol_420keV":{
+	        "e0": [420]
+    },
+	"pol_300keV":{
+	        "e0": [300]
+    },
+    "HomogeneousBeam661keV_config1":{
+        "e0": [661]
+    },
+    "HomogeneousBeam206keV_config1":{
+        "e0": [206]
+    },
+    "Ba133":{
+        "e0":[81.0, 356.0],
+        "fractions":[33.31, 62.05],
+        "fractions_err":[0.3, 0.19]
+    },
+    "Cs137":{
+        "e0":[661.7],
+        "fractions":[85.05],
+        "fractions_err":[0.29]
+    },
+    "Na22":{
+        "e0":[511.0, 1274.5],
+        "fractions":[180.7, 99.94],
+        "fractions_err":[0.2, 0.13]
+    },
+    "Am241":{
+        "e0":[59.54],
+        "fractions": [],
+        "fractions_err": []
+    },
+    "Scan_DET3K10_E100kev_220umx220um_F51_5s_0deg":{
+        "e0":[100]
+    },
+    "Scan_DET3K10_E150kev_220umx220um_F38_5s_0deg":{
+        "e0":[150]
+    },
+    "Scan_DET3K10_E200kev_220umx220um_F30_5s_0deg":{
+        "e0":[200]
+    },
+    "Scan_DET3K10_E250kev_220umx220um_F25_5s_0deg":{
+        "e0":[250]
+    },
+    "Scan_DET3K10_E300kev_220umx220um_F20_5s_0deg":{
+        "e0":[300]
+    },
+    "test_Polarimetry_PhotonsDET3K10_250kev_10umx10um_F13_5s_3deg":{
+        "e0":[250]
+    },
+    "Polarimetry_ElectronsDET3K10_E80kev_10umx10um_F32_5s":{
+        "e0":[80]
+    },
+    "test_Polarimetry_PhotonsDET3K10_200kev_10umx10um_F18_5s_45deg":{
+        "e0":[200]
+    },
+    "Ba133-col-20Fev2025":{
+        "e0":[81.0, 356.0]
+    },
+    "Polarimetry_Photons_2PlaneConfig_TopDET1F04_BotDET4K10_300kev_10umx10um_F12_5seg_0deg":{
+        "e0":[300]
+    },
+    "test_Polarimetry_PhotonsDET3K10_250kev_10umx10um_F13_5s_20deg":{
+        "e0":[250]
+    },
+    "alexandre":{
+        "e0":[140]
+    },
+    "test_2025_05_27_Co_montagemA-2_60min":{
+        "e0":[140]
+    },
+    "grenoble_tilt30_150kev":{
+        "e0":[150]
+    },
+    "grenoble_tilt60_150kev":{
+        "e0":[150]
+    },
+    "duarte_Na22_Ba133":{
+        "e0":[81, 356, 511, 1274]
+    }
+}
+
+
+
+
