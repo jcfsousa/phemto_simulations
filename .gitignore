@@ -3,4 +3,7 @@
 *.sim.gz
 *.tra.gz
 *.source
-PHEMTO/v1.1/env-py/
+*.t3pa
+*.so
+*.so*
+./megalib/analysis_overall/env-phemto/
