@@ -6,4 +6,4 @@
 *.t3pa
 *.so
 *.so*
-./megalib/analysis_overall/env-phemto/
+megalib/analysis_overall/env-phemto/
