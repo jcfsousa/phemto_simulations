@@ -1,0 +1,119 @@
+// Voxel3D detector detector type used for positioning capabilities, 1 voxel z
+
+
+Voxel3D					CdTecal_U
+CdTecal_U.SensitiveVolume		CdTe8x8
+
+CdTecal_U.VoxelNumber			512 512 1
+CdTecal_U.Offset			0 0 0
+
+// Use 90 for 100 kev 'classic mask mode'
+CdTecal_U.TriggerThreshold			4		// values borrowed from Alex
+CdTecal_U.NoiseThreshold				0.5
+
+
+CdTecal_U.EnergyResolution Gaus 4 4 0.3311      // 74e rms electronic noise
+CdTecal_U.EnergyResolution Gaus 14 14 0.3410 	// from H.Allaire D.Baudin PhD thesis
+CdTecal_U.EnergyResolution Gaus 24 24 0.3506	// fixed resolution to min 0.5%
+CdTecal_U.EnergyResolution Gaus 34 34 0.3599
+CdTecal_U.EnergyResolution Gaus 44 44 0.3690
+CdTecal_U.EnergyResolution Gaus 54 54 0.3779
+CdTecal_U.EnergyResolution Gaus 64 64 0.3865
+CdTecal_U.EnergyResolution Gaus 74 74 0.3950
+CdTecal_U.EnergyResolution Gaus 84 84 0.4033
+CdTecal_U.EnergyResolution Gaus 94 94 0.4115
+CdTecal_U.EnergyResolution Gaus 104 104 0.4194
+CdTecal_U.EnergyResolution Gaus 114 114 0.4273
+CdTecal_U.EnergyResolution Gaus 124 124 0.4350
+CdTecal_U.EnergyResolution Gaus 134 134 0.4425
+CdTecal_U.EnergyResolution Gaus 144 144 0.4499
+CdTecal_U.EnergyResolution Gaus 154 154 0.4573
+CdTecal_U.EnergyResolution Gaus 164 164 0.4644
+CdTecal_U.EnergyResolution Gaus 174 174 0.4715
+CdTecal_U.EnergyResolution Gaus 184 184 0.4785
+CdTecal_U.EnergyResolution Gaus 194 194 0.4854
+CdTecal_U.EnergyResolution Gaus 204 204 0.4922
+CdTecal_U.EnergyResolution Gaus 214 214 0.4989
+CdTecal_U.EnergyResolution Gaus 224 224 0.5055
+CdTecal_U.EnergyResolution Gaus 234 234 0.5120
+CdTecal_U.EnergyResolution Gaus 244 244 0.5191
+CdTecal_U.EnergyResolution Gaus 254 254 0.5404
+CdTecal_U.EnergyResolution Gaus 264 264 0.5617
+CdTecal_U.EnergyResolution Gaus 274 274 0.5830
+CdTecal_U.EnergyResolution Gaus 284 284 0.6043
+CdTecal_U.EnergyResolution Gaus 294 294 0.6255
+CdTecal_U.EnergyResolution Gaus 304 304 0.6468
+CdTecal_U.EnergyResolution Gaus 314 314 0.6681
+CdTecal_U.EnergyResolution Gaus 324 324 0.6894
+CdTecal_U.EnergyResolution Gaus 334 334 0.7106
+CdTecal_U.EnergyResolution Gaus 344 344 0.7319
+CdTecal_U.EnergyResolution Gaus 354 354 0.7532
+CdTecal_U.EnergyResolution Gaus 364 364 0.7745
+CdTecal_U.EnergyResolution Gaus 374 374 0.7957
+CdTecal_U.EnergyResolution Gaus 384 384 0.8170
+CdTecal_U.EnergyResolution Gaus 394 394 0.8383
+CdTecal_U.EnergyResolution Gaus 404 404 0.8596
+CdTecal_U.EnergyResolution Gaus 414 414 0.8809
+CdTecal_U.EnergyResolution Gaus 424 424 0.9021
+CdTecal_U.EnergyResolution Gaus 434 434 0.9234
+CdTecal_U.EnergyResolution Gaus 444 444 0.9447
+CdTecal_U.EnergyResolution Gaus 454 454 0.9660
+CdTecal_U.EnergyResolution Gaus 464 464 0.9872
+CdTecal_U.EnergyResolution Gaus 474 474 1.0085
+CdTecal_U.EnergyResolution Gaus 484 484 1.0298
+CdTecal_U.EnergyResolution Gaus 494 494 1.0511
+CdTecal_U.EnergyResolution Gaus 504 504 1.0723
+CdTecal_U.EnergyResolution Gaus 514 514 1.0936
+CdTecal_U.EnergyResolution Gaus 524 524 1.1149
+CdTecal_U.EnergyResolution Gaus 534 534 1.1362
+CdTecal_U.EnergyResolution Gaus 544 544 1.1574
+CdTecal_U.EnergyResolution Gaus 554 554 1.1787
+CdTecal_U.EnergyResolution Gaus 564 564 1.2000
+CdTecal_U.EnergyResolution Gaus 574 574 1.2213
+CdTecal_U.EnergyResolution Gaus 584 584 1.2426
+CdTecal_U.EnergyResolution Gaus 594 594 1.2638
+CdTecal_U.EnergyResolution Gaus 604 604 1.2851
+CdTecal_U.EnergyResolution Gaus 614 614 1.3064
+CdTecal_U.EnergyResolution Gaus 624 624 1.3277
+CdTecal_U.EnergyResolution Gaus 634 634 1.3489
+CdTecal_U.EnergyResolution Gaus 644 644 1.3702
+CdTecal_U.EnergyResolution Gaus 654 654 1.3915
+CdTecal_U.EnergyResolution Gaus 664 664 1.4128
+CdTecal_U.EnergyResolution Gaus 674 674 1.4340
+CdTecal_U.EnergyResolution Gaus 684 684 1.4553
+CdTecal_U.EnergyResolution Gaus 694 694 1.4766
+CdTecal_U.EnergyResolution Gaus 704 704 1.4979
+CdTecal_U.EnergyResolution Gaus 714 714 1.5191
+CdTecal_U.EnergyResolution Gaus 724 724 1.5404
+CdTecal_U.EnergyResolution Gaus 734 734 1.5617
+CdTecal_U.EnergyResolution Gaus 744 744 1.5830
+CdTecal_U.EnergyResolution Gaus 754 754 1.6043
+CdTecal_U.EnergyResolution Gaus 764 764 1.6255
+CdTecal_U.EnergyResolution Gaus 774 774 1.6468
+CdTecal_U.EnergyResolution Gaus 784 784 1.6681
+CdTecal_U.EnergyResolution Gaus 794 794 1.6894
+CdTecal_U.EnergyResolution Gaus 804 804 1.7106
+CdTecal_U.EnergyResolution Gaus 814 814 1.7319
+CdTecal_U.EnergyResolution Gaus 824 824 1.7532
+CdTecal_U.EnergyResolution Gaus 834 834 1.7745
+CdTecal_U.EnergyResolution Gaus 844 844 1.7957
+CdTecal_U.EnergyResolution Gaus 854 854 1.8170
+CdTecal_U.EnergyResolution Gaus 864 864 1.8383
+CdTecal_U.EnergyResolution Gaus 874 874 1.8596
+CdTecal_U.EnergyResolution Gaus 884 884 1.8809
+CdTecal_U.EnergyResolution Gaus 894 894 1.9021
+CdTecal_U.EnergyResolution Gaus 904 904 1.9234
+CdTecal_U.EnergyResolution Gaus 914 914 1.9447
+CdTecal_U.EnergyResolution Gaus 924 924 1.9660
+CdTecal_U.EnergyResolution Gaus 934 934 1.9872
+CdTecal_U.EnergyResolution Gaus 944 944 2.0085
+CdTecal_U.EnergyResolution Gaus 954 954 2.0298
+CdTecal_U.EnergyResolution Gaus 964 964 2.0511
+CdTecal_U.EnergyResolution Gaus 974 974 2.0723
+CdTecal_U.EnergyResolution Gaus 984 984 2.0936
+CdTecal_U.EnergyResolution Gaus 994 994 2.1149
+
+
+
+	     	// 74e rms electronic noise
+		// from H.Allaire D.Baudin PhD thesis

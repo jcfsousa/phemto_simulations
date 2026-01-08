@@ -43,6 +43,12 @@ CZT.ComponentByAtoms		Cd	9
 CZT.ComponentByAtoms		Zn	1
 CZT.ComponentByAtoms		Te	10
 
+Material CdTe 
+CdTe.Density					5.85 // 
+CdTe.ComponentByAtoms		Cd	1
+CdTe.ComponentByAtoms		Te	1
+
+
 // Plastic scintillator, estimated from online values for EJ-200 plastic scintillator
 // These values and this material selection needs to be checked!
 Material PlasticScin
