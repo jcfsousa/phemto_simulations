@@ -16,6 +16,41 @@ import manalysis.polarizationfits as fits
 from datetime import datetime
 from calibration.calibration import Calibration
 
+fontsize = 20
+plt.rcParams['figure.max_open_warning'] = 50
+plt.rcParams['text.usetex'] = True
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['figure.figsize'] = (8,8)
+plt.rcParams['font.size'] = fontsize
+plt.rcParams['axes.titlesize'] = fontsize + 4 
+plt.rcParams['figure.titlesize'] = fontsize + 6
+plt.rcParams['axes.labelsize'] = fontsize + 6
+plt.rcParams['axes.titlepad'] = fontsize
+plt.rcParams['axes.axisbelow'] = True
+plt.rcParams['axes.facecolor'] = 'white'
+plt.rcParams['axes.edgecolor'] = 'black'
+plt.rcParams['figure.facecolor'] = 'white'
+plt.rcParams['legend.facecolor'] = 'white'
+plt.rcParams['legend.edgecolor'] = 'black'
+plt.rcParams['legend.fancybox'] = True
+plt.rcParams['legend.fontsize'] = fontsize - 4 
+plt.rcParams['axes.labelsize'] = fontsize + 2
+plt.rcParams['xtick.labelsize'] = fontsize 
+plt.rcParams['ytick.labelsize'] = fontsize
+plt.rcParams['axes.grid'] = True
+plt.rcParams['savefig.dpi'] = 300
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
+plt.rcParams['xtick.major.size'] = fontsize*0.35
+plt.rcParams['ytick.major.size'] = fontsize*0.35
+plt.rcParams['xtick.minor.size'] = fontsize*0.175
+plt.rcParams['ytick.minor.size'] = fontsize*0.175
+plt.rcParams['xtick.major.width'] = fontsize*0.1
+plt.rcParams['ytick.major.width'] = fontsize*0.1
+plt.rcParams['xtick.minor.width'] = fontsize*0.1
+plt.rcParams['ytick.minor.width'] = fontsize*0.1
+plt.rcParams['axes.linewidth'] = fontsize/fontsize
+plt.rcParams['grid.linestyle'] = 'dotted'
 
 def integrate_flux(flux_dict, x_min, x_max):
     

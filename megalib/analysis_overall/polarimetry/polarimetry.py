@@ -24,6 +24,41 @@ import matplotlib.ticker as ticker
 from matplotlib.ticker import MaxNLocator
 from datetime import datetime
 
+fontsize = 20
+plt.rcParams['figure.max_open_warning'] = 50
+plt.rcParams['text.usetex'] = True
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['figure.figsize'] = (8,8)
+plt.rcParams['font.size'] = fontsize
+plt.rcParams['axes.titlesize'] = fontsize + 4 
+plt.rcParams['figure.titlesize'] = fontsize + 6
+plt.rcParams['axes.labelsize'] = fontsize + 6
+plt.rcParams['axes.titlepad'] = fontsize
+plt.rcParams['axes.axisbelow'] = True
+plt.rcParams['axes.facecolor'] = 'white'
+plt.rcParams['axes.edgecolor'] = 'black'
+plt.rcParams['figure.facecolor'] = 'white'
+plt.rcParams['legend.facecolor'] = 'white'
+plt.rcParams['legend.edgecolor'] = 'black'
+plt.rcParams['legend.fancybox'] = True
+plt.rcParams['legend.fontsize'] = fontsize - 4 
+plt.rcParams['axes.labelsize'] = fontsize + 2
+plt.rcParams['xtick.labelsize'] = fontsize 
+plt.rcParams['ytick.labelsize'] = fontsize
+plt.rcParams['axes.grid'] = True
+plt.rcParams['savefig.dpi'] = 300
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
+plt.rcParams['xtick.major.size'] = fontsize*0.35
+plt.rcParams['ytick.major.size'] = fontsize*0.35
+plt.rcParams['xtick.minor.size'] = fontsize*0.175
+plt.rcParams['ytick.minor.size'] = fontsize*0.175
+plt.rcParams['xtick.major.width'] = fontsize*0.1
+plt.rcParams['ytick.major.width'] = fontsize*0.1
+plt.rcParams['xtick.minor.width'] = fontsize*0.1
+plt.rcParams['ytick.minor.width'] = fontsize*0.1
+plt.rcParams['axes.linewidth'] = fontsize/fontsize
+plt.rcParams['grid.linestyle'] = 'dotted'
 
 def compute_max_dist(x_max, x_min, y_max, y_min, chip_id = 2):
     
@@ -68,7 +103,7 @@ def find_beam_location(output_folder, source, chip_id):
         for file in files:
             df = pd.read_parquet(f'{masked_folder}/{file}', columns=['X', 'Y', 'ToT (keV)', 'Overflow'])
             
-            #df = df[df['Overflow'] == chip_id]
+            df = df[df['Overflow'] == chip_id]
 
             df['X'] = abs(df['X'])
             df['Y'] = abs(df['Y'])
@@ -129,7 +164,7 @@ def perform_beam_img(output_folder_base, source, chip_id):
             df = pd.read_parquet(f'{masked_folder}/{file}', columns=['X', 'Y', 'ToT (keV)', 'Overflow'])
             print(df)
             
-            #df = df[df['Overflow'] == chip_id]
+            df = df[df['Overflow'] == chip_id]
 
             df['X'] = abs(df['X'])
             df['Y'] = abs(df['Y'])
@@ -280,17 +315,13 @@ if __name__ == '__main__':
 
     current_dir = os.getcwd()
     parent_dir = os.path.dirname(current_dir)
-
+    
+    #Ask user for what config to use
     selected_config = configlib.initialconfig(parent_dir)
-
+    
+    #Load the configuration
     specLib.global_config = specLib.Config(selected_config)
     
-    #specLib.global_config = specLib.Config(config_file)
-    
-    #automatic update the chip config on the calibration.py script (its hard coded idk why)
-    #result = subprocess.run(['./update_chip_config.sh'],text=True, input = specLib.global_config.config_chips)
-    
-
     print('Chip configuration loaded:')
     with open(specLib.global_config.config_chips) as f:
         text = f.readlines()
@@ -302,49 +333,13 @@ if __name__ == '__main__':
     input_folder = specLib.global_config.input_dir
 
    
-
-    fontsize = 20
-    plt.rcParams['figure.max_open_warning'] = 50
-    plt.rcParams['text.usetex'] = True
-    plt.rcParams['font.family'] = 'serif'
-    plt.rcParams['figure.figsize'] = (8,8)
-    plt.rcParams['font.size'] = fontsize
-    plt.rcParams['axes.titlesize'] = fontsize + 4 
-    plt.rcParams['figure.titlesize'] = fontsize + 6
-    plt.rcParams['axes.labelsize'] = fontsize + 6
-    plt.rcParams['axes.titlepad'] = fontsize
-    plt.rcParams['axes.axisbelow'] = True
-    plt.rcParams['axes.facecolor'] = 'white'
-    plt.rcParams['axes.edgecolor'] = 'black'
-    plt.rcParams['figure.facecolor'] = 'white'
-    plt.rcParams['legend.facecolor'] = 'white'
-    plt.rcParams['legend.edgecolor'] = 'black'
-    plt.rcParams['legend.fancybox'] = True
-    plt.rcParams['legend.fontsize'] = fontsize - 4 
-    plt.rcParams['axes.labelsize'] = fontsize + 2
-    plt.rcParams['xtick.labelsize'] = fontsize 
-    plt.rcParams['ytick.labelsize'] = fontsize
-    plt.rcParams['axes.grid'] = True
-    plt.rcParams['savefig.dpi'] = 300
-    plt.rcParams['xtick.direction'] = 'in'
-    plt.rcParams['ytick.direction'] = 'in'
-    plt.rcParams['xtick.major.size'] = fontsize*0.35
-    plt.rcParams['ytick.major.size'] = fontsize*0.35
-    plt.rcParams['xtick.minor.size'] = fontsize*0.175
-    plt.rcParams['ytick.minor.size'] = fontsize*0.175
-    plt.rcParams['xtick.major.width'] = fontsize*0.1
-    plt.rcParams['ytick.major.width'] = fontsize*0.1
-    plt.rcParams['xtick.minor.width'] = fontsize*0.1
-    plt.rcParams['ytick.minor.width'] = fontsize*0.1
-    plt.rcParams['axes.linewidth'] = fontsize/fontsize
-    plt.rcParams['grid.linestyle'] = 'dotted'
-
-    
-    chip = 'K10-W0060'
-    #chip = 'cdte'
+    #chip = 'K10-W0060'
+    chip = 'cdte'
     chip_id = specLib.get_chip_id(chip)
     
     print(f"At this stage we are using the chip {chip_id}, {chip}")
+    
+    # Ask User if its analysis of non-Polarized source or Polarized source
 
     #user_chips = configlib.query_user_chips() 
     #print(f"CHIPS TO USE: {user_chips}")
@@ -353,116 +348,144 @@ if __name__ == '__main__':
 
     list_max_dist = []
 
-    for source in sources:
+   # for source in sources:
 
-        data_folder = os.path.join(input_folder, source)
-        _ = None
-        calib = Calibration(output_folder_base, _)
+   #     data_folder = os.path.join(input_folder, source)
+   #     _ = None
+   #     calib = Calibration(output_folder_base, _)
 
-        #specLib.pre_process_source(source) # aslo needs to runs the multiplicity, maybe remove this and tell the user to run the pre_process.py script before running poarimetry.py 08/08/2025
-        specLib.process_event_multiplicity(source)
+   # #    specLib.pre_process_source(source) # aslo needs to runs the multiplicity, maybe remove this and tell the user to run the pre_process.py script before running poarimetry.py 08/08/2025
+   # #    specLib.process_event_multiplicity(source)
 
-        output_folder = os.path.join(output_folder_base, source)
+   #     output_folder = os.path.join(output_folder_base, source)
 
-        source_peaks = specLib.global_config.sources_peaks
+   #     source_peaks = specLib.global_config.sources_peaks
 
-        try:
-            peak_energy_list = source_peaks[source]['e0']
-        except:
-            print("ERROR: Please provide the source theoretical peak energy to perform polarimetry. Put it on the /config folder sources_database.json file")
-            sys.exit(1)
+   #     try:
+   #         peak_energy_list = source_peaks[source]['e0']
+   #     except:
+   #         print("ERROR: Please provide the source theoretical peak energy to perform polarimetry. Put it on the /config folder sources_database.json file")
+   #         sys.exit(1)
 
-        print(f"going to run source: {sources}")
+   #     print(f"going to run source: {sources}")
 
-    
-        print("Performing beam image....")
-        #try:
-        perform_beam_img(output_folder_base, source, chip_id)
-        #    print("Done....")
-        #except Exception as e:
-        #    print(f"WARNING: Did not perform beam energy, probably too little statistics. {e}")
+   # 
+   #     print("Performing beam image....")
+   #     #try:
+   #     perform_beam_img(output_folder_base, source, chip_id)
+   #     #    print("Done....")
+   #     #except Exception as e:
+   #     #    print(f"WARNING: Did not perform beam energy, probably too little statistics. {e}")
 
-        print("Localizing beam position....")
-        try:
-            x_max, x_min, y_max, y_min = find_beam_location(output_folder_base, source, chip_id)
-            print("Done....")
-        except Exception as e:
-            print(f"WARNING: Was not able to localize the beam. {e}")
-            user_awns_beam_pos = input(f"Do you want to give expected beam position, pixel number? y/n \n")
-            if user_awns_beam_pos == 'y':
-                x_min = int(input(" x_pix_min: "))
-                x_max = int(input(" x_pix_max: "))
-                y_min = int(input(" y_pix_min: "))
-                y_max = int(input(" x_pix_max: "))
-            else:
-                print('Provide more statistics then... goodbye...')
-                sys.exit(1)
+   #     print("Localizing beam position....")
+   #     try:
+   #         x_max, x_min, y_max, y_min = find_beam_location(output_folder_base, source, chip_id)
+   #         print("Done....")
+   #     except Exception as e:
+   #         print(f"WARNING: Was not able to localize the beam. {e}")
+   #         user_awns_beam_pos = input(f"Do you want to give expected beam position, pixel number? y/n \n")
+   #         if user_awns_beam_pos == 'y':
+   #             x_min = int(input(" x_pix_min: "))
+   #             x_max = int(input(" x_pix_max: "))
+   #             y_min = int(input(" y_pix_min: "))
+   #             y_max = int(input(" x_pix_max: "))
+   #         else:
+   #             print('Provide more statistics then... goodbye...')
+   #             sys.exit(1)
 
-        print("Computing max distance of Compton interaction")
-        max_dist_computed = compute_max_dist(x_max, x_min, y_max, y_min, chip_id = chip_id) 
-        print(f'ssssssssshit: {max_dist_computed}')
-        print("Done....")
+   #     print("Computing max distance of Compton interaction")
+   #     max_dist_computed = compute_max_dist(x_max, x_min, y_max, y_min, chip_id = chip_id) 
+   #     print(f'ssssssssshit: {max_dist_computed}')
+   #     print("Done....")
 
-        list_max_dist.append(max_dist_computed)
+    #    list_max_dist.append(max_dist_computed)
 
-    print(list_max_dist)
-    print(f'min max dist = {min(list_max_dist)}')
-    minimum_maxdist = min(list_max_dist)
+    #print(list_max_dist)
+    #print(f'min max dist = {min(list_max_dist)}')
+    #minimum_maxdist = min(list_max_dist)
 
     
 
     #minimum_maxdist = 4.18 ## just running it once for 100kev, delete after
+
+    print(f"going to run source: {sources}")
+
     for source in sources:
-        for energy in peak_energy_list:
-    
-            energy = float(energy)
 
-            data_folder = os.path.join(input_folder, source)
-            _ = None
-            calib = Calibration(output_folder_base, _)
+        print(source)
+        
+        energy = float(compton.get_energy_from_source_name(source))
 
-            args = (source, output_folder_base, sources_peaks)
-            #specLib.pre_process_source(source) # aslo needs to runs the multiplicity, maybe remove this and tell the user to run the pre_process.py script before running poarimetry.py 08/08/2025
-            specLib.process_event_multiplicity(source)
-
-            output_folder = os.path.join(output_folder_base, source)
-
-            print(f"going to run source: {sources}")
+        pol_type = compton.get_pol_type_from_source_name(source)
+        if pol_type == 'NonPol':
+            continue
+        source_pol = source
+        source_Nonpol = source.replace('Pol', 'NonPol')
 
 
-            min_dist_start = 0.1  # cm
-            min_dist_end = 0.125      # cm
-            min_dist_step = 0.025
+        folder_input_polarimetry_pol = os.path.join(output_folder_base, source_pol)
+        folder_input_polarimetry_Nonpol = os.path.join(output_folder_base, source_Nonpol)
 
-            min_dist_list = list(np.arange(min_dist_start, min_dist_end + min_dist_step , min_dist_step))
-            #angle_bin_list = [x for x in range(1, 2) if 360 % x == 0]
-            angle_bin_list = [5]
-            max_dist_list = [2,2.1]
-            max_dist_list = np.round(max_dist_list, 3)
+        result_polarimetry_base = os.path.join(output_folder_base, 'result_polarimetry')
+        pathlib.creat_dir(result_polarimetry_base)
+        
+        source_analysis = source.replace('Pol', '')
 
-            max_dist_on_list = max_dist_list[-1]
-
-            print(f'iterations: {len(min_dist_list)*len(angle_bin_list)}')
+        result_polarimetry = os.path.join(result_polarimetry_base, source_analysis)
+        pathlib.creat_dir(result_polarimetry)
 
 
-            compton.identify_compton(source, energy)
-           
-            print('Counting events.... wait')
-            compton.count_nEvents_allTypes(output_folder, energy, chip)
+        # Detectors geometry constants depending on HED geometry
+        # CdTe
+        z_cdte = -float((source.split("_")[-1]).split('c')[0]) #distance form source name, negative value
+        cdte_matrix = int((source.split("_")[1]).split('x')[-1])   # cdte matrix from source name, ex:GaussBeamPol50keV_config4x4_0.5cm
+        cdte_single_det_size = 1.6 # 1.6x1.6 cm2
+        cdte_detSize = cdte_single_det_size * cdte_matrix # cm
+        cdte_pixSize = 0.025 # cm
+        # Si
+        z_si = 0 # position of Si detector
+        si_detSize = 6.656 # cm
+        si_pixSize = 0.013 # cm
+        #############################
 
-            polarimetry_task = [(min_dist, angle_bin, output_folder, energy, chip, max_dist) for min_dist, angle_bin, max_dist in product(min_dist_list, angle_bin_list, max_dist_list)]
-            #with Pool() as pool:
-            #    for _ in tqdm(pool.imap_unordered(compton.polarimetry_task, polarimetry_task), total=len(polarimetry_task), desc='Compton Polarimetry'):
-            #        pass
-            for task in tqdm(polarimetry_task,
-                             total=len(polarimetry_task),
-                             desc='Compton Polarimetry'):
-                compton.polarimetry_task(task)
-            #max_merit, best_min_dist, best_angle_bin, sigma_max_merit = compton.plot_figureMeritMap(output_folder, min_dist_list, angle_bin_list, max_dist_list)
-            
-            #print(f'best_min_dist: {best_min_dist}')
-            #print(f'best_angle_bin: {best_angle_bin}')
-            #print(f'max_merit: {max_merit}')
+        # Polarimetry constants
+        min_dist_list = [0.025, 0.05, 0.075]
+        angle_bin_list = [1, 5, 10, 15, 36]  #bin size for polarimetry
+        max_dist_list = [100000]  # max dist between compton events, cm
+        max_dist_list = np.round(max_dist_list, 3)
+        max_dist_on_list = max_dist_list[-1]
+        #############################
+
+
+        calib = Calibration(output_folder_base, None) # useless remove this feature, past artfact...
+        
+        # Identify single, double and multiple, identify event multiplicity (spacial cluster)
+        specLib.pre_process_source(source_pol) 
+        specLib.pre_process_source(source_Nonpol)
+
+        specLib.process_event_multiplicity(source_pol) # writes multiplicity .parquets
+        specLib.process_event_multiplicity(source_Nonpol) # writes multiplicity .parquets
+
+        compton.identify_compton(source_pol, energy, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize)
+        compton.identify_compton(source_Nonpol, energy, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize)
+       
+        print('Counting events.... wait')
+        compton.count_nEvents_allTypes(folder_input_polarimetry_pol, energy, chip)
+        compton.count_nEvents_allTypes(folder_input_polarimetry_Nonpol, energy, chip)
+
+        polarimetry_task = [(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, min_dist, angle_bin, energy, max_dist, z_cdte, z_si, cdte_detSize, si_detSize) for min_dist, angle_bin, max_dist in product(min_dist_list, angle_bin_list, max_dist_list)]
+        #with Pool() as pool:
+        #    for _ in tqdm(pool.imap_unordered(compton.polarimetry_task, polarimetry_task), total=len(polarimetry_task), desc='Compton Polarimetry'):
+        #        pass
+        for task in tqdm(polarimetry_task,
+                         total=len(polarimetry_task),
+                         desc='Compton Polarimetry'):
+            compton.polarimetry_task(task)
+        #max_merit, best_min_dist, best_angle_bin, sigma_max_merit = compton.plot_figureMeritMap(output_folder, min_dist_list, angle_bin_list, max_dist_list)
+        
+        #print(f'best_min_dist: {best_min_dist}')
+        #print(f'best_angle_bin: {best_angle_bin}')
+        #print(f'max_merit: {max_merit}')
 
 
     #compton.plot_rotationMeasurements(output_folder_base, sources, [0.55], [1])

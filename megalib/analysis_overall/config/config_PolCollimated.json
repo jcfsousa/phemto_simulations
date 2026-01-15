@@ -1,0 +1,1293 @@
+{
+  "config_chips": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/config/chip_config.txt",
+  "input_dir": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/input_polarimetry",
+  "sources": [
+    "CollimatedBeamPol50keV_config4x4_0.5cm",
+    "CollimatedBeamPol100keV_config4x4_0.5cm",
+    "CollimatedBeamPol200keV_config4x4_0.5cm",
+    "CollimatedBeamPol300keV_config4x4_0.5cm",
+    "CollimatedBeamPol400keV_config4x4_0.5cm",
+    "CollimatedBeamPol500keV_config4x4_0.5cm",
+    "CollimatedBeamPol600keV_config4x4_0.5cm",
+    "CollimatedBeamPol700keV_config4x4_0.5cm",
+    "CollimatedBeamPol50keV_config4x4_1.5cm",
+    "CollimatedBeamPol100keV_config4x4_1.5cm",
+    "CollimatedBeamPol200keV_config4x4_1.5cm",
+    "CollimatedBeamPol300keV_config4x4_1.5cm",
+    "CollimatedBeamPol400keV_config4x4_1.5cm",
+    "CollimatedBeamPol500keV_config4x4_1.5cm",
+    "CollimatedBeamPol600keV_config4x4_1.5cm",
+    "CollimatedBeamPol700keV_config4x4_1.5cm",
+    "CollimatedBeamPol50keV_config4x4_2.5cm",
+    "CollimatedBeamPol100keV_config4x4_2.5cm",
+    "CollimatedBeamPol200keV_config4x4_2.5cm",
+    "CollimatedBeamPol300keV_config4x4_2.5cm",
+    "CollimatedBeamPol400keV_config4x4_2.5cm",
+    "CollimatedBeamPol500keV_config4x4_2.5cm",
+    "CollimatedBeamPol600keV_config4x4_2.5cm",
+    "CollimatedBeamPol700keV_config4x4_2.5cm",
+    "CollimatedBeamPol50keV_config4x4_3.5cm",
+    "CollimatedBeamPol100keV_config4x4_3.5cm",
+    "CollimatedBeamPol200keV_config4x4_3.5cm",
+    "CollimatedBeamPol300keV_config4x4_3.5cm",
+    "CollimatedBeamPol400keV_config4x4_3.5cm",
+    "CollimatedBeamPol500keV_config4x4_3.5cm",
+    "CollimatedBeamPol600keV_config4x4_3.5cm",
+    "CollimatedBeamPol700keV_config4x4_3.5cm",
+    "CollimatedBeamPol50keV_config4x4_4.5cm",
+    "CollimatedBeamPol100keV_config4x4_4.5cm",
+    "CollimatedBeamPol200keV_config4x4_4.5cm",
+    "CollimatedBeamPol300keV_config4x4_4.5cm",
+    "CollimatedBeamPol400keV_config4x4_4.5cm",
+    "CollimatedBeamPol500keV_config4x4_4.5cm",
+    "CollimatedBeamPol600keV_config4x4_4.5cm",
+    "CollimatedBeamPol700keV_config4x4_4.5cm",
+    "CollimatedBeamPol50keV_config4x4_5.5cm",
+    "CollimatedBeamPol100keV_config4x4_5.5cm",
+    "CollimatedBeamPol200keV_config4x4_5.5cm",
+    "CollimatedBeamPol300keV_config4x4_5.5cm",
+    "CollimatedBeamPol400keV_config4x4_5.5cm",
+    "CollimatedBeamPol500keV_config4x4_5.5cm",
+    "CollimatedBeamPol600keV_config4x4_5.5cm",
+    "CollimatedBeamPol700keV_config4x4_5.5cm",
+    "CollimatedBeamPol50keV_config4x4_6.5cm",
+    "CollimatedBeamPol100keV_config4x4_6.5cm",
+    "CollimatedBeamPol200keV_config4x4_6.5cm",
+    "CollimatedBeamPol300keV_config4x4_6.5cm",
+    "CollimatedBeamPol400keV_config4x4_6.5cm",
+    "CollimatedBeamPol500keV_config4x4_6.5cm",
+    "CollimatedBeamPol600keV_config4x4_6.5cm",
+    "CollimatedBeamPol700keV_config4x4_6.5cm",
+    "CollimatedBeamPol50keV_config4x4_7.5cm",
+    "CollimatedBeamPol100keV_config4x4_7.5cm",
+    "CollimatedBeamPol200keV_config4x4_7.5cm",
+    "CollimatedBeamPol300keV_config4x4_7.5cm",
+    "CollimatedBeamPol400keV_config4x4_7.5cm",
+    "CollimatedBeamPol500keV_config4x4_7.5cm",
+    "CollimatedBeamPol600keV_config4x4_7.5cm",
+    "CollimatedBeamPol700keV_config4x4_7.5cm",
+    "CollimatedBeamPol50keV_config4x4_8.5cm",
+    "CollimatedBeamPol100keV_config4x4_8.5cm",
+    "CollimatedBeamPol200keV_config4x4_8.5cm",
+    "CollimatedBeamPol300keV_config4x4_8.5cm",
+    "CollimatedBeamPol400keV_config4x4_8.5cm",
+    "CollimatedBeamPol500keV_config4x4_8.5cm",
+    "CollimatedBeamPol600keV_config4x4_8.5cm",
+    "CollimatedBeamPol700keV_config4x4_8.5cm",
+    "CollimatedBeamPol50keV_config4x4_9.5cm",
+    "CollimatedBeamPol100keV_config4x4_9.5cm",
+    "CollimatedBeamPol200keV_config4x4_9.5cm",
+    "CollimatedBeamPol300keV_config4x4_9.5cm",
+    "CollimatedBeamPol400keV_config4x4_9.5cm",
+    "CollimatedBeamPol500keV_config4x4_9.5cm",
+    "CollimatedBeamPol600keV_config4x4_9.5cm",
+    "CollimatedBeamPol700keV_config4x4_9.5cm",
+    "CollimatedBeamPol50keV_config5x5_0.5cm",
+    "CollimatedBeamPol100keV_config5x5_0.5cm",
+    "CollimatedBeamPol200keV_config5x5_0.5cm",
+    "CollimatedBeamPol300keV_config5x5_0.5cm",
+    "CollimatedBeamPol400keV_config5x5_0.5cm",
+    "CollimatedBeamPol500keV_config5x5_0.5cm",
+    "CollimatedBeamPol600keV_config5x5_0.5cm",
+    "CollimatedBeamPol700keV_config5x5_0.5cm",
+    "CollimatedBeamPol50keV_config5x5_1.5cm",
+    "CollimatedBeamPol100keV_config5x5_1.5cm",
+    "CollimatedBeamPol200keV_config5x5_1.5cm",
+    "CollimatedBeamPol300keV_config5x5_1.5cm",
+    "CollimatedBeamPol400keV_config5x5_1.5cm",
+    "CollimatedBeamPol500keV_config5x5_1.5cm",
+    "CollimatedBeamPol600keV_config5x5_1.5cm",
+    "CollimatedBeamPol700keV_config5x5_1.5cm",
+    "CollimatedBeamPol50keV_config5x5_2.5cm",
+    "CollimatedBeamPol100keV_config5x5_2.5cm",
+    "CollimatedBeamPol200keV_config5x5_2.5cm",
+    "CollimatedBeamPol300keV_config5x5_2.5cm",
+    "CollimatedBeamPol400keV_config5x5_2.5cm",
+    "CollimatedBeamPol500keV_config5x5_2.5cm",
+    "CollimatedBeamPol600keV_config5x5_2.5cm",
+    "CollimatedBeamPol700keV_config5x5_2.5cm",
+    "CollimatedBeamPol50keV_config5x5_3.5cm",
+    "CollimatedBeamPol100keV_config5x5_3.5cm",
+    "CollimatedBeamPol200keV_config5x5_3.5cm",
+    "CollimatedBeamPol300keV_config5x5_3.5cm",
+    "CollimatedBeamPol400keV_config5x5_3.5cm",
+    "CollimatedBeamPol500keV_config5x5_3.5cm",
+    "CollimatedBeamPol600keV_config5x5_3.5cm",
+    "CollimatedBeamPol700keV_config5x5_3.5cm",
+    "CollimatedBeamPol50keV_config5x5_4.5cm",
+    "CollimatedBeamPol100keV_config5x5_4.5cm",
+    "CollimatedBeamPol200keV_config5x5_4.5cm",
+    "CollimatedBeamPol300keV_config5x5_4.5cm",
+    "CollimatedBeamPol400keV_config5x5_4.5cm",
+    "CollimatedBeamPol500keV_config5x5_4.5cm",
+    "CollimatedBeamPol600keV_config5x5_4.5cm",
+    "CollimatedBeamPol700keV_config5x5_4.5cm",
+    "CollimatedBeamPol50keV_config5x5_5.5cm",
+    "CollimatedBeamPol100keV_config5x5_5.5cm",
+    "CollimatedBeamPol200keV_config5x5_5.5cm",
+    "CollimatedBeamPol300keV_config5x5_5.5cm",
+    "CollimatedBeamPol400keV_config5x5_5.5cm",
+    "CollimatedBeamPol500keV_config5x5_5.5cm",
+    "CollimatedBeamPol600keV_config5x5_5.5cm",
+    "CollimatedBeamPol700keV_config5x5_5.5cm",
+    "CollimatedBeamPol50keV_config5x5_6.5cm",
+    "CollimatedBeamPol100keV_config5x5_6.5cm",
+    "CollimatedBeamPol200keV_config5x5_6.5cm",
+    "CollimatedBeamPol300keV_config5x5_6.5cm",
+    "CollimatedBeamPol400keV_config5x5_6.5cm",
+    "CollimatedBeamPol500keV_config5x5_6.5cm",
+    "CollimatedBeamPol600keV_config5x5_6.5cm",
+    "CollimatedBeamPol700keV_config5x5_6.5cm",
+    "CollimatedBeamPol50keV_config5x5_7.5cm",
+    "CollimatedBeamPol100keV_config5x5_7.5cm",
+    "CollimatedBeamPol200keV_config5x5_7.5cm",
+    "CollimatedBeamPol300keV_config5x5_7.5cm",
+    "CollimatedBeamPol400keV_config5x5_7.5cm",
+    "CollimatedBeamPol500keV_config5x5_7.5cm",
+    "CollimatedBeamPol600keV_config5x5_7.5cm",
+    "CollimatedBeamPol700keV_config5x5_7.5cm",
+    "CollimatedBeamPol50keV_config5x5_8.5cm",
+    "CollimatedBeamPol100keV_config5x5_8.5cm",
+    "CollimatedBeamPol200keV_config5x5_8.5cm",
+    "CollimatedBeamPol300keV_config5x5_8.5cm",
+    "CollimatedBeamPol400keV_config5x5_8.5cm",
+    "CollimatedBeamPol500keV_config5x5_8.5cm",
+    "CollimatedBeamPol600keV_config5x5_8.5cm",
+    "CollimatedBeamPol700keV_config5x5_8.5cm",
+    "CollimatedBeamPol50keV_config5x5_9.5cm",
+    "CollimatedBeamPol100keV_config5x5_9.5cm",
+    "CollimatedBeamPol200keV_config5x5_9.5cm",
+    "CollimatedBeamPol300keV_config5x5_9.5cm",
+    "CollimatedBeamPol400keV_config5x5_9.5cm",
+    "CollimatedBeamPol500keV_config5x5_9.5cm",
+    "CollimatedBeamPol600keV_config5x5_9.5cm",
+    "CollimatedBeamPol700keV_config5x5_9.5cm",
+    "CollimatedBeamPol50keV_config6x6_0.5cm",
+    "CollimatedBeamPol100keV_config6x6_0.5cm",
+    "CollimatedBeamPol200keV_config6x6_0.5cm",
+    "CollimatedBeamPol300keV_config6x6_0.5cm",
+    "CollimatedBeamPol400keV_config6x6_0.5cm",
+    "CollimatedBeamPol500keV_config6x6_0.5cm",
+    "CollimatedBeamPol600keV_config6x6_0.5cm",
+    "CollimatedBeamPol700keV_config6x6_0.5cm",
+    "CollimatedBeamPol50keV_config6x6_1.5cm",
+    "CollimatedBeamPol100keV_config6x6_1.5cm",
+    "CollimatedBeamPol200keV_config6x6_1.5cm",
+    "CollimatedBeamPol300keV_config6x6_1.5cm",
+    "CollimatedBeamPol400keV_config6x6_1.5cm",
+    "CollimatedBeamPol500keV_config6x6_1.5cm",
+    "CollimatedBeamPol600keV_config6x6_1.5cm",
+    "CollimatedBeamPol700keV_config6x6_1.5cm",
+    "CollimatedBeamPol50keV_config6x6_2.5cm",
+    "CollimatedBeamPol100keV_config6x6_2.5cm",
+    "CollimatedBeamPol200keV_config6x6_2.5cm",
+    "CollimatedBeamPol300keV_config6x6_2.5cm",
+    "CollimatedBeamPol400keV_config6x6_2.5cm",
+    "CollimatedBeamPol500keV_config6x6_2.5cm",
+    "CollimatedBeamPol600keV_config6x6_2.5cm",
+    "CollimatedBeamPol700keV_config6x6_2.5cm",
+    "CollimatedBeamPol50keV_config6x6_3.5cm",
+    "CollimatedBeamPol100keV_config6x6_3.5cm",
+    "CollimatedBeamPol200keV_config6x6_3.5cm",
+    "CollimatedBeamPol300keV_config6x6_3.5cm",
+    "CollimatedBeamPol400keV_config6x6_3.5cm",
+    "CollimatedBeamPol500keV_config6x6_3.5cm",
+    "CollimatedBeamPol600keV_config6x6_3.5cm",
+    "CollimatedBeamPol700keV_config6x6_3.5cm",
+    "CollimatedBeamPol50keV_config6x6_4.5cm",
+    "CollimatedBeamPol100keV_config6x6_4.5cm",
+    "CollimatedBeamPol200keV_config6x6_4.5cm",
+    "CollimatedBeamPol300keV_config6x6_4.5cm",
+    "CollimatedBeamPol400keV_config6x6_4.5cm",
+    "CollimatedBeamPol500keV_config6x6_4.5cm",
+    "CollimatedBeamPol600keV_config6x6_4.5cm",
+    "CollimatedBeamPol700keV_config6x6_4.5cm",
+    "CollimatedBeamPol50keV_config6x6_5.5cm",
+    "CollimatedBeamPol100keV_config6x6_5.5cm",
+    "CollimatedBeamPol200keV_config6x6_5.5cm",
+    "CollimatedBeamPol300keV_config6x6_5.5cm",
+    "CollimatedBeamPol400keV_config6x6_5.5cm",
+    "CollimatedBeamPol500keV_config6x6_5.5cm",
+    "CollimatedBeamPol600keV_config6x6_5.5cm",
+    "CollimatedBeamPol700keV_config6x6_5.5cm",
+    "CollimatedBeamPol50keV_config6x6_6.5cm",
+    "CollimatedBeamPol100keV_config6x6_6.5cm",
+    "CollimatedBeamPol200keV_config6x6_6.5cm",
+    "CollimatedBeamPol300keV_config6x6_6.5cm",
+    "CollimatedBeamPol400keV_config6x6_6.5cm",
+    "CollimatedBeamPol500keV_config6x6_6.5cm",
+    "CollimatedBeamPol600keV_config6x6_6.5cm",
+    "CollimatedBeamPol700keV_config6x6_6.5cm",
+    "CollimatedBeamPol50keV_config6x6_7.5cm",
+    "CollimatedBeamPol100keV_config6x6_7.5cm",
+    "CollimatedBeamPol200keV_config6x6_7.5cm",
+    "CollimatedBeamPol300keV_config6x6_7.5cm",
+    "CollimatedBeamPol400keV_config6x6_7.5cm",
+    "CollimatedBeamPol500keV_config6x6_7.5cm",
+    "CollimatedBeamPol600keV_config6x6_7.5cm",
+    "CollimatedBeamPol700keV_config6x6_7.5cm",
+    "CollimatedBeamPol50keV_config6x6_8.5cm",
+    "CollimatedBeamPol100keV_config6x6_8.5cm",
+    "CollimatedBeamPol200keV_config6x6_8.5cm",
+    "CollimatedBeamPol300keV_config6x6_8.5cm",
+    "CollimatedBeamPol400keV_config6x6_8.5cm",
+    "CollimatedBeamPol500keV_config6x6_8.5cm",
+    "CollimatedBeamPol600keV_config6x6_8.5cm",
+    "CollimatedBeamPol700keV_config6x6_8.5cm",
+    "CollimatedBeamPol50keV_config6x6_9.5cm",
+    "CollimatedBeamPol100keV_config6x6_9.5cm",
+    "CollimatedBeamPol200keV_config6x6_9.5cm",
+    "CollimatedBeamPol300keV_config6x6_9.5cm",
+    "CollimatedBeamPol400keV_config6x6_9.5cm",
+    "CollimatedBeamPol500keV_config6x6_9.5cm",
+    "CollimatedBeamPol600keV_config6x6_9.5cm",
+    "CollimatedBeamPol700keV_config6x6_9.5cm",
+    "CollimatedBeamPol50keV_config7x7_0.5cm",
+    "CollimatedBeamPol100keV_config7x7_0.5cm",
+    "CollimatedBeamPol200keV_config7x7_0.5cm",
+    "CollimatedBeamPol300keV_config7x7_0.5cm",
+    "CollimatedBeamPol400keV_config7x7_0.5cm",
+    "CollimatedBeamPol500keV_config7x7_0.5cm",
+    "CollimatedBeamPol600keV_config7x7_0.5cm",
+    "CollimatedBeamPol700keV_config7x7_0.5cm",
+    "CollimatedBeamPol50keV_config7x7_1.5cm",
+    "CollimatedBeamPol100keV_config7x7_1.5cm",
+    "CollimatedBeamPol200keV_config7x7_1.5cm",
+    "CollimatedBeamPol300keV_config7x7_1.5cm",
+    "CollimatedBeamPol400keV_config7x7_1.5cm",
+    "CollimatedBeamPol500keV_config7x7_1.5cm",
+    "CollimatedBeamPol600keV_config7x7_1.5cm",
+    "CollimatedBeamPol700keV_config7x7_1.5cm",
+    "CollimatedBeamPol50keV_config7x7_2.5cm",
+    "CollimatedBeamPol100keV_config7x7_2.5cm",
+    "CollimatedBeamPol200keV_config7x7_2.5cm",
+    "CollimatedBeamPol300keV_config7x7_2.5cm",
+    "CollimatedBeamPol400keV_config7x7_2.5cm",
+    "CollimatedBeamPol500keV_config7x7_2.5cm",
+    "CollimatedBeamPol600keV_config7x7_2.5cm",
+    "CollimatedBeamPol700keV_config7x7_2.5cm",
+    "CollimatedBeamPol50keV_config7x7_3.5cm",
+    "CollimatedBeamPol100keV_config7x7_3.5cm",
+    "CollimatedBeamPol200keV_config7x7_3.5cm",
+    "CollimatedBeamPol300keV_config7x7_3.5cm",
+    "CollimatedBeamPol400keV_config7x7_3.5cm",
+    "CollimatedBeamPol500keV_config7x7_3.5cm",
+    "CollimatedBeamPol600keV_config7x7_3.5cm",
+    "CollimatedBeamPol700keV_config7x7_3.5cm",
+    "CollimatedBeamPol50keV_config7x7_4.5cm",
+    "CollimatedBeamPol100keV_config7x7_4.5cm",
+    "CollimatedBeamPol200keV_config7x7_4.5cm",
+    "CollimatedBeamPol300keV_config7x7_4.5cm",
+    "CollimatedBeamPol400keV_config7x7_4.5cm",
+    "CollimatedBeamPol500keV_config7x7_4.5cm",
+    "CollimatedBeamPol600keV_config7x7_4.5cm",
+    "CollimatedBeamPol700keV_config7x7_4.5cm",
+    "CollimatedBeamPol50keV_config7x7_5.5cm",
+    "CollimatedBeamPol100keV_config7x7_5.5cm",
+    "CollimatedBeamPol200keV_config7x7_5.5cm",
+    "CollimatedBeamPol300keV_config7x7_5.5cm",
+    "CollimatedBeamPol400keV_config7x7_5.5cm",
+    "CollimatedBeamPol500keV_config7x7_5.5cm",
+    "CollimatedBeamPol600keV_config7x7_5.5cm",
+    "CollimatedBeamPol700keV_config7x7_5.5cm",
+    "CollimatedBeamPol50keV_config7x7_6.5cm",
+    "CollimatedBeamPol100keV_config7x7_6.5cm",
+    "CollimatedBeamPol200keV_config7x7_6.5cm",
+    "CollimatedBeamPol300keV_config7x7_6.5cm",
+    "CollimatedBeamPol400keV_config7x7_6.5cm",
+    "CollimatedBeamPol500keV_config7x7_6.5cm",
+    "CollimatedBeamPol600keV_config7x7_6.5cm",
+    "CollimatedBeamPol700keV_config7x7_6.5cm",
+    "CollimatedBeamPol50keV_config7x7_7.5cm",
+    "CollimatedBeamPol100keV_config7x7_7.5cm",
+    "CollimatedBeamPol200keV_config7x7_7.5cm",
+    "CollimatedBeamPol300keV_config7x7_7.5cm",
+    "CollimatedBeamPol400keV_config7x7_7.5cm",
+    "CollimatedBeamPol500keV_config7x7_7.5cm",
+    "CollimatedBeamPol600keV_config7x7_7.5cm",
+    "CollimatedBeamPol700keV_config7x7_7.5cm",
+    "CollimatedBeamPol50keV_config7x7_8.5cm",
+    "CollimatedBeamPol100keV_config7x7_8.5cm",
+    "CollimatedBeamPol200keV_config7x7_8.5cm",
+    "CollimatedBeamPol300keV_config7x7_8.5cm",
+    "CollimatedBeamPol400keV_config7x7_8.5cm",
+    "CollimatedBeamPol500keV_config7x7_8.5cm",
+    "CollimatedBeamPol600keV_config7x7_8.5cm",
+    "CollimatedBeamPol700keV_config7x7_8.5cm",
+    "CollimatedBeamPol50keV_config7x7_9.5cm",
+    "CollimatedBeamPol100keV_config7x7_9.5cm",
+    "CollimatedBeamPol200keV_config7x7_9.5cm",
+    "CollimatedBeamPol300keV_config7x7_9.5cm",
+    "CollimatedBeamPol400keV_config7x7_9.5cm",
+    "CollimatedBeamPol500keV_config7x7_9.5cm",
+    "CollimatedBeamPol600keV_config7x7_9.5cm",
+    "CollimatedBeamPol700keV_config7x7_9.5cm"
+  ],
+  "sources_peaks": {
+    "CollimatedBeamPol50keV_config4x4_0.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config4x4_0.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config4x4_0.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config4x4_0.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config4x4_0.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config4x4_0.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config4x4_0.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config4x4_0.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config4x4_1.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config4x4_1.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config4x4_1.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config4x4_1.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config4x4_1.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config4x4_1.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config4x4_1.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config4x4_1.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config4x4_2.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config4x4_2.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config4x4_2.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config4x4_2.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config4x4_2.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config4x4_2.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config4x4_2.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config4x4_2.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config4x4_3.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config4x4_3.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config4x4_3.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config4x4_3.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config4x4_3.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config4x4_3.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config4x4_3.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config4x4_3.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config4x4_4.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config4x4_4.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config4x4_4.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config4x4_4.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config4x4_4.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config4x4_4.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config4x4_4.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config4x4_4.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config4x4_5.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config4x4_5.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config4x4_5.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config4x4_5.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config4x4_5.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config4x4_5.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config4x4_5.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config4x4_5.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config4x4_6.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config4x4_6.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config4x4_6.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config4x4_6.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config4x4_6.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config4x4_6.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config4x4_6.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config4x4_6.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config4x4_7.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config4x4_7.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config4x4_7.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config4x4_7.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config4x4_7.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config4x4_7.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config4x4_7.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config4x4_7.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config4x4_8.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config4x4_8.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config4x4_8.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config4x4_8.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config4x4_8.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config4x4_8.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config4x4_8.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config4x4_8.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config4x4_9.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config4x4_9.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config4x4_9.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config4x4_9.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config4x4_9.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config4x4_9.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config4x4_9.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config4x4_9.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config5x5_0.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config5x5_0.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config5x5_0.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config5x5_0.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config5x5_0.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config5x5_0.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config5x5_0.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config5x5_0.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config5x5_1.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config5x5_1.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config5x5_1.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config5x5_1.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config5x5_1.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config5x5_1.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config5x5_1.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config5x5_1.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config5x5_2.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config5x5_2.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config5x5_2.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config5x5_2.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config5x5_2.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config5x5_2.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config5x5_2.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config5x5_2.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config5x5_3.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config5x5_3.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config5x5_3.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config5x5_3.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config5x5_3.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config5x5_3.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config5x5_3.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config5x5_3.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config5x5_4.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config5x5_4.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config5x5_4.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config5x5_4.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config5x5_4.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config5x5_4.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config5x5_4.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config5x5_4.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config5x5_5.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config5x5_5.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config5x5_5.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config5x5_5.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config5x5_5.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config5x5_5.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config5x5_5.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config5x5_5.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config5x5_6.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config5x5_6.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config5x5_6.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config5x5_6.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config5x5_6.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config5x5_6.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config5x5_6.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config5x5_6.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config5x5_7.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config5x5_7.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config5x5_7.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config5x5_7.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config5x5_7.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config5x5_7.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config5x5_7.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config5x5_7.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config5x5_8.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config5x5_8.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config5x5_8.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config5x5_8.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config5x5_8.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config5x5_8.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config5x5_8.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config5x5_8.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config5x5_9.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config5x5_9.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config5x5_9.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config5x5_9.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config5x5_9.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config5x5_9.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config5x5_9.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config5x5_9.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config6x6_0.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config6x6_0.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config6x6_0.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config6x6_0.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config6x6_0.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config6x6_0.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config6x6_0.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config6x6_0.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config6x6_1.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config6x6_1.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config6x6_1.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config6x6_1.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config6x6_1.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config6x6_1.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config6x6_1.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config6x6_1.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config6x6_2.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config6x6_2.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config6x6_2.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config6x6_2.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config6x6_2.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config6x6_2.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config6x6_2.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config6x6_2.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config6x6_3.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config6x6_3.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config6x6_3.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config6x6_3.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config6x6_3.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config6x6_3.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config6x6_3.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config6x6_3.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config6x6_4.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config6x6_4.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config6x6_4.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config6x6_4.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config6x6_4.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config6x6_4.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config6x6_4.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config6x6_4.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config6x6_5.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config6x6_5.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config6x6_5.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config6x6_5.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config6x6_5.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config6x6_5.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config6x6_5.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config6x6_5.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config6x6_6.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config6x6_6.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config6x6_6.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config6x6_6.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config6x6_6.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config6x6_6.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config6x6_6.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config6x6_6.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config6x6_7.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config6x6_7.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config6x6_7.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config6x6_7.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config6x6_7.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config6x6_7.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config6x6_7.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config6x6_7.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config6x6_8.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config6x6_8.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config6x6_8.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config6x6_8.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config6x6_8.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config6x6_8.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config6x6_8.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config6x6_8.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config6x6_9.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config6x6_9.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config6x6_9.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config6x6_9.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config6x6_9.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config6x6_9.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config6x6_9.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config6x6_9.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config7x7_0.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config7x7_0.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config7x7_0.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config7x7_0.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config7x7_0.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config7x7_0.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config7x7_0.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config7x7_0.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config7x7_1.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config7x7_1.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config7x7_1.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config7x7_1.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config7x7_1.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config7x7_1.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config7x7_1.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config7x7_1.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config7x7_2.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config7x7_2.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config7x7_2.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config7x7_2.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config7x7_2.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config7x7_2.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config7x7_2.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config7x7_2.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config7x7_3.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config7x7_3.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config7x7_3.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config7x7_3.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config7x7_3.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config7x7_3.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config7x7_3.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config7x7_3.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config7x7_4.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config7x7_4.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config7x7_4.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config7x7_4.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config7x7_4.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config7x7_4.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config7x7_4.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config7x7_4.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config7x7_5.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config7x7_5.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config7x7_5.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config7x7_5.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config7x7_5.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config7x7_5.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config7x7_5.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config7x7_5.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config7x7_6.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config7x7_6.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config7x7_6.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config7x7_6.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config7x7_6.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config7x7_6.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config7x7_6.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config7x7_6.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config7x7_7.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config7x7_7.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config7x7_7.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config7x7_7.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config7x7_7.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config7x7_7.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config7x7_7.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config7x7_7.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config7x7_8.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config7x7_8.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config7x7_8.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config7x7_8.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config7x7_8.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config7x7_8.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config7x7_8.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config7x7_8.5cm": [
+      700
+    ],
+    "CollimatedBeamPol50keV_config7x7_9.5cm": [
+      50
+    ],
+    "CollimatedBeamPol100keV_config7x7_9.5cm": [
+      100
+    ],
+    "CollimatedBeamPol200keV_config7x7_9.5cm": [
+      200
+    ],
+    "CollimatedBeamPol300keV_config7x7_9.5cm": [
+      300
+    ],
+    "CollimatedBeamPol400keV_config7x7_9.5cm": [
+      400
+    ],
+    "CollimatedBeamPol500keV_config7x7_9.5cm": [
+      500
+    ],
+    "CollimatedBeamPol600keV_config7x7_9.5cm": [
+      600
+    ],
+    "CollimatedBeamPol700keV_config7x7_9.5cm": [
+      700
+    ]
+  },
+  "output_folder": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/output_polarimetry/CollimatedBeam",
+  "abct_folder": "/home/josesousa/Documents/thor/detector/detSoftware/calibration/pp-calib/",
+  "calib_folder": "/media/josesousa/joseHard/quad_characterization/1-QuadCharacterizationResults/calib_grenoble",
+  "res_folder": "/media/josesousa/joseHard/quad_characterization/1-QuadCharacterizationResults/resolution_grenoble",
+  "scratch_folder": "/media/josesousa/joseScratch/quad_characterization"
+}

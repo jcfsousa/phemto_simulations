@@ -16,6 +16,45 @@ from matplotlib.ticker import ScalarFormatter
 
 global_config = None
 
+#class Config:
+#    def __init__(self, config_file):
+#
+#        with open(config_file, 'r') as file:
+#            config_data = json.load(file)
+#            file.close()
+#
+#        self.config_chips = config_data["config_chips"]
+#        self.sources = config_data["sources"]
+#        self.input_dir = config_data["input_dir"]
+#        self.output_folder = config_data["output_folder"]
+#        
+#        source_database = f"{os.path.dirname(config_file)}/sources_database.json"
+#        with open(source_database, "r") as file:
+#            source_db = json.load(file)
+#            file.close()
+#        self.sources_peaks = source_db
+#
+#        try:
+#            with open(self.config_chips, 'r') as file:
+#                detector_config = json.load(file)
+#                file.close()
+#            self.detector_info = detector_config
+#        except Exception as e:
+#            print(f"\033[31m Critical ERROR, chip config did not load. ERROR: {e}\033[0m")
+#            sys.exit(1)
+#        
+#            
+#    def __str__(self):
+#        return json.dumps({
+#            "config_chips": self.config_chips,
+#            "sources": self.sources,
+#            "sources_peaks": self.sources_peaks,
+#            "input_dir": self.input_dir,
+#            "output_folder": self.output_folder,
+#            "detector_info": self.detector_info,
+#        }, indent=4)
+
+
 class Config:
     def __init__(self, config_file):
 
@@ -27,7 +66,9 @@ class Config:
         self.sources = config_data["sources"]
         self.input_dir = config_data["input_dir"]
         self.output_folder = config_data["output_folder"]
+        self.calib_dict = {}
         self.chip_dict = {}
+        self.res_dict = {}
         
         source_database = f"{os.path.dirname(config_file)}/sources_database.json"
         with open(source_database, "r") as file:
@@ -55,10 +96,8 @@ class Config:
             "sources": self.sources,
             "sources_peaks": self.sources_peaks,
             "input_dir": self.input_dir,
-            "output_folder": self.output_folder,
+            "output_folder": self.output_folder
         }, indent=4)
-
-
 
 def pre_process_source(source):
     '''
@@ -341,7 +380,7 @@ def get_res_constants():
     '''
     This function grabs the a,b,c constants of the resolution curve, given the path on the {conf}.json file.
     Returns the a,b,c constants for the percentual value of the resolution, 
-    R(%)=\sqrt{a^2 E^{-2} + b^2 E^{-1} + c^2}, E is the cluster energy.
+    R(%)= sqrt{a^2 E^{-2} + b^2 E^{-1} + c^2}, E is the cluster energy.
     '''
 
     chip_id = int(chip_id)

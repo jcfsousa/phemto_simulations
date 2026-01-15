@@ -1,4 +1,0 @@
-# Total Events in Peak: 25303
-# Single Events in Peak: 19414
-# Double Events in Peak: 4991
-# Multiple Events in Peak: 898

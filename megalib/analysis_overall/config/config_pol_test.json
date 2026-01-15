@@ -1,12 +1,13 @@
 {
-    "config_chips": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/config/chip_config.txt",
+    "config_chips": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/config/chip_config.json",
     "input_dir": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/input_polarimetry",
     "sources": [
-        "pol_300keV"
+        "HomogeneousPolBeam303keV_config1"
     ],
     "sources_peaks": {
         "HomogeneousBeam661keV_config1": [661],
         "HomogeneousBeam206keV_config1": [206],
+        "HomogeneousPolBeam303keV_config1": [303],
         "pol_420keV": [420],
         "pol_300keV": [300],
         "duarte_test": [80.99, 356.01],

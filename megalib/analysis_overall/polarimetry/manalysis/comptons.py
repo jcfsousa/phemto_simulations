@@ -1,4 +1,5 @@
 import matplotlib
+import sys
 import os, psutil
 from matplotlib.ticker import AutoMinorLocator, LogLocator
 
@@ -30,7 +31,7 @@ from matplotlib.patches import FancyArrowPatch
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.patches import ConnectionPatch
 from matplotlib.ticker import ScalarFormatter
-
+from pathlib import Path
 
 
 m_ec2 = 511.0  # keV
@@ -232,14 +233,17 @@ def debug_plots(df_sel, outputFolder, custom_name):
     ax1.set_title('FOM distribution')
 
     # 2. θ_kin vs θ_geom
-    #ax2 = plt.subplot(2, 2, 2)
-    #ax2.hist2d(theta_geom_deg, theta_kin_deg,
-    #           bins=80, cmap='jet')
-    #ax2.plot([0, 180], [0, 180], 'r--', lw=1)
-    #ax2.set_xlabel('theta_geom (deg)')
-    #ax2.set_ylabel('theta_kin (deg)')
-    #ax2.set_title('theta from geometry vs theta from energy')
-    #plt.colorbar(ax2.collections[0], ax=ax2, label='Counts')
+    try:
+        ax2 = plt.subplot(2, 2, 2)
+        ax2.hist2d(theta_geom_deg, theta_kin_deg,
+                   bins=80, cmap='jet')
+        ax2.plot([0, 180], [0, 180], 'r--', lw=1)
+        ax2.set_xlabel('theta_geom (deg)')
+        ax2.set_ylabel('theta_kin (deg)')
+        ax2.set_title('theta from geometry vs theta from energy')
+        plt.colorbar(ax2.collections[0], ax=ax2, label='Counts')
+    except Exception as e:
+        print('ERROR in Compton debug plot, ERROR: {e}')
 
     # 3. Δθ = θ_kin − θ_geom
     ax3 = plt.subplot(2, 2, 3)
@@ -259,6 +263,7 @@ def debug_plots(df_sel, outputFolder, custom_name):
 
     plt.tight_layout()
     plt.savefig(f"{outputFolder}/compton_goodness_plot_{custom_name}.png")
+    plt.close()
 
 
 
@@ -296,10 +301,10 @@ def get_multiplicity_events(data):
     """
 
     """
-    print(data)
+    #print(data)
 
     counts = data.groupby('Event')['Cluster'].nunique()
-    print(counts)
+    #print(counts)
     single_event_ids = counts[counts == 1].index
     double_event_ids = counts[counts == 2].index
     multiple_event_ids = counts[counts > 2].index
@@ -370,7 +375,7 @@ def counts_in_energy_peak(data, energy):
     return single_events_in_peak, double_events_in_peak, multiple_events_in_peak
 
 
-def barycenter(cluster_df, overflow):
+def barycenter(cluster_df, overflow, cdte_detSize, cdte_pixSize, si_detSize, si_pixSize):
     cluster_energy = cluster_df['ToT (keV)'].sum()   
  
     n_collumns_df = len(cluster_df.axes[1])
@@ -383,18 +388,18 @@ def barycenter(cluster_df, overflow):
     
     # TODO: change this, read from config, get global variables of the detectors
     if overflow == 0: #Si detector
-        x_barycenter = ((x_barycenter+1) * 0.013) - 3.328
-        y_barycenter = ((y_barycenter+1) * 0.013) - 3.328
+        x_barycenter = ((x_barycenter+1) * si_pixSize) - (si_detSize/2)
+        y_barycenter = ((y_barycenter+1) * si_pixSize) - (si_detSize/2)
     elif overflow == 1: #CdTe detector
-        x_barycenter = ((x_barycenter+1) * 0.025) - 3.2
-        y_barycenter = ((y_barycenter+1) * 0.025) - 3.2
+        x_barycenter = ((x_barycenter+1) * cdte_pixSize) - (cdte_detSize/2)
+        y_barycenter = ((y_barycenter+1) * cdte_pixSize) - (cdte_detSize/2)
     else:
         x_barycenter = ((x_barycenter+1) * 0.0055)
         y_barycenter = ((y_barycenter+1) * 0.0055)
         return x_barycenter, y_barycenter
     return x_barycenter, y_barycenter
 
-def energies_data_frames_or_dict(data):
+def apply_barycenter_formatData(data, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize):
     """
     This function determines the energy of each cluster, E1 and E2. It uses the calibration curves y=ax+b to calibrate the clusters.
         E1 - Most energetic cluster 
@@ -445,10 +450,10 @@ def energies_data_frames_or_dict(data):
     
         # Use the barycenter keV method to estimate the origin of the elctron (compton, photoelectric)
         data_cluster_high_energy = group_df[group_df['Cluster'] == highest_id]
-        x_highest_energy_cluster, y_highest_energy_cluster = barycenter(data_cluster_high_energy, highest_overflow) #tranforms to cm
+        x_highest_energy_cluster, y_highest_energy_cluster = barycenter(data_cluster_high_energy, highest_overflow, cdte_detSize, cdte_pixSize, si_detSize, si_pixSize) #tranforms to cm
 
         data_cluster_low__energy = group_df[group_df['Cluster'] == lowest_id]
-        x_lowest_energy_cluster, y_lowest_energy_cluster = barycenter(data_cluster_low__energy, lowest_overflow) #trnsforms to cm
+        x_lowest_energy_cluster, y_lowest_energy_cluster = barycenter(data_cluster_low__energy, lowest_overflow, cdte_detSize, cdte_pixSize, si_detSize, si_pixSize) #trnsforms to cm
 
         
         # Save these values in the dictionaries along with upper and lower limits
@@ -502,7 +507,9 @@ def energies_data_frames_or_dict(data):
     df = pd.DataFrame(rows)
     
     # TODO: give compute_theta_geom_from_row() the z_cdte and z_si according to config file
-    df['theta_geom'] = df.apply(compute_theta_geom_from_row, axis=1)
+    df['theta_geom'] = df.apply(compute_theta_geom_from_row,
+                                args=(z_cdte, z_si), 
+                                axis=1)
     
     return df
 
@@ -815,7 +822,7 @@ def compute_theta_geom_from_row(row, z_cdte=-5.0, z_si=0.0):
     return theta_geom
 
 def process_comptons(args):
-    outputFolder, peak_energy, filter, outputFile  = args
+    outputFolder, peak_energy, outputFile, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize  = args
     
     try:
         hold = os.path.basename(outputFile).split('.')[0]
@@ -853,7 +860,7 @@ def process_comptons(args):
     del double_events_in_peak_df
 
     # Computing x,y barycenter, Assign E1 the event with max energy, E2 the event with the min energy
-    df = energies_data_frames_or_dict(grouped_double_events_in_peak_df)
+    df = apply_barycenter_formatData(grouped_double_events_in_peak_df, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize)
 
     ######### Compton Selection part #########
     sigma_theta_deg = 1.0   # geometrical x,y sigma position resolution
@@ -864,14 +871,15 @@ def process_comptons(args):
                                         sigma_theta_deg=sigma_theta_deg,
                                         fom_max=fom_max)
 
-    print("Selected events:", len(df_comptons), "out of", len(df))
-    print(df_comptons)
+    #print("Selected events:", len(df_comptons), "out of", len(df))
+    #print(df_comptons)
 
     # Saving compton events in directory for later use
     outputFolder_parquet_doublesPeakCompton = os.path.join(outputFolder_parquet_doublesPeak, 'comptons')
     pathlib.creat_dir(outputFolder_parquet_doublesPeakCompton)
     outputFolder_comptonPlots = f'{outputFolder}/compton_goodness'
     pathlib.creat_dir(outputFolder_comptonPlots)
+
     # Ploting Diagnostics
     debug_plots(df_comptons, outputFolder_comptonPlots, custom_name=abc)
     df_comptons.to_parquet(f'{outputFolder_parquet_doublesPeakCompton}/comptons__{abc}.parquet')
@@ -881,7 +889,7 @@ def process_comptons(args):
     
 
 
-def identify_compton(source, peak_energy, show=False, filter=True):
+def identify_compton(source, peak_energy, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize, show=False, filter=True):
     """
     This function read the .parquet data that contains the data already sorted in time, coincidence event time identification, number of clusters per event and the ToT already tranformed to keV.
 
@@ -893,7 +901,7 @@ def identify_compton(source, peak_energy, show=False, filter=True):
 
     list_parquet_files = pathlib.get_list_files(outputFolder_parquet, startswith='df_all_data', endswith='.parquet')
 
-    process_args = [(outputFolder, peak_energy, filter, outputFile) for outputFile in list_parquet_files]
+    process_args = [(outputFolder, peak_energy, outputFile, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize) for outputFile in list_parquet_files]
     
     
     if pathlib.check_dir_exists(outputFolder_comptons):
@@ -970,48 +978,66 @@ def plot_small_circ(inputFolder, distance, x_center_pixel, y_center_pixel):
     plt.savefig(f'{inputFolder}/Compton_Events_Data_with_Filter_Applied.png')
     plt.close()
 
-def function_to_idk(data, energy, angle_bin):
+def binning_polarimetry(data_pol, data_Nonpol, energy, angle_bin):
     
     to_beam_ref_frame = 0
 
+    data_pol['Phi_Beam_Ref'] = (data_pol['Phi'] + to_beam_ref_frame) % 360
+    data_Nonpol['Phi_Beam_Ref'] = (data_Nonpol['Phi'] + to_beam_ref_frame) % 360
 
-    # Apply a 90-degree shift to the Phi values
-    data['Phi_Beam_Ref'] = (data['Phi'] + to_beam_ref_frame) % 360
-
-
-    # Generate bins using a fixed step size
-    bins = np.arange(0, 360 + angle_bin, angle_bin)
-
-    # Compute bin centers
-    bin_centers = (bins[:-1] + bins[1:]) / 2
+    bins_pol = np.arange(0, 360 + angle_bin, angle_bin)
+    bins_Nonpol = np.arange(0, 360 + angle_bin, angle_bin)
+    bin_pol_centers = (bins_pol[:-1] + bins_pol[1:]) / 2
+    bin_Nonpol_centers = (bins_Nonpol[:-1] + bins_Nonpol[1:]) / 2
 
     # Bin the Phi values and use bin centers as labels
-    data['Phi_bin'] = pd.cut(data['Phi_Beam_Ref'], bins, right=False, labels=bin_centers)
+    data_pol['Phi_bin'] = pd.cut(data_pol['Phi_Beam_Ref'], bins_pol, right=False, labels=bin_pol_centers)
+    data_Nonpol['Phi_bin'] = pd.cut(data_Nonpol['Phi_Beam_Ref'], bins_Nonpol, right=False, labels=bin_Nonpol_centers)
     
     # Count the occurrences in each bin
-    phi_counts_binned = data['Phi_bin'].value_counts().sort_index()
+    phi_counts_binned_pol= data_pol['Phi_bin'].value_counts().sort_index()
+    phi_counts_binned_Nonpol= data_Nonpol['Phi_bin'].value_counts().sort_index()
 
-    # Convert to DataFrame and reset index
-    phi_counts_binned_df = phi_counts_binned.reset_index()
-    phi_counts_binned_df.columns = ['Phi_bin', 'Counts']
+    phi_counts_binned_df_pol = phi_counts_binned_pol.reset_index()
+    phi_counts_binned_df_pol.columns = ['Phi_bin', 'Counts']
+    phi_counts_binned_df_Nonpol = phi_counts_binned_Nonpol.reset_index()
+    phi_counts_binned_df_Nonpol.columns = ['Phi_bin', 'Counts']
+    
+    
+    # Normalize to the mean the Pol counts
+    total_phi_counts_binned_df_pol = phi_counts_binned_df_pol['Counts'].sum()
+    n = phi_counts_binned_df_pol['Phi_bin'].nunique()
+    mean_binned_pol = float(total_phi_counts_binned_df_pol / n)
+    phi_counts_binned_df_pol['Counts_Norm'] = phi_counts_binned_df_pol['Counts']/ mean_binned_pol
+    phi_counts_binned_df_pol['Error_Norm'] = np.sqrt(phi_counts_binned_df_pol['Counts'])/mean_binned_pol
 
-    # Get the mean of Counts
-    total_counts_binned = phi_counts_binned_df['Counts'].sum()
-    #print(f'total_counts_binned: {total_counts_binned}')
-    n_phis_binned = phi_counts_binned_df['Phi_bin'].nunique()
-    #print(f'n_phis_binned: {n_phis_binned}')
+    # Normalize to the mean the NonPol counts
+    total_phi_counts_binned_df_Nonpol = phi_counts_binned_df_Nonpol['Counts'].sum()
+    n = phi_counts_binned_df_Nonpol['Phi_bin'].nunique()
+    mean_binned_Nonpol = float(total_phi_counts_binned_df_Nonpol / n)
+    phi_counts_binned_df_Nonpol['Counts_Norm'] = phi_counts_binned_df_Nonpol['Counts']/ mean_binned_Nonpol
+    phi_counts_binned_df_Nonpol['Error_Norm'] = np.sqrt(phi_counts_binned_df_Nonpol['Counts'])/mean_binned_Nonpol
+
+
+    # Apply correction of Non-Polarized reponce, to the normalized counts
+    # N_true = (N_pol/N_nonpol)* max(N_nonpol)
+    phi_counts_corrected = phi_counts_binned_df_pol['Counts']* (phi_counts_binned_df_Nonpol['Counts'].max() / phi_counts_binned_df_Nonpol['Counts'])  
+
+    phi_counts_corrected_df = pd.DataFrame({
+        'Phi_bin': phi_counts_binned_df_pol['Phi_bin'],  # Use pol bins, non-pol bins is the same
+        'Counts_corrected': phi_counts_corrected,
+        'Error' : np.sqrt(phi_counts_corrected)
+    })
+
+    # Normalizing the counts to the mean
+    total_counts_binned = phi_counts_corrected_df['Counts_corrected'].sum()
+    n_phis_binned = phi_counts_corrected_df['Phi_bin'].nunique()
     mean_binned = float(total_counts_binned / n_phis_binned)
-    #print(f'mean_binned: {mean_binned}')
+    phi_counts_corrected_df['Counts_Norm'] = phi_counts_corrected_df['Counts_corrected'] / mean_binned
+    phi_counts_corrected_df['Error_Norm'] = np.sqrt(phi_counts_corrected_df['Counts_corrected'])/mean_binned
 
-    #print(phi_counts_binned_df)
 
-    # Normalize the counts
-    phi_counts_binned_df['Counts_Norm'] = phi_counts_binned_df['Counts'] / mean_binned
-
-    # Calculate the errors for the normalized counts
-    phi_counts_binned_df['Error'] = np.sqrt(phi_counts_binned_df['Counts'])/mean_binned
-
-    return phi_counts_binned_df
+    return phi_counts_corrected_df, phi_counts_binned_df_pol, phi_counts_binned_df_Nonpol, bin_pol_centers
 
 
 def count_nEvents_allTypes(outputFolder, energy, chip, show=False, filter=True):
@@ -1059,24 +1085,21 @@ def count_nEvents_allTypes(outputFolder, energy, chip, show=False, filter=True):
 
         total_events_peak += count_singles_peak_hold + count_doubles_peak_hold + count_multi_peak_hold
 
-    print(f"# Total Events in Peak: {total_events_peak}\n# Single Events in Peak: {count_singles_peak}\n# Double Events in Peak: {count_doubles_peak}\n# Multiple Events in Peak: {count_multi_peak}")
+    #print(f"# Total Events in Peak: {total_events_peak}\n# Single Events in Peak: {count_singles_peak}\n# Double Events in Peak: {count_doubles_peak}\n# Multiple Events in Peak: {count_multi_peak}")
     with open(f'{outputFolder}/AllEventsCount.txt', 'w') as f:
         f.write(f"# Total Events in Peak: {total_events_peak}\n# Single Events in Peak: {count_singles_peak}\n# Double Events in Peak: {count_doubles_peak}\n# Multiple Events in Peak: {count_multi_peak}")
 
 
-def count_finalComptons(outputFolder, concat_df, min_dist, max_dist, angle_bin, residual=False):
+def count_finalComptons(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, concat_df, min_dist, max_dist, angle_bin, residual=False, pol_both = False):
     n_comptons = 0
     
-    outputFolder_polarimetry = os.path.join(outputFolder, 'photonPolarimetry')
-    pathlib.creat_dir(outputFolder_polarimetry)
     angle_bin_str = str(angle_bin).replace('.','-')
     min_dist_str = str(min_dist).replace('.','-')
     max_dist_str = str(max_dist).replace('.','-')
+
+    folder_result_polarimetry = os.path.join(result_polarimetry, f'{angle_bin_str}bin_md{min_dist_str}_maxd{max_dist_str}')
+    pathlib.creat_dir(folder_result_polarimetry)
     
-    outputFolder_polarimetry_binDist = os.path.join(outputFolder_polarimetry, f'{angle_bin_str}bin_md{min_dist_str}_maxd{max_dist_str}')
-    pathlib.creat_dir(outputFolder_polarimetry_binDist)
-
-
     #final_comptons_parquet = os.path.join(outputFolder, 'parquet', 'doubles', 'inPeak', 'comptons', 'Phi')
     #list_parquet_files = specLib.get_list_files(final_comptons_parquet, startswith='final_comptons_limitDists', endswith='.parquet')
 
@@ -1097,11 +1120,11 @@ def count_finalComptons(outputFolder, concat_df, min_dist, max_dist, angle_bin, 
     angle_bin = str(angle_bin).replace('.', '_')
     min_dist = str(min_dist).replace('.','-')
 
-    with open(f'{outputFolder_polarimetry_binDist}/ComptonsEventsCount.txt', 'w') as f:
+    with open(f'{folder_result_polarimetry}/ComptonsEventsCount.txt', 'w') as f:
         f.write(f"# Compton Events Used: {n_comptons}")
 
     
-    file_path_allEvents = f'{outputFolder}/AllEventsCount.txt'
+    file_path_allEvents = f'{folder_input_polarimetry_pol}/AllEventsCount.txt' # go get AllEventsCount that its on Polarized source!!!!
 
     with open(file_path_allEvents, 'r') as file:
         for line in file:
@@ -1113,14 +1136,10 @@ def count_finalComptons(outputFolder, concat_df, min_dist, max_dist, angle_bin, 
 
     compton_eff = n_comptons/total_events
 
-    with open(f'{outputFolder_polarimetry_binDist}/ComptonsEventsCount.txt', 'a') as f:
+    with open(f'{folder_result_polarimetry}/ComptonsEventsCount.txt', 'a') as f:
         f.write(f"\n# Compton eff: {compton_eff}")
    
-    if residual:
-        file_path_fits = f'{outputFolder_polarimetry_binDist}/Fit_Values-residual.txt'
-        Q = 9999
-    else:
-        file_path_fits = f'{outputFolder_polarimetry_binDist}/Fit_Values.txt'
+    file_path_fits = f'{folder_result_polarimetry}/Fit_Values.txt'
 
     with open(file_path_fits, 'r') as file:
         for line in file:
@@ -1135,7 +1154,7 @@ def count_finalComptons(outputFolder, concat_df, min_dist, max_dist, angle_bin, 
 
     merit_figure = (Q**2)*compton_eff
 
-    with open(f'{outputFolder_polarimetry_binDist}/ComptonsEventsCount.txt', 'a') as f:
+    with open(f'{folder_result_polarimetry}/ComptonsEventsCount.txt', 'a') as f:
         f.write(f"\n# Merit Figure: {merit_figure}")
 
     del concat_df
@@ -1202,9 +1221,10 @@ def plot_figureMeritMap(outputFolder, min_dist_list, angle_bin_list, max_dist_li
         #plt.xticks(xticks, labels=[f"{x:.1f}" for x in xticks])
         #plt.yticks(yticks, labels=[f"{y:.3f}" for y in yticks])
 
-
-        xticks = [angle_bin_list[i] for i in range(0, len(angle_bin_list), len(angle_bin_list)//5)]  # pick every nth element
-        yticks = [min_dist_list[i] for i in range(0, len(min_dist_list), len(min_dist_list)//5)]  # pick every nth element
+        print(min_dist_list)
+        print(len(min_dist_list))
+        xticks = [angle_bin_list[i] for i in range(0, len(angle_bin_list), len(angle_bin_list)//2)]  # pick every nth element
+        yticks = [min_dist_list[i] for i in range(0, len(min_dist_list), len(min_dist_list)//2)]  # pick every nth element
 
         # Ensure that xticks and yticks have the correct number of labels
         plt.xticks(xticks, labels=[f"{x:.1f}" for x in xticks])
@@ -1236,63 +1256,46 @@ def get_bestPolarimetryConditions(source_folder, min_dist_list, angle_bin_list, 
     '''
     source = source_folder.split('/')[-1]
     base_path = os.path.dirname(source_folder)
-    grenoble_general_conclusion_path = f'{base_path}/3-GrenobleGeneralConclusions'
+    #grenoble_general_conclusion_path = f'{base_path}/3-GrenobleGeneralConclusions'
+    grenoble_general_conclusion_path = source_folder
 
     rot = get_rot_from_source_name(source)
     source_energy = get_energy_from_source_name(source)
 
-    if rot == 0:
 
-        merit_matrix = np.zeros((len(min_dist_list), len(angle_bin_list)))
-        sigma_merit_matrix = np.zeros((len(min_dist_list), len(angle_bin_list)))
+    merit_matrix = np.zeros((len(min_dist_list), len(angle_bin_list)))
+    sigma_merit_matrix = np.zeros((len(min_dist_list), len(angle_bin_list)))
 
-        
-        for i, min_dist in enumerate(min_dist_list):
-            for j, angle_bin in enumerate(angle_bin_list):
-
-                if abs == False:
-                    merit_value = get_MeritFigure(source_folder, min_dist, angle_bin, max_dist)
-                    merit_matrix[i, j] = merit_value
-                    break
-                if abs == True:
-                    #print(source_folder, min_dist, angle_bin, max_dist)
-                    merit_value, sigma = get_AbsMeritFigure(source_folder, min_dist, angle_bin, max_dist)
-                    merit_matrix[i, j] = merit_value
-                    sigma_merit_matrix[i,j] = sigma
-                    break
-        
-        # Find the (i, j) indices of the maximum value in the merit_matrix
-        max_index = np.argmax(merit_matrix)  # Flattened index of the maximum value
-        i_max, j_max = np.unravel_index(max_index, merit_matrix.shape)  # Convert to 2D indices
-        
-        # Get the corresponding min_dist and angle_bin values
-        best_min_dist = min_dist_list[i_max]
-        best_angle_bin = angle_bin_list[j_max]
-        max_merit = merit_matrix[i_max, j_max]
-        sigma_max_merit = sigma_merit_matrix[i_max, j_max]
-        
-        with open(f'{grenoble_general_conclusion_path}/{source_energy}kev_best_polarimetry_variables.txt', 'w') as f:
-            f.write(f'# best_min_dist: {best_min_dist}\n# best_angle_bin: {best_angle_bin} \n# max_dist: {max_dist}')
     
-        return max_merit, best_min_dist, best_angle_bin, sigma_max_merit
+    for i, min_dist in enumerate(min_dist_list):
+        for j, angle_bin in enumerate(angle_bin_list):
 
-    else:
-        with open(f'{grenoble_general_conclusion_path}/{source_energy}kev_best_polarimetry_variables.txt', 'r') as f:
-            for line in f:
-                if "# best_min_dist:" in line:
-                    best_min_dist = float(line.split(":")[-1])
-                if "# best_angle_bin" in line:
-                    best_angle_bin = int(line.split(":")[-1])
-                if "# max_dist" in line:
-                    max_dist = float(line.split(":")[-1])
+            if abs == False:
+                merit_value = get_MeritFigure(source_folder, min_dist, angle_bin, max_dist)
+                merit_matrix[i, j] = merit_value
+                break
+            if abs == True:
+                #print(source_folder, min_dist, angle_bin, max_dist)
+                merit_value, sigma = get_AbsMeritFigure(source_folder, min_dist, angle_bin, max_dist)
+                merit_matrix[i, j] = merit_value
+                sigma_merit_matrix[i,j] = sigma
+                break
+    
+    # Find the (i, j) indices of the maximum value in the merit_matrix
+    max_index = np.argmax(merit_matrix)  # Flattened index of the maximum value
+    i_max, j_max = np.unravel_index(max_index, merit_matrix.shape)  # Convert to 2D indices
+    
+    # Get the corresponding min_dist and angle_bin values
+    best_min_dist = min_dist_list[i_max]
+    best_angle_bin = angle_bin_list[j_max]
+    max_merit = merit_matrix[i_max, j_max]
+    sigma_max_merit = sigma_merit_matrix[i_max, j_max]
+    
+    with open(f'{grenoble_general_conclusion_path}/{source_energy}kev_best_polarimetry_variables.txt', 'w') as f:
+        f.write(f'# best_min_dist: {best_min_dist}\n# best_angle_bin: {best_angle_bin} \n# max_dist: {max_dist}')
 
-        sigma = 0    
-        if abs == False:
-            merit = get_MeritFigure(source_folder, best_min_dist, best_angle_bin, max_dist)
-        if abs == True:
-            merit, merit_sigma = get_AbsMeritFigure(source_folder, best_min_dist, best_angle_bin, max_dist)
+    return max_merit, best_min_dist, best_angle_bin, sigma_max_merit
 
-        return merit, best_min_dist, best_angle_bin, merit_sigma
 
 def plot_QvrsRadius_combined_absEffvrsRadius(output_folder_base, sources, min_dist_list, angle_bin_list, max_dist, energies_overlap = None):
     
@@ -1308,20 +1311,12 @@ def plot_QvrsRadius_combined_absEffvrsRadius(output_folder_base, sources, min_di
     energies_all_sources = []
 
     conclusions_folder = f'{output_folder_base}/3-GrenobleGeneralConclusions'
-
+    conclusions_folder = output_folder_base
     for source in sources:
         sourceFolder = f'{output_folder_base}/{source}'
 
         source_energy = get_energy_from_source_name(source)
-        rot_source = get_rot_from_source_name(source)
 
-
-        if energies_overlap and source_energy not in energies_overlap:
-                    continue
-        
-        if rot_source != 0 and energies_overlap:
-            continue
-        
         if source_energy not in energies_all_sources:
             energies_all_sources.append(source_energy)
             
@@ -1330,7 +1325,7 @@ def plot_QvrsRadius_combined_absEffvrsRadius(output_folder_base, sources, min_di
         y_q_uncert = []
         y_eff = []
         y_eff_uncert = [] 
-        print(source)
+        #print(source)
         
         merit, best_min_dist, best_angle_bin, sigma = get_bestPolarimetryConditions(sourceFolder, min_dist_list, angle_bin_list, max_dist, abs = False)
 
@@ -1532,21 +1527,15 @@ def plot_QvrsBin(output_folder_base, sources, min_dist_list, angle_bin_list, max
 
     energies_all_sources = []
     
-    conclusions_folder = f'{output_folder_base}/3-GrenobleGeneralConclusions'
+    #conclusions_folder = f'{output_folder_base}/3-GrenobleGeneralConclusions'
+
+    conclusions_folder = output_folder_base
 
     for source in sources:
         sourceFolder = f'{output_folder_base}/{source}'
 
         source_energy = get_energy_from_source_name(source)
-        rot_source = get_rot_from_source_name(source)
 
-
-        if energies_overlap and source_energy not in energies_overlap:
-                    continue
-        
-        if rot_source != 0 and energies_overlap:
-            continue
-        
         if source_energy not in energies_all_sources:
             energies_all_sources.append(source_energy)
             
@@ -1555,7 +1544,7 @@ def plot_QvrsBin(output_folder_base, sources, min_dist_list, angle_bin_list, max
         y_q_uncert = []
         y_eff = []
         y_eff_uncert = [] 
-        print(source)
+        #print(source)
         
         for min_dist in min_dist_list:
             if min_dist == min_dist_definition:
@@ -1568,26 +1557,27 @@ def plot_QvrsBin(output_folder_base, sources, min_dist_list, angle_bin_list, max
 
                     bin.append(angle_bin)
 
-        q_energies_dict[(source_energy, rot_source)] = (y_q, y_q_uncert)
+        q_energies_dict[(source_energy)] = (y_q, y_q_uncert)
 
     plot_QvrsBin_subplot(conclusions_folder, bin, q_energies_dict, energies_overlap, min_dist_definition)
 
 def plot_QvrsBin_subplot(output_folder, bin, q_energies_dict, energies_overlap, min_dist): 
     
+    print('PLOT BIN SUBPLOT')
     fig, ax1 = plt.subplots(figsize=(7,7))
     
     x = bin
 
-    dict_markers ={'100':'o','150': '^','200': 's','250': 'X','300':'d'}
-    dict_colors = {'100':'k', '150': 'blue', '200': 'red', '250': 'orange', '300': 'green'}
+    dict_markers ={'100':'o','200': '^','300': 's','400': 'X','500':'d'}
+    dict_colors = {'100':'k', '200': 'blue', '300': 'red', '400': 'orange', '500': 'green'}
 
     for energy_plot in energies_overlap:
         y = []
         y_err = []
-        for energy, rot in q_energies_dict:
+        for energy in q_energies_dict:
             if energy == energy_plot:
-                y = q_energies_dict[(energy, rot)][0]
-                y_err = q_energies_dict[(energy, rot)][1]
+                y = q_energies_dict[(energy)][0]
+                y_err = q_energies_dict[(energy)][1]
 
         marker = dict_markers[f'{energy_plot}']
         color = dict_colors[f'{energy_plot}']
@@ -1599,21 +1589,21 @@ def plot_QvrsBin_subplot(output_folder, bin, q_energies_dict, energies_overlap, 
     ax1.legend(loc = "upper right", ncol=2)
 
     ax1.set_ylabel(r'Modulation Factor, Q$_{{100}}$')
-    ax1.set_ylim(0.45, 0.7)
+    #ax1.set_ylim(0.45, 0.7)
     plt.xlabel(r'Angle Bin, $\Delta \phi$($^\circ$)')
     plt.title(fr'$r_{{min}}$ = {round(min_dist,3)} mm')
     plt.minorticks_on()
     plt.tick_params(direction="in", axis='both', which='both', top=True, bottom=True, right=True)
     plt.grid(False)
     plt.tight_layout()
-    plt.savefig(f'{output_folder}/QvrsBinning_md{round(min_dist,3)}.png')
+    #plt.savefig(f'{output_folder}/QvrsBinning_md{round(min_dist,3)}.png')
+    plt.show()
     plt.close()
-    #plt.show()
     return 
 
 def compute_uncert_q_normalized(q, q_uncer, q_i, q_i_uncert):
     uncert = np.sqrt((q_uncer/q_i)**2 + (-((q*q_i_uncert)/q_i**2))**2)
-    print(uncert)
+    #print(uncert)
     return uncert
 
 def plot_AbsEffvrsMaxdist(outputFolder, min_dist, angle_bin, max_dist_list, multiple_energies = False, normalized_q = False, ax1 = None, ax2=None):
@@ -1898,16 +1888,39 @@ def plot_EffvrsRadius(outputFolder, min_dist_list, angle_bin_list, max_dist):
     return 
 
 
-def get_energy_from_source_name(source):
-    # only accpets source names that have the energy explicitly on the name.
-    # example: monochromaticbeam_200kev_collimated
+#def get_energy_from_source_name(source):
+#    # only accpets source names that have the energy explicitly on the name.
+#    # example: monochromaticbeam_200kev_collimated
+#
+#    split_source = source.split('_')
+#
+#    for item in split_source:
+#        if 'kev' in item.lower():
+#            source_energy = int(item.split('kev')[0])
+#            return source_energy
 
-    split_source = source.split('_')
+def get_energy_from_source_name(filename: str) -> int:
+    """
+    Extract energy (keV) from names like:
+    CollimatedBeamPol100keV_config4x4_0.5cm
+    """
+    name = Path(filename).name  # strip path
+    m = re.search(r'(\d+)keV', name)
+    if not m:
+        raise ValueError(f"No energy found in filename: {filename}")
+    return int(m.group(1))
 
-    for item in split_source:
-        if 'kev' in item.lower():
-            source_energy = 300#int(item.split('kev')[0])
-            return source_energy
+def get_pol_type_from_source_name(filename: str) -> str:
+    """
+    Extract polarization type ('Pol' or 'NonPol') from names like:
+    CollimatedBeamPol100keV_config4x4_0.5cm
+    CollimatedBeamNonPol100keV_config4x4_0.5cm
+    """
+    name = Path(filename).name  # strip path
+    m = re.search(r'(Pol|NonPol)', name)
+    if not m:
+        raise ValueError(f"No polarization type found in filename: {filename}")
+    return m.group(1)
 
 def get_rot_from_source_name(source):
     # only accpets source names that have the energy explicitly on the name.
@@ -1920,23 +1933,22 @@ def get_rot_from_source_name(source):
             rot = float(item.split('deg')[0].replace('-', '.'))
             return rot
 
-def get_Q(source_folder, min_dist, angle_bin, max_dist):
-    angle_bin_str = str(angle_bin).replace('.','-')
-    min_dist_str = str(min_dist).replace('.','-')
-    max_dist_str = str(max_dist).replace('.','-')
-
-    folder = f'{source_folder}/photonPolarimetry/{angle_bin_str}bin_md{min_dist_str}_maxd{max_dist_str}'
-    file= f'{folder}/Fit_Values.txt'
-
-    if os.path.exists(file):
+def get_Q(source_folder):
+    '''
+    Give path to results polarimetry, returns Q on Fit_Values.txt file
+    '''
+    file= f'{source_folder}/Fit_Values.txt'
+    try:
         with(open(file, 'r')) as f:
              for line in f:
                 if "Q =" in line:
                     q_whole = line.split('=')[-1].strip()
                     q = abs(round(float(q_whole.split('±')[0].strip()),4))
-                    q_uncertanty = round(float(q_whole.split('±')[-1].strip()),4)
-
-    return q, q_uncertanty
+                    q_uncertanty = abs(round(float(q_whole.split('±')[-1].strip()),4))
+                    return q, q_uncertanty
+    except Exception as e: 
+        print(f"ERROR: {source_folder}/Fit_Values.txt doesnt exist - Try run polarimetry.py first - {e}")
+        sys.exit(1)
 
 def get_PA(source_folder, min_dist, angle_bin, max_dist):
     angle_bin_str = str(angle_bin).replace('.','-')
@@ -1954,7 +1966,9 @@ def get_PA(source_folder, min_dist, angle_bin, max_dist):
                     pa = round(float(pa_whole.split('±')[0].strip()),4)  * -1 # to use the symetrical
                     pa_uncertanty = round(float(pa_whole.split('±')[-1].strip()),4)
                     return pa, pa_uncertanty
-
+    else:
+        print(f"ERROR: {source_folder}/Fit_Values.txt doesnt exist - Try run polarimetry.py first")
+        sys.exit(1)
 
 def get_ComptonEvents_used(source_folder, min_dist, angle_bin, max_dist):
     angle_bin_str = str(angle_bin).replace('.','-')
@@ -1988,56 +2002,61 @@ def get_MeritFigure(source_folder, min_dist, angle_bin, max_dist):
                     merit_figure = float(line.split(' ')[-1])
                     return merit_figure
 
-def get_AbsMeritFigure(source_folder, min_dist, angle_bin, max_dist):
-    angle_bin_str = str(angle_bin).replace('.','-')
-    min_dist_str = str(min_dist).replace('.','-')
-    max_dist_str = str(max_dist).replace('.','-')
+def get_AbsMeritFigure(source_folder):
+    '''
+    Give path to result_polarimetry, returns ABSOLUTE merit figure and simga from ComptonsEventsCount.txt
+    '''
 
-    folder = f'{source_folder}/photonPolarimetry/{angle_bin_str}bin_md{min_dist_str}_maxd{max_dist_str}'
-    file= f'{folder}/ComptonsEventsCount.txt'
-
-
-    if os.path.exists(file):
+    file= f'{source_folder}/ComptonsEventsCount.txt'
+    
+    try:
         with(open(file, 'r')) as f:
-             for line in f:
-                 if "# Merit Figure Abs:" in line:
+            for line in f:
+                if "# Merit Figure Abs:" in line:
                     merit_figure = float(line.split(' ')[-1])
-                 if "# Sigma Merit Figure Abs:" in line:
+                if "# Sigma Merit Figure Abs:" in line:
                     sigma = float(line.split(' ')[-1])
-        return merit_figure, sigma
+            return merit_figure, sigma
 
-def get_relativeComptonEff(source_folder, min_dist, angle_bin, max_dist):
-    angle_bin_str = str(angle_bin).replace('.','-')
-    min_dist_str = str(min_dist).replace('.','-')
-    max_dist_str = str(max_dist).replace('.','-')
+    except Exception as e:
+        print(f"ERROR: {source_folder}/Fit_Values.txt doesnt exist - Try run polarimetry.py first - {e}")
+        sys.exit(1)
 
-    folder = f'{source_folder}/photonPolarimetry/{angle_bin_str}bin_md{min_dist_str}_maxd{max_dist_str}'
-    file= f'{folder}/ComptonsEventsCount.txt'
 
-    if os.path.exists(file):
+def get_relativeComptonEff(source_folder):
+    '''
+    Give path to result_polarimetry, returns RELATIVE compton_eff and sigma
+    '''
+    file= f'{source_folder}/ComptonsEventsCount.txt'
+
+    try:
         with(open(file, 'r')) as f:
              for line in f:
                  if "# Compton eff:" in line:
                     compton_eff = float(line.split(' ')[-1])
-    
-    return compton_eff 
+                    return compton_eff 
 
-def get_absoluteComptonEff(source_folder, min_dist, angle_bin, max_dist):
-    angle_bin_str = str(angle_bin).replace('.','-')
-    min_dist_str = str(min_dist).replace('.','-')
-    max_dist_str = str(max_dist).replace('.','-')
+    except Exception as e: 
+        print(f"ERROR: {source_folder}/Fit_Values.txt doesnt exist - Try run polarimetry.py first - {e}")
+        sys.exit(1)
 
-    folder = f'{source_folder}/photonPolarimetry/{angle_bin_str}bin_md{min_dist_str}_maxd{max_dist_str}'
-    file= f'{folder}/ComptonsEventsCount.txt'
+def get_absoluteComptonEff(source_folder):
+    '''
+    Give path to result polarimetry, returns ABSOLUTE compton_eff and sigma
+    '''
+    file= f'{source_folder}/ComptonsEventsCount.txt'
 
-    if os.path.exists(file):
+    try:
         with(open(file, 'r')) as f:
-             for line in f:
-                 if "# Compton Abs eff:" in line:
+            for line in f:
+                if "# Compton Abs eff:" in line:
                     compton_eff = float(line.split(' ')[-1])
-                 if "# Sigma Compton Abs eff:" in line:
+                if "# Sigma Compton Abs eff:" in line:
                     sigma = float(line.split(' ')[-1])
-    return compton_eff, sigma
+            return compton_eff, sigma
+    except Exception as e:
+        print(f"ERROR: {source_folder}/ComptonsEventsCount.txt doesnt exist - Try run polarimetry.py first - {e}")
+        sys.exit(1)
 
 
 def plot_MeritFigurevrsEnergy(outputFolder_base, sources, min_dist_list, angle_bin_list, max_dist):
@@ -2046,8 +2065,8 @@ def plot_MeritFigurevrsEnergy(outputFolder_base, sources, min_dist_list, angle_b
     fm = []
     fm_sigma = []
 
-    output_folder_finalPlot = f'{outputFolder_base}/3-GrenobleGeneralConclusions'
-
+    #output_folder_finalPlot = f'{outputFolder_base}/3-GrenobleGeneralConclusions'
+    output_folder_finalPlot = outputFolder_base
 
     for source in sources:
         output_folder = os.path.join(outputFolder_base, source)
@@ -2129,8 +2148,8 @@ def plot_QAbsComptonEffvrsEnergy(outputFolder_base, sources, min_dist_list, angl
     fm = []
     fm_sigma = []
 
-    output_folder_final_plot = f'{outputFolder_base}/3-GrenobleGeneralConclusions'
-
+    #output_folder_final_plot = f'{outputFolder_base}/3-GrenobleGeneralConclusions'
+    output_folder_final_plot = outputFolder_base
 
     for source in sources:
         output_folder = os.path.join(outputFolder_base, source)
@@ -2799,15 +2818,15 @@ def compute_polarimetry_phi(data):
 
 
 def polarimetry_task(args):
-    min_dist, angle_bin, output_folder, energy, chip, max_dist = args
-    concat_df = fits.fit_radial_plot(output_folder, energy, angle_bin, min_dist, max_dist)
-    count_finalComptons(output_folder, concat_df, min_dist, max_dist, angle_bin)
-    plot_compton_events_used_characteristics(output_folder, concat_df, energy, max_dist, min_dist, angle_bin)
+    folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, min_dist, angle_bin, energy, max_dist, z_cdte, z_si, cdte_detSize, si_detSize = args
+    concat_df = fits.fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, energy, angle_bin, min_dist, max_dist, z_cdte, z_si, cdte_detSize, si_detSize)
+    count_finalComptons(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, concat_df, min_dist, max_dist, angle_bin)
+    #plot_compton_events_used_characteristics(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, concat_df, energy, max_dist, min_dist, angle_bin)
     del concat_df
     gc.collect()
 
 def polarimetry_task_residual(args):
-    min_dist, angle_bin, output_folder, x_center_pixel, y_center_pixel, energy, chip, max_dist, abct_folder = args
+    min_dist, angle_bin, output_folder, energy, max_dist, z_cdte, z_si= args
     concat_df = fits.fit_radial_plot(output_folder, energy, angle_bin, min_dist, max_dist, residual=True)
     count_finalComptons(output_folder, concat_df, min_dist, max_dist, angle_bin, residual = True)
     plot_compton_events_used_characteristics(output_folder, concat_df, energy, max_dist, min_dist, angle_bin)

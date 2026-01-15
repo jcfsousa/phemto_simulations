@@ -297,7 +297,7 @@ class Calibration:
 
         #R = math.sqrt(aE + bE + c2)
         
-        return 1 #20% for tests
+        return 1 #100% for tests, Revan gives comptons
 
 
     def list_files_in_folder(self, folder_path, extension=".t3pa"):	

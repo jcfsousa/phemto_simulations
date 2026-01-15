@@ -11,7 +11,7 @@ def extract_id_from_file(filename):
 
 def check_dir_exists(dir):
     if not os.path.isdir(dir):
-        print(f"Directory {dir} doesnt exist")
+        #print(f"Directory {dir} doesnt exist")
         return False
     else:
         return True

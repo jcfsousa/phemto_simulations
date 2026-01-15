@@ -1,3 +1,0 @@
-# Compton Events Used: 0
-# Compton eff: 0.0
-# Merit Figure: 0.0

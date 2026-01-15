@@ -1,0 +1,25 @@
+{
+    "det1":{
+        "name": "LED",
+        "material": "Si",
+        "thickness": "0.045",
+        "_comment_thickness": "unit cm",
+        "dx": "3.328",
+        "_comment_dx": "half length in x diretion, unit cm",
+        "dy": "3.328",
+        "_comment_dy": "half length in y diretion, unit cm",
+        "pixel_size": "0.013"
+    },
+    "det2":{
+        "name": "HED",
+        "material": "CdTe",
+        "thickness": "0.2",
+        "_comment_thickness": "unit cm",
+        "dx": "3.2",
+        "_comment_dx": "half length in x diretion, unit cm",
+        "dy": "3.2",
+        "_comment_dy": "half length in y diretion, unit cm",
+        "pixel_size": "0.025"
+    }
+
+}
