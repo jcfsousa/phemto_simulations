@@ -14,6 +14,16 @@ from multiprocessing import Pool
 from tqdm import tqdm
 import gc
 
+def sort_df(inputFile):
+    """
+    This function tranforms the ToT to keV values and sorts the dataframe by Ns.	
+    """
+    df = pd.read_csv(inputFile, sep=",")
+    df_cal = df
+    df_sorted = df.sort_values(by='Ns', ascending=True)
+
+    return df_sorted
+
 def identify_events_time(inputFile, event_length, max_event_index, outputFolder_csv, *kwargs):
     """
     Performs coincidence time analysis of ToA+FToA. 
@@ -23,13 +33,11 @@ def identify_events_time(inputFile, event_length, max_event_index, outputFolder_
     - inputFile: .t3pa file path to be analysed.
     - event_length: event coincidence window.
     - max_event_index: reference event ID, next events will index this reference number
-    - calibration_data: is a np array of the calibration constants (a,b,c,t)
     - inputFolder: Path to the input folder containing data files.
 
     """
-    calib = Calibration('','')
     
-    df_sorted = calib.sort_df(inputFile) # sorts the data by ns.
+    df_sorted = sort_df(inputFile) # sorts the data by ns.
 
     event = 1
     event_index = np.zeros(len(df_sorted['Ns']))
@@ -47,11 +55,10 @@ def identify_events_time(inputFile, event_length, max_event_index, outputFolder_
     
     # Update the max_event_index for the next file
     max_event_index = df_sorted['Event'].max()
-    total_observation_time = calib.calculate_observation_time(df_sorted)
     abc = os.path.basename(inputFile).split('.')[0]
     df_sorted.to_parquet(f'{outputFolder_csv}/df_sorted_{abc}.parquet')
     
-    del df_sorted, total_observation_time
+    del df_sorted
 
     return max_event_index
 
@@ -281,6 +288,8 @@ def parallelize_identifyEvent_Cluster(args):
     gc.collect() # collect garbage ...........
 
 
+def list_files_in_folder(folder_path, extension=".t3pa"):	
+    return [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith(extension) and not f.endswith(extension + ".info")]
 
 def identify_all(inputFolder, outputFolder, event_length, show=False):
     """
@@ -294,8 +303,9 @@ def identify_all(inputFolder, outputFolder, event_length, show=False):
     - all_data_df (pd.DataFrame): DataFrame containing all processed data with clusters assigned.
     """
     
-    calib = Calibration('','')
-    input_files = calib.check_input_folders(inputFolder)
+    #calib = Calibration('','')
+    #input_files = calib.check_input_folders(inputFolder)
+    input_files = list_files_in_folder(inputFolder)
     
     #calibration_data = calib.load_calibration_constants(calibFolder)
     

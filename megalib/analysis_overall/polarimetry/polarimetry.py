@@ -1,4 +1,6 @@
+from glob import glob
 import os
+import argparse
 import sys
 import matplotlib.patches as patches
 import colorcet as cc
@@ -59,6 +61,27 @@ plt.rcParams['xtick.minor.width'] = fontsize*0.1
 plt.rcParams['ytick.minor.width'] = fontsize*0.1
 plt.rcParams['axes.linewidth'] = fontsize/fontsize
 plt.rcParams['grid.linestyle'] = 'dotted'
+
+global_config = None
+
+class config:
+    output_folder: str = None
+    inputPol: str = None
+    inputNonPol: str = None
+
+
+def print_polarimetry_ascii():
+    """Print POLARIMETRY in ASCII art style"""
+    art = """
+██████╗  ██████╗ ██╗      █████╗ ██████╗ ██╗███╗   ███╗███████╗████████╗██████╗ ██╗   ██╗
+██╔══██╗██╔═══██╗██║     ██╔══██╗██╔══██╗██║████╗ ████║██╔════╝╚══██╔══╝██╔══██╗╚██╗ ██╔╝
+██████╔╝██║   ██║██║     ███████║██████╔╝██║██╔████╔██║█████╗     ██║   ██████╔╝ ╚████╔╝ 
+██╔═══╝ ██║   ██║██║     ██╔══██║██╔══██╗██║██║╚██╔╝██║██╔══╝     ██║   ██╔══██╗  ╚██╔╝  
+██║     ╚██████╔╝███████╗██║  ██║██║  ██║██║██║ ╚═╝ ██║███████╗   ██║   ██║  ██║   ██║   
+╚═╝      ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝     ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   
+    """
+    print(art)
+
 
 def compute_max_dist(x_max, x_min, y_max, y_min, chip_id = 2):
     
@@ -311,176 +334,102 @@ def perform_beam_img(output_folder_base, source, chip_id):
 
 if __name__ == '__main__':
     
+    print_polarimetry_ascii()
+
+    parser = argparse.ArgumentParser(description='This parser takes .tra.gz files from revan megalib and identifies single and double compton events in the data. It Parses the data to the PHEMTO 4x4 HED configuration and saves it into a .csv like file named *.t3pa.')
+    parser.add_argument('-o', '--output', required=True, help='Base file for output of polarimetry analysis')
+    parser.add_argument('-ip', '--inputPol', required=True, help='FULL path of the location of the .t3pa Polarized source')
+    parser.add_argument('-inp', '--inputNonPol', required=True, help='FULL path of the location of the .t3pa Non-Polarized source')
+    parser.add_argument( '-b', '--bin', help='Bin range to perform polarimetry ie: 50-400. If monocromatic source script (in the future not yet implemented) will use monochromatic Energy +- res detector at that energy')
+
+    args = parser.parse_args()
+    
+    
+
+    global_config = config()
+    global_config.output_folder = args.output
+    global_config.inputPol = args.inputPol
+    global_config.inputNonPol = args.inputNonPol
+
+    sourcePol = global_config.inputPol.split('/')[-1]
+    sourceNonpol = global_config.inputNonPol.split('/')[-1]
+
+    pathlib.creat_dir(global_config.output_folder)
+
+
     start_time = datetime.now()
-
-    current_dir = os.getcwd()
-    parent_dir = os.path.dirname(current_dir)
-    
-    #Ask user for what config to use
-    selected_config = configlib.initialconfig(parent_dir)
-    
-    #Load the configuration
-    specLib.global_config = specLib.Config(selected_config)
-    
-    print('Chip configuration loaded:')
-    with open(specLib.global_config.config_chips) as f:
-        text = f.readlines()
-        print(text)
-
-    sources = specLib.global_config.sources
-    sources_peaks = specLib.global_config.sources_peaks
-    output_folder_base = specLib.global_config.output_folder
-    input_folder = specLib.global_config.input_dir
-
-   
-    #chip = 'K10-W0060'
-    chip = 'cdte'
-    chip_id = specLib.get_chip_id(chip)
-    
-    print(f"At this stage we are using the chip {chip_id}, {chip}")
-    
-    # Ask User if its analysis of non-Polarized source or Polarized source
-
-    #user_chips = configlib.query_user_chips() 
-    #print(f"CHIPS TO USE: {user_chips}")
-
-    #print(user_chips)
 
     list_max_dist = []
 
-   # for source in sources:
+    folder_input_polarimetry_pol = global_config.inputPol
+    folder_input_polarimetry_Nonpol = global_config.inputNonPol
 
-   #     data_folder = os.path.join(input_folder, source)
-   #     _ = None
-   #     calib = Calibration(output_folder_base, _)
+    result_polarimetry_base = global_config.output_folder
+    pathlib.creat_dir(result_polarimetry_base)
+    
+    source_analysis = sourcePol.replace('Pol', '')
+    result_polarimetry = os.path.join(result_polarimetry_base, source_analysis)
+    pathlib.creat_dir(result_polarimetry)
 
-   # #    specLib.pre_process_source(source) # aslo needs to runs the multiplicity, maybe remove this and tell the user to run the pre_process.py script before running poarimetry.py 08/08/2025
-   # #    specLib.process_event_multiplicity(source)
+    # Detectors geometry constants depending on HED geometry
+    # CdTe
+    z_cdte = -float((sourcePol.split("_")[-1]).split('c')[0]) #distance form source name, negative value
+    cdte_matrix = int((sourcePol.split("config")[1]).split('x')[0])   # cdte matrix from source name, ex:GaussBeamPol50keV_config4x4_0.5cm
+    cdte_single_det_size = 1.6 # 1.6x1.6 cm2
+    cdte_detSize = cdte_single_det_size * cdte_matrix # cm
+    cdte_pixSize = 0.025 # cm
+    # Si
+    z_si = 0 # position of Si detector
+    si_detSize = 6.656 # cm
+    si_pixSize = 0.013 # cm
+    #############################
 
-   #     output_folder = os.path.join(output_folder_base, source)
+    # Polarimetry constants
+    min_dist_list = [0.025, 0.05, 0.075]
+    angle_bin_list = [1,2,3,5,10, 15, 36]  #bin size for polarimetry
+    max_dist_list = [100000]  # max dist between compton events, cm
+    max_dist_list = np.round(max_dist_list, 3)
+    max_dist_on_list = max_dist_list[-1]
+    #############################
 
-   #     source_peaks = specLib.global_config.sources_peaks
 
-   #     try:
-   #         peak_energy_list = source_peaks[source]['e0']
-   #     except:
-   #         print("ERROR: Please provide the source theoretical peak energy to perform polarimetry. Put it on the /config folder sources_database.json file")
-   #         sys.exit(1)
-
-   #     print(f"going to run source: {sources}")
-
-   # 
-   #     print("Performing beam image....")
-   #     #try:
-   #     perform_beam_img(output_folder_base, source, chip_id)
-   #     #    print("Done....")
-   #     #except Exception as e:
-   #     #    print(f"WARNING: Did not perform beam energy, probably too little statistics. {e}")
-
-   #     print("Localizing beam position....")
-   #     try:
-   #         x_max, x_min, y_max, y_min = find_beam_location(output_folder_base, source, chip_id)
-   #         print("Done....")
-   #     except Exception as e:
-   #         print(f"WARNING: Was not able to localize the beam. {e}")
-   #         user_awns_beam_pos = input(f"Do you want to give expected beam position, pixel number? y/n \n")
-   #         if user_awns_beam_pos == 'y':
-   #             x_min = int(input(" x_pix_min: "))
-   #             x_max = int(input(" x_pix_max: "))
-   #             y_min = int(input(" y_pix_min: "))
-   #             y_max = int(input(" x_pix_max: "))
-   #         else:
-   #             print('Provide more statistics then... goodbye...')
-   #             sys.exit(1)
-
-   #     print("Computing max distance of Compton interaction")
-   #     max_dist_computed = compute_max_dist(x_max, x_min, y_max, y_min, chip_id = chip_id) 
-   #     print(f'ssssssssshit: {max_dist_computed}')
-   #     print("Done....")
-
-    #    list_max_dist.append(max_dist_computed)
-
-    #print(list_max_dist)
-    #print(f'min max dist = {min(list_max_dist)}')
-    #minimum_maxdist = min(list_max_dist)
+    #calib = Calibration(output_folder_base, None) # useless remove this feature, past artfact...
+    
+    # Identify single, double and multiple, identify event multiplicity (spacial cluster)
+    specLib.pre_process_source(global_config.inputPol) 
+    specLib.pre_process_source(global_config.inputNonPol)
 
     
+    specLib.process_event_multiplicity(global_config.inputPol) # writes multiplicity .parquets
+    specLib.process_event_multiplicity(global_config.inputNonPol) # writes multiplicity .parquets
+    
+    try:
+        bin_min = int(args.bin.split('-')[0])
+        bin_max = int(args.bin.split('-')[1])
+    except:
+        pass
 
-    #minimum_maxdist = 4.18 ## just running it once for 100kev, delete after
-
-    print(f"going to run source: {sources}")
-
-    for source in sources:
-
-        print(source)
-        
-        energy = float(compton.get_energy_from_source_name(source))
-
-        pol_type = compton.get_pol_type_from_source_name(source)
-        if pol_type == 'NonPol':
-            continue
-        source_pol = source
-        source_Nonpol = source.replace('Pol', 'NonPol')
-
-
-        folder_input_polarimetry_pol = os.path.join(output_folder_base, source_pol)
-        folder_input_polarimetry_Nonpol = os.path.join(output_folder_base, source_Nonpol)
-
-        result_polarimetry_base = os.path.join(output_folder_base, 'result_polarimetry')
-        pathlib.creat_dir(result_polarimetry_base)
-        
-        source_analysis = source.replace('Pol', '')
-
-        result_polarimetry = os.path.join(result_polarimetry_base, source_analysis)
-        pathlib.creat_dir(result_polarimetry)
-
-
-        # Detectors geometry constants depending on HED geometry
-        # CdTe
-        z_cdte = -float((source.split("_")[-1]).split('c')[0]) #distance form source name, negative value
-        cdte_matrix = int((source.split("_")[1]).split('x')[-1])   # cdte matrix from source name, ex:GaussBeamPol50keV_config4x4_0.5cm
-        cdte_single_det_size = 1.6 # 1.6x1.6 cm2
-        cdte_detSize = cdte_single_det_size * cdte_matrix # cm
-        cdte_pixSize = 0.025 # cm
-        # Si
-        z_si = 0 # position of Si detector
-        si_detSize = 6.656 # cm
-        si_pixSize = 0.013 # cm
-        #############################
-
-        # Polarimetry constants
-        min_dist_list = [0.025, 0.05, 0.075]
-        angle_bin_list = [1, 5, 10, 15, 36]  #bin size for polarimetry
-        max_dist_list = [100000]  # max dist between compton events, cm
-        max_dist_list = np.round(max_dist_list, 3)
-        max_dist_on_list = max_dist_list[-1]
-        #############################
-
-
-        calib = Calibration(output_folder_base, None) # useless remove this feature, past artfact...
-        
-        # Identify single, double and multiple, identify event multiplicity (spacial cluster)
-        specLib.pre_process_source(source_pol) 
-        specLib.pre_process_source(source_Nonpol)
-
-        specLib.process_event_multiplicity(source_pol) # writes multiplicity .parquets
-        specLib.process_event_multiplicity(source_Nonpol) # writes multiplicity .parquets
-
-        compton.identify_compton(source_pol, energy, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize)
-        compton.identify_compton(source_Nonpol, energy, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize)
+    try:
+        compton.identify_compton(global_config.inputPol, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize, bin_min=bin_min, bin_max=bin_max)
+        compton.identify_compton(global_config.inputNonPol, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize, bin_min=bin_min, bin_max=bin_max)
+    except Exception as e:
+        print(f"Impossible to identify comptons (probably no Comptons). Error {e}")
        
-        print('Counting events.... wait')
-        compton.count_nEvents_allTypes(folder_input_polarimetry_pol, energy, chip)
-        compton.count_nEvents_allTypes(folder_input_polarimetry_Nonpol, energy, chip)
+    print('Counting events.... wait')
+    compton.count_nEvents_allTypes(global_config.inputPol, bin_min=bin_min, bin_max=bin_max)
+    compton.count_nEvents_allTypes(global_config.inputNonPol, bin_min=bin_min, bin_max=bin_max)
 
-        polarimetry_task = [(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, min_dist, angle_bin, energy, max_dist, z_cdte, z_si, cdte_detSize, si_detSize) for min_dist, angle_bin, max_dist in product(min_dist_list, angle_bin_list, max_dist_list)]
+    polarimetry_task = [(global_config.inputPol, global_config.inputNonPol, result_polarimetry, min_dist, angle_bin, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min, bin_max) for min_dist, angle_bin, max_dist in product(min_dist_list, angle_bin_list, max_dist_list)]
         #with Pool() as pool:
         #    for _ in tqdm(pool.imap_unordered(compton.polarimetry_task, polarimetry_task), total=len(polarimetry_task), desc='Compton Polarimetry'):
         #        pass
+    try:
         for task in tqdm(polarimetry_task,
                          total=len(polarimetry_task),
                          desc='Compton Polarimetry'):
             compton.polarimetry_task(task)
+    except Exception as e:
+        print(f"Impossible to perform polarimetry (probably no Comptons). ERROR: {e}")
         #max_merit, best_min_dist, best_angle_bin, sigma_max_merit = compton.plot_figureMeritMap(output_folder, min_dist_list, angle_bin_list, max_dist_list)
         
         #print(f'best_min_dist: {best_min_dist}')

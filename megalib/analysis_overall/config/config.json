@@ -1,14 +1,14 @@
 {
     "config_chips": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/config/chip_config.txt",
-    "input_dir": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/input_polarimetry",
+    "input_dir": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/polarimetry_data",
     "sources": [
-        "HomogeneousBeam206keV_config1"
+        "Crab1MeventsPol_50-400keV_config4x4_1.5cm"
     ],
     "sources_peaks": {
         "HomogeneousBeam661keV_config1": [661],
         "HomogeneousBeam206keV_config1": [206]
     },
-    "output_folder": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/output_polarimetry",
+    "output_folder": "/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/polarimetry_data",
     "abct_folder": "/home/josesousa/Documents/thor/detector/detSoftware/calibration/pp-calib/",
     "calib_folder": "/media/josesousa/joseHard/quad_characterization/1-QuadCharacterizationResults/calib_grenoble",
     "res_folder": "/media/josesousa/joseHard/quad_characterization/1-QuadCharacterizationResults/resolution_grenoble",

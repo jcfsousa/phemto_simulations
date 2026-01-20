@@ -3,6 +3,10 @@
 
 AbsorptionFileDirectory $(MEGALIB)/resource/examples/geomega/materials
 
+Material Lead
+Lead.Density 11.348
+Lead.Component Pb 1
+
 Material BGO
 BGO.Density					7.1
 BGO.Component				Bi	4  

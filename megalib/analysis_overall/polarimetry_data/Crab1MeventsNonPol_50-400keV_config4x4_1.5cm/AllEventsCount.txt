@@ -1,0 +1,6 @@
+# bin_min: 50
+# bin_max: 400
+# Total Events in Peak: 573375
+# Single Events in Peak: 557614
+# Double Events in Peak: 15734
+# Multiple Events in Peak: 27

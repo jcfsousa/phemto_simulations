@@ -558,11 +558,12 @@ def plot_detector_hits(df, z_cdte, z_si, cdte_detSize, si_detSize, detector='bot
     plt.tight_layout()
 
 
-def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, energy, angle_bin, min_dist, max_dist, z_cdte, z_si, cdte_detSize, si_detSize):
+def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, angle_bin, min_dist, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min = None, bin_max = None):
     '''
     Returns the Df of the polarized source to count the number of comptons downtream
     '''
     
+
     angle_bin_str = str(angle_bin).replace('.','-')
     min_dist_str = str(min_dist).replace('.','-')
     max_dist_str = str(max_dist).replace('.','-')
@@ -570,7 +571,10 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
     ## Folder structure of Polarized Source
     folder_input_polarimetry_pol_parquet = os.path.join(folder_input_polarimetry_pol, 'parquet')
     folder_input_polarimetry_pol_parquet_doubles = os.path.join(folder_input_polarimetry_pol_parquet, 'doubles')
-    folder_input_polarimetry_pol_parquet_doublesPeak = os.path.join(folder_input_polarimetry_pol_parquet_doubles, 'inPeak')
+    if bin_min != None:
+        folder_input_polarimetry_pol_parquet_doublesPeak = os.path.join(folder_input_polarimetry_pol_parquet_doubles, f'bin_{bin_min}-{bin_max}')
+    else:
+        folder_input_polarimetry_pol_parquet_doublesPeak = os.path.join(folder_input_polarimetry_pol_parquet_doubles, 'inPeak')
     folder_input_polarimetry_pol_parquet_doublesPeakCompton = os.path.join(folder_input_polarimetry_pol_parquet_doublesPeak, 'comptons')
     folder_input_polarimetry_pol_polarimetry = os.path.join(folder_input_polarimetry_pol, 'photonPolarimetry')
     pathlib.creat_dir(folder_input_polarimetry_pol_polarimetry)
@@ -580,7 +584,10 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
     # Folder structure of Non-Polarized Source
     folder_input_polarimetry_Nonpol_parquet = os.path.join(folder_input_polarimetry_Nonpol, 'parquet')
     folder_input_polarimetry_Nonpol_parquet_doubles = os.path.join(folder_input_polarimetry_Nonpol_parquet, 'doubles')
-    folder_input_polarimetry_Nonpol_parquet_doublesPeak = os.path.join(folder_input_polarimetry_Nonpol_parquet_doubles, 'inPeak')
+    if bin_min != None:
+        folder_input_polarimetry_Nonpol_parquet_doublesPeak = os.path.join(folder_input_polarimetry_Nonpol_parquet_doubles, f'bin_{bin_min}-{bin_max}')
+    else:
+        folder_input_polarimetry_Nonpol_parquet_doublesPeak = os.path.join(folder_input_polarimetry_Nonpol_parquet_doubles, 'inPeak')
     folder_input_polarimetry_Nonpol_parquet_doublesPeakCompton = os.path.join(folder_input_polarimetry_Nonpol_parquet_doublesPeak, 'comptons')
     folder_input_polarimetry_Nonpol_polarimetry = os.path.join(folder_input_polarimetry_Nonpol, 'photonPolarimetry')
     pathlib.creat_dir(folder_input_polarimetry_Nonpol_polarimetry)
@@ -616,7 +623,9 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
 
      
     concatenated_df_pol = pd.concat(final_filtered_df_pol, ignore_index=True)
+    
 
+    energy = folder_input_polarimetry_pol.split('/')[-1]
     plot_detector_hits(concatenated_df_pol, z_cdte, z_si, cdte_detSize, si_detSize, detector='both', bins = 256)
     plt.savefig(f'{folder_input_polarimetry_pol_polarimetry_binDist}/DEBUG-2DHIST_{energy}keV_BEST_{angle_bin_str}bin_md{min_dist_str}.png')
     plt.close()

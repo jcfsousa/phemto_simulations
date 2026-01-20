@@ -338,6 +338,38 @@ def get_multiplicity_events(data):
     #print(f"# Single Events: {n_events_singles}\n# Double Events: {n_events_double}\n# Multiple Events: {n_events_multiple}")
     return data_singles, data_double, data_multiple
 
+def counts_in_energy_bin(data, bin_min, bin_max):
+    """
+    Identifies the multiplicity of events within the energy peak given by the user. It returns the event ID of each type of event (single, double and multiple).
+
+    """
+    calib = Calibration('', '')
+    
+    # ------- Singles -------------
+    single_cluster_events = get_multiplicity_events(data)[0]
+    
+    # Group by 'Event' and sum the 'ToT (keV)' values
+    single_event_tot_sums = single_cluster_events.groupby('Event')['ToT (keV)'].sum()
+    peak = (single_event_tot_sums >= bin_min) & (single_event_tot_sums <= bin_max) # using all events, res 100%
+    single_events_in_peak = single_event_tot_sums[peak].index.tolist()
+
+    # ------- Doubles -------------
+    double_cluster_events = get_multiplicity_events(data)[1]
+    # Group by 'Event' and sum the 'ToT (keV)' values
+    double_event_tot_sums = double_cluster_events.groupby('Event')['ToT (keV)'].sum()
+    peak = (double_event_tot_sums >= bin_min) & (double_event_tot_sums <= bin_max)# using all events, res 100%
+    double_events_in_peak = double_event_tot_sums[peak].index.tolist()
+
+
+    # ------- Multiples -------------
+    multiple_cluster_events = get_multiplicity_events(data)[2]
+    multiple_event_tot_sums = multiple_cluster_events.groupby('Event')['ToT (keV)'].sum()
+    peak = (multiple_event_tot_sums >= bin_min) & (multiple_event_tot_sums <= bin_max)# using all events, res 100%
+    multiple_events_in_peak = multiple_event_tot_sums[peak].index.tolist()
+
+    #return single_events_in_peak, double_events_in_peak, multiple_events_in_peak
+    return single_events_in_peak, double_events_in_peak, multiple_events_in_peak
+
 def counts_in_energy_peak(data, energy):
     """
     Identifies the multiplicity of events within the energy peak given by the user. It returns the event ID of each type of event (single, double and multiple).
@@ -350,7 +382,7 @@ def counts_in_energy_peak(data, energy):
     
     # Group by 'Event' and sum the 'ToT (keV)' values
     single_event_tot_sums = single_cluster_events.groupby('Event')['ToT (keV)'].sum()
-    peak = (single_event_tot_sums > energy * (1 - calib.resolution(energy))) & (single_event_tot_sums < energy * (1 + calib.resolution(energy)))
+    peak = (single_event_tot_sums >= energy * (1 - calib.resolution(energy))) & (single_event_tot_sums < energy * (1 + calib.resolution(energy))) # using all events, res 100%
     single_events_in_peak = single_event_tot_sums[peak].index.tolist()
 
     # ------- Doubles -------------
@@ -361,14 +393,14 @@ def counts_in_energy_peak(data, energy):
     ### to use with the Ba133 point source to check the residual modulation over the energy range 81, 356kev
     #peak = (double_event_tot_sums > 81 * (1 - calib.resolution(81))) & (double_event_tot_sums < 356 * (1 + calib.resolution(356)))
 
-    peak = (double_event_tot_sums > energy * (1 - calib.resolution(energy))) & (double_event_tot_sums < energy * (1 + calib.resolution(energy)))
+    peak = (double_event_tot_sums >= energy * (1 - calib.resolution(energy))) & (double_event_tot_sums < energy * (1 + calib.resolution(energy)))# using all events, res 100%
     double_events_in_peak = double_event_tot_sums[peak].index.tolist()
 
 
     # ------- Multiples -------------
     multiple_cluster_events = get_multiplicity_events(data)[2]
     multiple_event_tot_sums = multiple_cluster_events.groupby('Event')['ToT (keV)'].sum()
-    peak = (multiple_event_tot_sums > energy * (1 - calib.resolution(energy))) & (multiple_event_tot_sums < energy * (1 + calib.resolution(energy)))
+    peak = (multiple_event_tot_sums >= energy * (1 - calib.resolution(energy))) & (multiple_event_tot_sums < energy * (1 + calib.resolution(energy)))# using all events, res 100%
     multiple_events_in_peak = multiple_event_tot_sums[peak].index.tolist()
 
     #return single_events_in_peak, double_events_in_peak, multiple_events_in_peak
@@ -408,7 +440,7 @@ def apply_barycenter_formatData(data, z_cdte, cdte_detSize, cdte_pixSize, z_si, 
 
     """
     
-    calib = Calibration('', '')
+    calib = Calibration('', '') # remove this bitch... old deprecated
     # Initialize dictionaries to store the E1 and E2 for each event
     E1 = {}
     E2 = {}
@@ -822,8 +854,11 @@ def compute_theta_geom_from_row(row, z_cdte=-5.0, z_si=0.0):
     return theta_geom
 
 def process_comptons(args):
-    outputFolder, peak_energy, outputFile, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize  = args
+    outputFolder, outputFile, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize, bin_min, bin_max  = args
     
+    source_name = outputFolder.split('/')[-1]
+
+
     try:
         hold = os.path.basename(outputFile).split('.')[0]
         mybeer = hold.split('__')
@@ -844,18 +879,28 @@ def process_comptons(args):
 
     ## Getting only Double Events
     all_double_events_dfs = []
-    energy = float(peak_energy)
-    double_events_in_peak = counts_in_energy_peak(data, energy)[1]
+
+    if bin_min != None:
+        double_events_in_peak = counts_in_energy_bin(data, bin_min, bin_max)[1]
+    else:
+        peak_energy = get_energy_from_source_name(source_name)
+        energy = float(peak_energy)
+        double_events_in_peak = counts_in_energy_peak(data, energy)[1]
     double_events_in_peak_df = data[data['Event'].isin(double_events_in_peak)]
     all_double_events_dfs.append(double_events_in_peak_df)
 
     # Saving double events in directory
     double_events_in_peak_df = pd.concat(all_double_events_dfs, ignore_index=True)
+
     outputFolder_parquet_doubles = os.path.join(outputFolder_parquet, f'doubles')
-    outputFolder_parquet_doublesPeak = os.path.join(outputFolder_parquet_doubles, 'inPeak')
+
+    if bin_min != None:
+        outputFolder_parquet_doublesPeak = os.path.join(outputFolder_parquet_doubles, f'bin_{bin_min}-{bin_max}')
+    else:
+        outputFolder_parquet_doublesPeak = os.path.join(outputFolder_parquet_doubles, 'inPeak')
+
     pathlib.creat_dir(outputFolder_parquet_doublesPeak)
     double_events_in_peak_df.to_parquet(f'{outputFolder_parquet_doublesPeak}/double_events_in_peak_df_{abc}.parquet')
-
     grouped_double_events_in_peak_df = double_events_in_peak_df.groupby('Event')
     del double_events_in_peak_df
 
@@ -865,8 +910,8 @@ def process_comptons(args):
     ######### Compton Selection part #########
     sigma_theta_deg = 1.0   # geometrical x,y sigma position resolution
     # Can use very large fom_max to take into consideration all comptons
-    fom_max = 9     # ch2_geometry + chi2_energy,  >9 is 3sigma disagreement.... 
 
+    fom_max = 9999     # Accept all events from Revan!!
     df_comptons = select_compton_events(df,
                                         sigma_theta_deg=sigma_theta_deg,
                                         fom_max=fom_max)
@@ -889,19 +934,22 @@ def process_comptons(args):
     
 
 
-def identify_compton(source, peak_energy, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize, show=False, filter=True):
+def identify_compton(source_dir, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize, show=False, filter=True, bin_min = None, bin_max = None):
     """
     This function read the .parquet data that contains the data already sorted in time, coincidence event time identification, number of clusters per event and the ToT already tranformed to keV.
 
     """
      
-    outputFolder = f"{specLib.global_config.output_folder}/{source}"
+    outputFolder = source_dir
     outputFolder_parquet = os.path.join(outputFolder, 'parquet')
-    outputFolder_comptons = os.path.join(outputFolder_parquet, 'doubles', 'inPeak', 'comptons')
+    if bin_min != None:
+        outputFolder_comptons = os.path.join(outputFolder_parquet, 'doubles', f'bin_{bin_min}-{bin_max}', 'comptons')
+    else:
+        outputFolder_comptons = os.path.join(outputFolder_parquet, 'doubles', 'inPeak', 'comptons')
 
     list_parquet_files = pathlib.get_list_files(outputFolder_parquet, startswith='df_all_data', endswith='.parquet')
 
-    process_args = [(outputFolder, peak_energy, outputFile, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize) for outputFile in list_parquet_files]
+    process_args = [(outputFolder, outputFile, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize, bin_min, bin_max) for outputFile in list_parquet_files]
     
     
     if pathlib.check_dir_exists(outputFolder_comptons):
@@ -914,7 +962,7 @@ def identify_compton(source, peak_energy, z_cdte, cdte_detSize, cdte_pixSize, z_
             print(f'     process_comptons() didnt fully ran, [{n_files_output_folder}/{n_files_input_folder}] files ran. Calling progress_comptons() again....')
 
             with Pool() as pool:
-                for _ in tqdm(pool.imap_unordered(process_comptons, process_args), total=len(list_parquet_files), desc=f'Identifying Comptons: {peak_energy}keV'):
+                for _ in tqdm(pool.imap_unordered(process_comptons, process_args), total=len(list_parquet_files), desc=f'Identifying Comptons: {source_dir.split('/')[-1]}'):
                               pass
 
     else:
@@ -923,7 +971,7 @@ def identify_compton(source, peak_energy, z_cdte, cdte_detSize, cdte_pixSize, z_
         #                 desc='Identify Comptons'):
         #    process_comptons(task)
         with Pool() as pool:
-            for _ in tqdm(pool.imap_unordered(process_comptons, process_args), total=len(list_parquet_files), desc=f'Identifying Comptons: {peak_energy}keV'):
+            for _ in tqdm(pool.imap_unordered(process_comptons, process_args), total=len(list_parquet_files), desc=f'Identifying Comptons: {source_dir.split('/')[-1]}'):
                           pass
 
 
@@ -1040,11 +1088,13 @@ def binning_polarimetry(data_pol, data_Nonpol, energy, angle_bin):
     return phi_counts_corrected_df, phi_counts_binned_df_pol, phi_counts_binned_df_Nonpol, bin_pol_centers
 
 
-def count_nEvents_allTypes(outputFolder, energy, chip, show=False, filter=True):
+def count_nEvents_allTypes(outputFolder, bin_min = None, bin_max = None):
     """
     This function read the .parquet data that contains the data already sorted in time, coincidence event time identification, number of clusters per event and the ToT already tranformed to keV.
 
     """
+
+    source_name = outputFolder.split('/')[-1]
     outputFolder_parquet = os.path.join(outputFolder, 'parquet')
     
     count_singles = 0
@@ -1074,10 +1124,16 @@ def count_nEvents_allTypes(outputFolder, energy, chip, show=False, filter=True):
             data = pd.read_parquet(f'{outputFolder_parquet}/df_all_data_df_{abc}.parquet', columns = ['Event', 'Cluster', 'ToT (keV)', 'Overflow'])
 
         
-
-        count_singles_peak_hold = len(counts_in_energy_peak(data, energy)[0])
-        count_doubles_peak_hold = len(counts_in_energy_peak(data, energy)[1])
-        count_multi_peak_hold = len(counts_in_energy_peak(data, energy)[2])
+        
+        if bin_min != None:
+            count_singles_peak_hold = len(counts_in_energy_bin(data, bin_min, bin_max)[0])
+            count_doubles_peak_hold = len(counts_in_energy_bin(data, bin_min, bin_max)[1])
+            count_multi_peak_hold = len(counts_in_energy_bin(data, bin_min, bin_max)[2])
+        else:
+            energy = get_energy_from_source_name(source_name)
+            count_singles_peak_hold = len(counts_in_energy_peak(data, energy)[0])
+            count_doubles_peak_hold = len(counts_in_energy_peak(data, energy)[1])
+            count_multi_peak_hold = len(counts_in_energy_peak(data, energy)[2])
         
         count_singles_peak += count_singles_peak_hold
         count_doubles_peak += count_doubles_peak_hold
@@ -1086,8 +1142,12 @@ def count_nEvents_allTypes(outputFolder, energy, chip, show=False, filter=True):
         total_events_peak += count_singles_peak_hold + count_doubles_peak_hold + count_multi_peak_hold
 
     #print(f"# Total Events in Peak: {total_events_peak}\n# Single Events in Peak: {count_singles_peak}\n# Double Events in Peak: {count_doubles_peak}\n# Multiple Events in Peak: {count_multi_peak}")
-    with open(f'{outputFolder}/AllEventsCount.txt', 'w') as f:
-        f.write(f"# Total Events in Peak: {total_events_peak}\n# Single Events in Peak: {count_singles_peak}\n# Double Events in Peak: {count_doubles_peak}\n# Multiple Events in Peak: {count_multi_peak}")
+    if bin_min != None:
+        with open(f'{outputFolder}/AllEventsCount.txt', 'w') as f:
+            f.write(f"# bin_min: {bin_min}\n# bin_max: {bin_max}\n# Total Events in Peak: {total_events_peak}\n# Single Events in Peak: {count_singles_peak}\n# Double Events in Peak: {count_doubles_peak}\n# Multiple Events in Peak: {count_multi_peak}")
+    else:
+        with open(f'{outputFolder}/AllEventsCount.txt', 'w') as f:
+            f.write(f"# Total Events in Peak: {total_events_peak}\n# Single Events in Peak: {count_singles_peak}\n# Double Events in Peak: {count_doubles_peak}\n# Multiple Events in Peak: {count_multi_peak}")
 
 
 def count_finalComptons(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, concat_df, min_dist, max_dist, angle_bin, residual=False, pol_both = False):
@@ -1932,6 +1992,19 @@ def get_rot_from_source_name(source):
         if 'deg' in item.lower():
             rot = float(item.split('deg')[0].replace('-', '.'))
             return rot
+
+def get_n_comptons(source_folder):
+    file= f'{source_folder}/ComptonsEventsCount.txt'
+    try:
+        with(open(file, 'r')) as f:
+             for line in f:
+                 print(line)
+                 if "Compton Events Used" in line:
+                     n = line.split(':')[-1].strip()
+                     return int(n)
+    except Exception as e: 
+        print(f"ERROR: {source_folder}/ComptonsEventsCount.txt doesnt exist - Try run polarimetry.py first - {e}")
+        sys.exit(1)
 
 def get_Q(source_folder):
     '''
@@ -2818,8 +2891,8 @@ def compute_polarimetry_phi(data):
 
 
 def polarimetry_task(args):
-    folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, min_dist, angle_bin, energy, max_dist, z_cdte, z_si, cdte_detSize, si_detSize = args
-    concat_df = fits.fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, energy, angle_bin, min_dist, max_dist, z_cdte, z_si, cdte_detSize, si_detSize)
+    folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, min_dist, angle_bin, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min, bin_max = args
+    concat_df = fits.fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, angle_bin, min_dist, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min=bin_min, bin_max=bin_max)
     count_finalComptons(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, concat_df, min_dist, max_dist, angle_bin)
     #plot_compton_events_used_characteristics(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, concat_df, energy, max_dist, min_dist, angle_bin)
     del concat_df

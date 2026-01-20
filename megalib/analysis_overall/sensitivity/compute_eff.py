@@ -93,8 +93,7 @@ def check_closest_peak(theoretical_peak, list_found_peaks, bins_found_peaks):
 
 if __name__ == '__main__':
     
-    config_list = ['config1', 'config2', 'config3']
-    geofile = '/local/home/jf285468/Documents/PHEMTO/new/instruments/PHEMTO_config1.geo.setup'
+    config_list = ['config1']
     #log_E=[4,8,30,50,80,100,120,150,200,250,300,400,500,600]
     
     E_init = 50
@@ -103,12 +102,13 @@ if __name__ == '__main__':
         Log_E.append(E_init)
         E_init = E_init + 6.5
     
-    source_basename = 'HomogeneousBeam'
+    Log_E=[50,100,200,300,400]
+    source_basename = 'CollimatedBeamPol'
 
     for config in config_list:
         spectra_dict = {}
         for energy in Log_E:
-            trafile = f'./sources/simTra_files/{source_basename}%dkeV_{config}.inc1.id1.tra.gz'%(energy)
+            trafile = f'../input_polarimetry/simTra_files-Pol_NonPolCollimated/{source_basename}%dkeV_config4x4_1.5cm.inc1.id1.tra.gz'%(energy)
             print(f'reading {trafile} ...')
             with gzip.open(trafile,'rt') as f:
                 spectra_file_Si = []
@@ -128,7 +128,7 @@ if __name__ == '__main__':
                        event_z = float(split_event[5].split(' ')[3]) #cm
                        if event_z < 0.5 and event_z > -0.5: #Si detector interaction
                            spectra_file_Si.append(event_energy)
-                       elif event_z < -4 and event_z > -6.5: # CdTe interaction
+                       elif event_z < -0.5 and event_z > -6.5: # CdTe interaction
                            spectra_file_CdTe.append(event_energy)
                     if split_event[1] == 'ET CO':
                        event_id = split_event[2].split(' ')[-1]
@@ -146,21 +146,16 @@ if __name__ == '__main__':
                        event_energy = ch0_event_energy + ch1_event_energy
                        if ch0_event_z < 0.5 and ch0_event_z > -0.5 and ch1_event_z < 0.5 and ch1_event_z > -0.5: #Si detector interaction
                            spectra_file_Si.append(event_energy)
-                       elif ch0_event_z < -4 and ch0_event_z > -6.5 and ch1_event_z < -4 and ch1_event_z > -6.5: # CdTe interaction
+                       elif ch0_event_z < -0.5 and ch0_event_z > -6.5 and ch1_event_z < -0.5 and ch1_event_z > -6.5: # CdTe interaction
                            spectra_file_CdTe.append(event_energy)
                        else:
                            spectra_file_SiCdTe.append(event_energy)
                     else:
                         continue
 
-            if config == 'config1':
-                spectra_dict[f'Si,{energy}'] = spectra_file_Si
-                spectra_dict[f'CdTe,{energy}'] = spectra_file_CdTe
-                spectra_dict[f'SiCdTe,{energy}'] = spectra_file_SiCdTe
-            else:
-                spectra_dict[f'Si,{energy}'] = spectra_file_Si
-                spectra_dict[f'CZT,{energy}'] = spectra_file_CdTe
-                spectra_dict[f'SiCZT,{energy}'] = spectra_file_SiCdTe
+            spectra_dict[f'Si,{energy}'] = spectra_file_Si
+            spectra_dict[f'CdTe,{energy}'] = spectra_file_CdTe
+            spectra_dict[f'SiCdTe,{energy}'] = spectra_file_SiCdTe
 
         
         eff_dict = {}
@@ -169,10 +164,7 @@ if __name__ == '__main__':
         eff_sicdte = {}
 
         for energy in Log_E:
-            if config == 'config1':
-                location_events = ['Si', 'CdTe', 'SiCdTe']
-            else:
-                location_events = ['Si', 'CZT', 'SiCZT']
+            location_events = ['Si', 'CdTe', 'SiCdTe']
             
             total_events = 0
             for location in location_events:
@@ -184,10 +176,10 @@ if __name__ == '__main__':
                     steps = int(round((xmax-xmin)*20,0)) #0.05 keV bin
                     bin = (xmax-xmin)/(steps)
                 elif location == 'CdTe':
-                    steps = int(round((xmax-xmin)*2,0)) # 0.5 keV bin
+                    steps = int(round((xmax-xmin)*10,0)) # 0.1 keV bin
                     bin = (xmax-xmin)/(steps)
                 elif location == 'SiCdTe':
-                    steps = int(round((xmax -xmin),0)) # 1 keV bin
+                    steps = int(round((xmax -xmin),10)) # 0.1 keV bin
                     bin = (xmax-xmin)/(steps)
                 elif location == 'CZT':
                     steps = int(round((xmax-xmin)*2,0)) # 0.5 keV bin
@@ -267,25 +259,20 @@ if __name__ == '__main__':
             eff_sicdte_list.append(eff_sicdte[f'{energy}'])
 
         plt.plot(Log_E, eff_list, label = 'Eff total')
-        if config == 'config1':
-            plt.plot(Log_E, eff_si_list, label = 'Eff Si')
-            plt.plot(Log_E, eff_cdte_list, label = 'Eff CdTe')
-            plt.plot(Log_E, eff_sicdte_list, label = 'Eff Si+CdTe events')
-        else:
-            plt.plot(Log_E, eff_si_list, label = 'Eff Si')
-            plt.plot(Log_E, eff_cdte_list, label = 'Eff CZT')
-            plt.plot(Log_E, eff_sicdte_list, label = 'Eff Si+CZT events')
+        plt.plot(Log_E, eff_si_list, label = 'Eff Si')
+        plt.plot(Log_E, eff_cdte_list, label = 'Eff CdTe')
+        plt.plot(Log_E, eff_sicdte_list, label = 'Eff Si+CdTe events')
         plt.legend()
 
         plt.ylabel('Detection efficiency')
         plt.xlabel('Energy (keV)')
 
-        #plt.show()
-        outputFolder = f'./analysis_overall/{config}'
-        plt.savefig(f'{outputFolder}/efficience_plot_instrument_{config}.png')
+        plt.show()
+        outputFolder = f'./'
+        #plt.savefig(f'{outputFolder}/efficience_plot_instrument_4x4.png')
         plt.close()
 
-        outputFile = f'{outputFolder}/{config}_eff_instrument.csv'
+        outputFile = f'{outputFolder}/4x4_eff_instrument.csv'
 
         with open(outputFile, 'w') as f:
             f.write('Energy_keV,Eff\n')
@@ -293,4 +280,68 @@ if __name__ == '__main__':
                 f.write(f'{Log_E[i]},{eff_list[i]} \n')
 
             f.close()
+
+
+
+
+
+
+
+
+
+
+    ##### NEW #####
+    log_E = [50, 200]
+    si_only = []; cdte_only = []; si_cdte = []; total_events = []
+
+    N_generated = 1e6  # Total MC events per energy
+    e = []
+    n = []
+    for energy in log_E:
+        filename = f"/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/input_polarimetry/simTra_files-Pol_NonPolCollimated/CollimatedBeamNonPol{energy}keV_config4x4_1.5cm.inc1.id1.tra.gz"
+        n_events = 0
+        n_compton = 0
+        n_2site = 0
+        
+        # This also parses the events
+        counts = count_event_types(filename)
+        
+        si_only.append(counts['Si-only'])
+        cdte_only.append(counts['CdTe-only']) 
+        si_cdte.append(counts['Si+CdTe'])
+        total_events.append(counts['Si-only'] + counts['CdTe-only'] + counts['Si+CdTe'])
+        
+        print(f"{energy}keV: Si eff = {counts['Si-only']/N_generated*100:.2f}%")
+        print(f"{energy}keV: CdTe eff = {counts['CdTe-only']/N_generated*100:.2f}%")
+        print(f"{energy}keV: Si+CdTe eff = {counts['Si+CdTe']/N_generated*100:.2f}%")
+        print(f"{energy}keV: Other eff = {counts['Other']/N_generated*100:.2f}%")
+
+# Convert to efficiencies
+    si_eff = np.array(si_only) / N_generated
+    cdte_eff = np.array(cdte_only) / N_generated  
+    si_cdte_eff = np.array(si_cdte) / N_generated
+    total_eff = np.array(total_events) / N_generated
+
+# Scientific plot
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    ax.plot(log_E, si_eff*100, 'o-', color='skyblue', linewidth=2, markersize=8, 
+            label='Si-only', alpha=0.8)
+    ax.plot(log_E, cdte_eff*100, 's-', color='salmon', linewidth=2, markersize=8, 
+            label='CdTe-only', alpha=0.8)
+    ax.plot(log_E, si_cdte_eff*100, 'D-', color='darkgreen', linewidth=2, markersize=8, 
+            label='Si+CdTe (Compton)', alpha=0.9)
+    ax.plot(log_E, total_eff*100, 'D-', color='dimgray', linewidth=3, markersize=10, 
+            label='Total', alpha=0.9)
+
+    ax.set_xlabel('Energy (keV)', fontsize=14, fontweight='bold')
+    ax.set_ylabel('Efficiency (%)', fontsize=14, fontweight='bold')
+    ax.grid(True, alpha=0.3)
+    ax.legend(fontsize=12, loc='upper right', framealpha=0.95)
+
+    plt.title('Phemto 4x4 Efficiency vs Energy\n(1×10⁶ MC events per energy bin)', 
+              fontsize=15, fontweight='bold', pad=20)
+    plt.yscale('log')  # Log scale for efficiency drop-off
+    plt.tight_layout()
+    plt.show()
 

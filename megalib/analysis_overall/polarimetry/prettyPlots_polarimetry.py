@@ -288,7 +288,7 @@ if __name__ == '__main__':
         angle_bin_list = [1, 5, 10, 15, 36]  #bin size for polarimetry
         max_dist_list = [100000]  # max dist between compton events, cm
         max_dist_list = np.round(max_dist_list, 3)
-        max_dist_on_list = max_dist_list[-1]
+        max_dist= max_dist_list[-1]
         #############################
 
 

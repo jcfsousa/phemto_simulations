@@ -99,7 +99,7 @@ class Config:
             "output_folder": self.output_folder
         }, indent=4)
 
-def pre_process_source(source):
+def pre_process_source(source_dir):
     '''
     Multi threading
 
@@ -112,14 +112,13 @@ def pre_process_source(source):
     # Step 4: Save the processed data
 
     '''
-    input_folder = os.path.join(global_config.input_dir, source)
-    source_id = source 
+    input_folder = source_dir
+    resultFolder = source_dir
 
-    resultFolder = os.path.join(global_config.output_folder, source_id)
     os.makedirs(resultFolder, exist_ok=True)
     resultFolder_parquet = os.path.join(resultFolder, 'parquet')    
     
-    print(f"Analysing '{source}' radioactive source....")
+    print(f"Analysing '{source_dir}' radioactive source....")
 
     if pathlib.check_dir_exists(resultFolder_parquet): #check if identify all already ran by comparing to number of files on input directory
         n_files_output_folder = pathlib.check_number_files_in_dir(resultFolder_parquet, endswith='.parquet')
@@ -137,16 +136,13 @@ def pre_process_source(source):
     gc.collect() # collect garbage.........
 
 
-def process_event_multiplicity(source):
+def process_event_multiplicity(source_dir):
 
-    input_folder = os.path.join(global_config.input_dir, source)
-    source_id = source 
+    input_folder = source_dir
+    resultFolder = source_dir
 
-    resultFolder = os.path.join(global_config.output_folder, source_id)
     os.makedirs(resultFolder, exist_ok=True)
     resultFolder_parquet = os.path.join(resultFolder, 'parquet')    
-
-    observation_time = 0
 
     single_events_df = pd.DataFrame()
     double_events_df = pd.DataFrame()
@@ -179,7 +175,7 @@ def process_event_multiplicity(source):
             parquet_files = pathlib.get_list_files(resultFolder_parquet, startswith='df_all_data_df_', endswith='.parquet')
             i = 1
             for i, parquet_file in enumerate(tqdm(parquet_files, total=n_files,
-                                                  desc=f"Computing, single, double and multiple, {source_id}",
+                                                  desc=f"Computing, single, double and multiple, {source_dir}",
                                                   unit="file"), start=1):
 
                 all_data_df_abc = pd.read_parquet(f"{resultFolder_parquet}/{parquet_file}", 
@@ -380,7 +376,7 @@ def get_res_constants():
     '''
     This function grabs the a,b,c constants of the resolution curve, given the path on the {conf}.json file.
     Returns the a,b,c constants for the percentual value of the resolution, 
-    R(%)= sqrt{a^2 E^{-2} + b^2 E^{-1} + c^2}, E is the cluster energy.
+    R(%)=\sqrt{a^2 E^{-2} + b^2 E^{-1} + c^2}, E is the cluster energy.
     '''
 
     chip_id = int(chip_id)
