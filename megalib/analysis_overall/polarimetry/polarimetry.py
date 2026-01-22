@@ -340,10 +340,10 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', required=True, help='Base file for output of polarimetry analysis')
     parser.add_argument('-ip', '--inputPol', required=True, help='FULL path of the location of the .t3pa Polarized source')
     parser.add_argument('-inp', '--inputNonPol', required=True, help='FULL path of the location of the .t3pa Non-Polarized source')
-    parser.add_argument( '-b', '--bin', help='Bin range to perform polarimetry ie: 50-400. If monocromatic source script (in the future not yet implemented) will use monochromatic Energy +- res detector at that energy')
+    parser.add_argument( '-b', '--bin', help='Bin range to perform polarimetry ie: 50-400. If you use this argument, the argument --peak -p will be ignored.')
+    parser.add_argument( '-p', '--peak', required=True, default='False', help='Usage: <-p True>, <-p False> .If True it will use source energy peak (present on source name _400keV_) and use only events with E-res<=E<=E+res (NOT YET IMPLEMEMNTED). If not use DEFAULT = False, Will use All events without energy cuts (IMPLEMENTED).')
 
     args = parser.parse_args()
-    
     
 
     global_config = config()
@@ -403,33 +403,32 @@ if __name__ == '__main__':
     specLib.process_event_multiplicity(global_config.inputPol) # writes multiplicity .parquets
     specLib.process_event_multiplicity(global_config.inputNonPol) # writes multiplicity .parquets
     
+    # parsing input arguments
     try:
         bin_min = int(args.bin.split('-')[0])
         bin_max = int(args.bin.split('-')[1])
     except:
-        pass
+        bin_min = None
+        bin_max = None
+    
+    energy_peak_filter = args.peak
 
-    try:
-        compton.identify_compton(global_config.inputPol, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize, bin_min=bin_min, bin_max=bin_max)
-        compton.identify_compton(global_config.inputNonPol, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize, bin_min=bin_min, bin_max=bin_max)
-    except Exception as e:
-        print(f"Impossible to identify comptons (probably no Comptons). Error {e}")
+    compton.identify_compton(global_config.inputPol, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize, bin_min=bin_min, bin_max=bin_max, energy_peak_filter = energy_peak_filter)
+    compton.identify_compton(global_config.inputNonPol, z_cdte, cdte_detSize, cdte_pixSize, z_si, si_detSize, si_pixSize, bin_min=bin_min, bin_max=bin_max, energy_peak_filter = energy_peak_filter)
        
     print('Counting events.... wait')
-    compton.count_nEvents_allTypes(global_config.inputPol, bin_min=bin_min, bin_max=bin_max)
-    compton.count_nEvents_allTypes(global_config.inputNonPol, bin_min=bin_min, bin_max=bin_max)
+    compton.count_nEvents_allTypes(global_config.inputPol, bin_min=bin_min, bin_max=bin_max, energy_peak_filter = energy_peak_filter)
+    compton.count_nEvents_allTypes(global_config.inputNonPol, bin_min=bin_min, bin_max=bin_max, energy_peak_filter = energy_peak_filter)
 
-    polarimetry_task = [(global_config.inputPol, global_config.inputNonPol, result_polarimetry, min_dist, angle_bin, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min, bin_max) for min_dist, angle_bin, max_dist in product(min_dist_list, angle_bin_list, max_dist_list)]
-        #with Pool() as pool:
-        #    for _ in tqdm(pool.imap_unordered(compton.polarimetry_task, polarimetry_task), total=len(polarimetry_task), desc='Compton Polarimetry'):
-        #        pass
-    try:
-        for task in tqdm(polarimetry_task,
-                         total=len(polarimetry_task),
-                         desc='Compton Polarimetry'):
-            compton.polarimetry_task(task)
-    except Exception as e:
-        print(f"Impossible to perform polarimetry (probably no Comptons). ERROR: {e}")
+    polarimetry_task = [(global_config.inputPol, global_config.inputNonPol, result_polarimetry, min_dist, angle_bin, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min, bin_max, energy_peak_filter) for min_dist, angle_bin, max_dist in product(min_dist_list, angle_bin_list, max_dist_list)]
+    with Pool() as pool: #Parallel processing
+        for _ in tqdm(pool.imap_unordered(compton.polarimetry_task, polarimetry_task), total=len(polarimetry_task), desc='Compton Polarimetry'):
+            pass
+    #try:
+    #    for task in tqdm(polarimetry_task,
+    #                     total=len(polarimetry_task),
+    #                     desc='Compton Polarimetry'):
+    #        compton.polarimetry_task(task)
         #max_merit, best_min_dist, best_angle_bin, sigma_max_merit = compton.plot_figureMeritMap(output_folder, min_dist_list, angle_bin_list, max_dist_list)
         
         #print(f'best_min_dist: {best_min_dist}')

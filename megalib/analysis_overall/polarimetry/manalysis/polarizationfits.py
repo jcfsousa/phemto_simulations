@@ -558,7 +558,7 @@ def plot_detector_hits(df, z_cdte, z_si, cdte_detSize, si_detSize, detector='bot
     plt.tight_layout()
 
 
-def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, angle_bin, min_dist, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min = None, bin_max = None):
+def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, angle_bin, min_dist, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min = None, bin_max = None, energy_peak_filter = False):
     '''
     Returns the Df of the polarized source to count the number of comptons downtream
     '''
@@ -573,8 +573,10 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
     folder_input_polarimetry_pol_parquet_doubles = os.path.join(folder_input_polarimetry_pol_parquet, 'doubles')
     if bin_min != None:
         folder_input_polarimetry_pol_parquet_doublesPeak = os.path.join(folder_input_polarimetry_pol_parquet_doubles, f'bin_{bin_min}-{bin_max}')
-    else:
+    elif energy_peak_filter:
         folder_input_polarimetry_pol_parquet_doublesPeak = os.path.join(folder_input_polarimetry_pol_parquet_doubles, 'inPeak')
+    else:
+        folder_input_polarimetry_pol_parquet_doublesPeak = os.path.join(folder_input_polarimetry_pol_parquet_doubles, 'all')
     folder_input_polarimetry_pol_parquet_doublesPeakCompton = os.path.join(folder_input_polarimetry_pol_parquet_doublesPeak, 'comptons')
     folder_input_polarimetry_pol_polarimetry = os.path.join(folder_input_polarimetry_pol, 'photonPolarimetry')
     pathlib.creat_dir(folder_input_polarimetry_pol_polarimetry)
@@ -586,40 +588,52 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
     folder_input_polarimetry_Nonpol_parquet_doubles = os.path.join(folder_input_polarimetry_Nonpol_parquet, 'doubles')
     if bin_min != None:
         folder_input_polarimetry_Nonpol_parquet_doublesPeak = os.path.join(folder_input_polarimetry_Nonpol_parquet_doubles, f'bin_{bin_min}-{bin_max}')
-    else:
+    elif energy_peak_filter:
         folder_input_polarimetry_Nonpol_parquet_doublesPeak = os.path.join(folder_input_polarimetry_Nonpol_parquet_doubles, 'inPeak')
+    else:
+        folder_input_polarimetry_Nonpol_parquet_doublesPeak = os.path.join(folder_input_polarimetry_Nonpol_parquet_doubles, 'all')
     folder_input_polarimetry_Nonpol_parquet_doublesPeakCompton = os.path.join(folder_input_polarimetry_Nonpol_parquet_doublesPeak, 'comptons')
     folder_input_polarimetry_Nonpol_polarimetry = os.path.join(folder_input_polarimetry_Nonpol, 'photonPolarimetry')
     pathlib.creat_dir(folder_input_polarimetry_Nonpol_polarimetry)
     folder_input_polarimetry_Nonpol_polarimetry_binDist = os.path.join(folder_input_polarimetry_Nonpol_polarimetry, f'{angle_bin_str}bin_md{min_dist_str}_maxd{max_dist_str}')
     pathlib.creat_dir(folder_input_polarimetry_Nonpol_polarimetry_binDist)
     
+    # PReping the result polarimetry path according to spectral bin
+    if bin_min != None:
+        result_polarimetry_type = os.path.join(result_polarimetry, f'bin_{bin_min}-{bin_max}')
+    elif energy_peak_filter:
+        result_polarimetry_type = os.path.join(result_polarimetry, f'inPeak')
+    else:
+        result_polarimetry_type = os.path.join(result_polarimetry, f'all')
     # Result polarimetry path for each bin, min_dist, max_dist condition
-    folder_result_polarimetry = os.path.join(result_polarimetry, f'{angle_bin_str}bin_md{min_dist_str}_maxd{max_dist_str}')
+    folder_result_polarimetry = os.path.join(result_polarimetry_type, f'{angle_bin_str}bin_md{min_dist_str}_maxd{max_dist_str}')
     pathlib.creat_dir(folder_result_polarimetry)
   
     ## POLARIZED SOURCE
     final_filtered_df_pol = []
     for filename in os.listdir(f'{folder_input_polarimetry_pol_parquet_doublesPeakCompton}/'):
         if filename.startswith('comptons') and filename.endswith(".parquet"):
-            filepath = os.path.join(folder_input_polarimetry_pol_parquet_doublesPeakCompton, filename)
-            
-            df = pd.read_parquet(filepath)
+            try:
+                filepath = os.path.join(folder_input_polarimetry_pol_parquet_doublesPeakCompton, filename)
+                
+                df = pd.read_parquet(filepath)
 
-            #print(df)
-            
-            compton_data_phi = compton.compute_polarimetry_phi(df)
-            ## limit xmax and xmin
+                #print(df)
+                
+                compton_data_phi = compton.compute_polarimetry_phi(df)
+                ## limit xmax and xmin
 
-            compton_data_phi = limit_dist_photon_travel(compton_data_phi, min_dist, max_dist)
-            #print(compton_data_phi)
+                compton_data_phi = limit_dist_photon_travel(compton_data_phi, min_dist, max_dist)
+                #print(compton_data_phi)
 
 
-            filtered_df = add_xyz(compton_data_phi, z_si=z_si, z_cdte=z_cdte)
-            #plot_all_events_3d(filtered_df) 
+                filtered_df = add_xyz(compton_data_phi, z_si=z_si, z_cdte=z_cdte)
+                #plot_all_events_3d(filtered_df) 
 
-            #plot_all_events_3d(filtered_df)
-            final_filtered_df_pol.append(filtered_df)
+                #plot_all_events_3d(filtered_df)
+                final_filtered_df_pol.append(filtered_df)
+            except Exception as e:
+                print(f"ERROR: Impossible to perform polarimetry (probably no Comptons), ref Pol {filename}. Info: {e}")
 
      
     concatenated_df_pol = pd.concat(final_filtered_df_pol, ignore_index=True)

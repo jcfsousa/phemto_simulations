@@ -41,20 +41,20 @@ Energies = np.logspace(1, 3, num=1000000, endpoint=True, base=10.0)
 
 LeoBack = LEO(args.altitude, args.inclination, args.geomlat, args.geocutoff)
 
-#LeoBackfunc = [LeoBack.AtmosphericNeutrons, LeoBack.CosmicPhotons,
-#               LeoBack.PrimaryProtons, LeoBack.SecondaryProtonsUpward,
-#               LeoBack.PrimaryAlphas, LeoBack.PrimaryElectrons,
-#               LeoBack.PrimaryPositrons, LeoBack.SecondaryElectrons,
-#               LeoBack.SecondaryPositrons, LeoBack.AlbedoPhotons,
-#               LeoBack.GalacticCenter, LeoBack.GalacticDisk]
+LeoBackfunc = [LeoBack.AtmosphericNeutrons, LeoBack.CosmicPhotons,
+               LeoBack.PrimaryProtons, LeoBack.SecondaryProtonsUpward,
+               LeoBack.PrimaryAlphas, LeoBack.PrimaryElectrons,
+               LeoBack.PrimaryPositrons, LeoBack.SecondaryElectrons,
+               LeoBack.SecondaryPositrons, LeoBack.AlbedoPhotons,
+               LeoBack.GalacticCenter, LeoBack.GalacticDisk]
 
-LeoBackfunc = [LeoBack.AlbedoPhotons, LeoBack.CosmicPhotons]
+#LeoBackfunc = [LeoBack.AlbedoPhotons, LeoBack.CosmicPhotons]
 
-Title = ["Albedo Photons", "Cosmic Photons"]
-#Title = ["Atmospheric Neutrons", "Cosmic Photons", "Primary Protons",
-#         "Secondary Protons", "Primary Alphas", "Primary Electrons",
-#         "Primary Positrons", "Secondary Electrons", "Secondary Positrons",
-#         "Albedo Photons", "Galactic Center", "Galactic Disk"]
+#Title = ["Albedo Photons", "Cosmic Photons"]
+Title = ["Atmospheric Neutrons", "Cosmic Photons", "Primary Protons",
+         "Secondary Protons", "Primary Alphas", "Primary Electrons",
+         "Primary Positrons", "Secondary Electrons", "Secondary Positrons",
+         "Albedo Photons", "Galactic Center", "Galactic Disk"]
 
 colors = ['darkred', 'darkorange', 'darkgreen', 'steelblue', 'darkblue',
           'orchid', 'red', 'darkgrey', 'mediumseagreen', 'black',

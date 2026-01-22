@@ -201,7 +201,8 @@ def plot_figureMeritvrsEnergy(output_folder_base, merit_dict):
 
 
 if __name__ == '__main__':
-
+    
+    print('THIS SCRIPT IS OUTDATED, NEED TO ADJUST FOR SPECTRAL BINNING - WORKS WITH MID JANUARY PROCESSED POLARIMETRY!!!!!!!!!!!! PUT ON CONFIG FILE THE PATH FOR THIS DATA!!!')
     
     start_time = datetime.now()
 
@@ -487,6 +488,33 @@ if __name__ == '__main__':
                 plt.show()
 
     plot_MeritFigure_Energy_fixedConfigfixedDist(output_folder_base, lst_source_energy, lst_distance_dets, lst_HED_config, source_type, min_dist, angle_bin, max_dist)
+
+    def plot_Q_Energy_fixedConfigfixedDist(base_source_folder, lst_source_energy, lst_distance_dets, lst_HED_config, source_type, min_dist, angle_bin, max_dist):
+         
+        angle_bin_str = str(angle_bin).replace('.','-')
+        min_dist_str = str(min_dist).replace('.','-')
+        max_dist_str = str(max_dist).replace('.','-')
+        for HED_config in lst_HED_config:
+            for distance_dets in lst_distance_dets:
+                lst_y = []
+                lst_y_uncert = []
+                lst_x = []
+                for source_energy in lst_source_energy:
+                    result_polarimetry = f"{base_source_folder}/result_polarimetry/{source_type}{source_energy}keV_config{HED_config}x{HED_config}_{distance_dets}cm"
+                    folder_result_polarimetry = os.path.join(result_polarimetry, f'{angle_bin_str}bin_md{min_dist_str}_maxd{max_dist_str}')
+                    Y, Y_uncert = compton.get_Q(folder_result_polarimetry)
+                    lst_y.append(Y)
+                    lst_y_uncert.append(Y_uncert)
+                    lst_x.append(source_energy)
+                
+                plt.errorbar(lst_x, lst_y, yerr=lst_y_uncert,  marker='o', capsize=5,label = f"{HED_config}x{HED_config}")
+                plt.title(f"HED config: {HED_config}x{HED_config} - Distance dets: {distance_dets} cm")
+                plt.xlabel("Energy (keV)")
+                plt.ylabel(r"Modulation Factor, Q100")
+                plt.legend()
+                plt.show()
+
+    plot_Q_Energy_fixedConfigfixedDist(output_folder_base, lst_source_energy, lst_distance_dets, lst_HED_config, source_type, min_dist, angle_bin, max_dist)
     breakpoint()
 
 

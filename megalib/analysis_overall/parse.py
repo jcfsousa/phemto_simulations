@@ -200,10 +200,39 @@ def print_parsing_tra_ascii():
     """
     print(art)
 
+def print_final_table(filename, n_events, n_singles, n_double_compton, n_mult_compton, counts):
+    """Print a compact table."""
+    
+    print("\n" + "=" * 52)
+    print("EVENT STATISTICS")
+    print("=" * 52)
+    print(f"File: {filename}")
+    print(f"Total: {n_events:,} events")
+    print("-" * 52)
+    
+    # Create a simple table
+    data = [
+        ("Single Photon", n_singles, n_singles/n_events*100),
+        ("Double Compton", n_double_compton, n_double_compton/n_events*100),
+        ("Multi Compton", n_mult_compton, n_mult_compton/n_events*100),
+        ("-" * 20, "-" * 10, "-" * 7),
+        ("Si-only", counts['Si-only'], counts['Si-only']/n_events*100),
+        ("CdTe-only", counts['CdTe-only'], counts['CdTe-only']/n_events*100),
+        ("Si+CdTe", counts['Si+CdTe'], counts['Si+CdTe']/n_events*100),
+        ("Other", counts['Other'], counts['Other']/n_events*100),
+    ]
+    
+    for label, count, pct in data:
+        if label.startswith("-"):
+            print(f"{label:<20} {count:>10} {pct:>7}")
+        else:
+            print(f"{label:<20} {count:>10,} {pct:>6.2f}%")
+    
+    print("=" * 52)
 
 if __name__ == '__main__':
     '''
-    This parser takes .tra.gz files from revan megalib and identifies single and double compton events in the data. It Parses the data to the PHEMTO 4x4 HED configuration and saves it into a .csv like file named *.t3pa.
+    This parser takes .tra.gz files from revan megalib and identifies single and compton events (up to mult 7) in the data. It Parses the data to the PHEMTO 4x4 HED configuration and saves it into a .csv like file named *.t3pa.
     '''
     
     print_parsing_tra_ascii()
@@ -211,9 +240,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='This parser takes .tra.gz files from revan megalib and identifies single and double compton events in the data. It Parses the data to the PHEMTO 4x4 HED configuration and saves it into a .csv like file named *.t3pa.')
     parser.add_argument('-f', '--filename', required=True, help='Full path of the .tra.gz file to parse')
     parser.add_argument('-o', '--output', required=True, help='Output path for the .t3pa files')
+    parser.add_argument('-p', '--psf', default=0, help='Use this argument to limit events that happened on circular PSF. Usage: -p <psf radius in cm>, ie: -p 0.075 for 0.075 cm radius PSF')
 
     args = parser.parse_args()
-    print(f"Processing {args.filename}")
     
     filename = args.filename
     output_folder = args.output # for the .t3pa
@@ -222,6 +251,7 @@ if __name__ == '__main__':
 
     ####### PARSING the .tra file #########
     tra_events = list(parse_tra(filename))
+    n_events = len(tra_events)
     ######################################
 
 
@@ -289,7 +319,6 @@ if __name__ == '__main__':
         chip_id.append(detector)
         event_cnt += 1
         
-        # Chunk save logic (same as before)
         if event_cnt >= max_event_cnt:
             df = pd.DataFrame({
                             'Event': event_lst,
@@ -310,21 +339,169 @@ if __name__ == '__main__':
 
     
     ######## Transforming to detector Hits, Si and CdTe, saving in .t3pa #########
+    n_singles = 0 
+    n_double_compton = 0 
+    n_mult_compton = 0
+
+    PSF_radius = 0.075 # cm
     for event in tra_events:
         if event.event_type == "PH" and len(event.hits) == 1:
             # SINGLE PHOTON - existing logic (unchanged)
             hit = event.hits[0]
-            process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
-                              instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
-        
-        elif event.event_type == "CO" and event.sequence_length == 2 and len(event.hits) == 2:
-            # DOUBLE COMPTON - process BOTH hits
-            hit1, hit2 = event.hits[0], event.hits[1]  # First=Si scatter, Second=CdTe absorb
             
-            process_single_hit(event, hit1, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+            if np.sqrt((hit.x)**2 + (hit.y)**2) > PSF_radius and args.psf != 0: # The reference frame of MEGAlib if center of Si and CdTe. Homogeneous Beam 1.5mm diameter centered at x,y=0,0
+                continue # ignore events outside the PSF circle
+
+            else:
+                process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
                               instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
-            process_single_hit(event, hit2, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
-                              instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                n_singles += 1
+        
+        ## IMPLEMENT A SEXY VERSION OF THE FOLLOWING BULLSHIT...............
+        elif event.event_type == "CO":
+            # Check if sequence length matches number of hits
+            if event.sequence_length == len(event.hits):
+                if event.sequence_length == 2:
+                    # DOUBLE COMPTON
+                    # The idea is when PSF limit we save compton events that has at least one event inside PSF
+                    hit1, hit2 = event.hits[0], event.hits[1]
+                    r1 = np.sqrt((hit1.x**2) + (hit1.y**2))
+                    r2 = np.sqrt((hit2.x**2) + (hit2.y**2))
+                    if args.psf != 0:
+                        if r1 <= PSF_radius or r2 <= PSF_radius: # If one of the comptons inside PSF are we save event
+                            for hit in [hit1, hit2]:
+                                process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+                                              instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                            n_double_compton += 1
+                        else:
+                            continue #ignore event, the compton is fully outside PSF area
+                    else: # in case we dont do PSF area cut
+                        for hit in [hit1, hit2]:
+                            process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+                                          instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                        n_double_compton += 1
+                    
+                
+                elif event.sequence_length == 3:
+                    # TRIPLE COMPTON
+                    hit1, hit2, hit3 = event.hits[0], event.hits[1], event.hits[2]
+                    r1 = np.sqrt((hit1.x**2) + (hit1.y**2))
+                    r2 = np.sqrt((hit2.x**2) + (hit2.y**2))
+                    r3 = np.sqrt((hit3.x**2) + (hit3.y**2))
+                    if args.psf != 0: # Same logic as in double event
+                        if r1 <= PSF_radius or r2 <= PSF_radius or r3 <= PSF_radius:
+                            for hit in [hit1, hit2, hit3]:
+                                process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+                                                  instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                            n_mult_compton += 1
+                        else:
+                            continue
+                    else:
+                        for hit in [hit1, hit2, hit3]:
+                            process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+                                              instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                        n_mult_compton += 1
+                
+                elif event.sequence_length == 4:
+                    # QUADRUPLE COMPTON
+                    hit1, hit2, hit3, hit4 = event.hits[0], event.hits[1], event.hits[2], event.hits[3]
+                    r1 = np.sqrt((hit1.x**2) + (hit1.y**2))
+                    r2 = np.sqrt((hit2.x**2) + (hit2.y**2))
+                    r3 = np.sqrt((hit3.x**2) + (hit3.y**2))
+                    r4 = np.sqrt((hit4.x**2) + (hit4.y**2))
+                    if args.psf != 0: # Same logic as in double event
+                        if r1 <= PSF_radius or r2 <= PSF_radius or r3 <= PSF_radius or r4 <= PSF_radius:
+                            for hit in [hit1, hit2, hit3, hit4]:
+                                process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+                                                  instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                            n_mult_compton =+ 1
+                        else:
+                            continue
+                    else:
+                        for hit in [hit1, hit2, hit3, hit4]:
+                            process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+                                              instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                        n_mult_compton =+ 1
+
+                
+                elif event.sequence_length == 5:
+                    # QUINTUPLE COMPTON
+                    hit1, hit2, hit3, hit4, hit5 = event.hits[0], event.hits[1], event.hits[2], event.hits[3], event.hits[4]
+                    r1 = np.sqrt((hit1.x**2) + (hit1.y**2))
+                    r2 = np.sqrt((hit2.x**2) + (hit2.y**2))
+                    r3 = np.sqrt((hit3.x**2) + (hit3.y**2))
+                    r4 = np.sqrt((hit4.x**2) + (hit4.y**2))
+                    r5 = np.sqrt((hit5.x**2) + (hit5.y**2))
+                    if args.psf != 0: # Same logic as in double event
+                        if r1 <= PSF_radius or r2 <= PSF_radius or r3 <= PSF_radius or r4 <= PSF_radius or r5 <= PSF_radius:
+                            for hit in [hit1, hit2, hit3, hit4, hit5]:
+                                process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+                                                  instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                            n_mult_compton += 1
+                        else:
+                            continue
+                    else:
+                        for hit in [hit1, hit2, hit3, hit4, hit5]:
+                            process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+                                              instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                        n_mult_compton += 1
+                
+                elif event.sequence_length == 6:
+                    # SEXTUPLE COMPTON
+                    hit1, hit2, hit3, hit4, hit5, hit6 = event.hits[0], event.hits[1], event.hits[2], event.hits[3], event.hits[4], event.hits[5]
+                    r1 = np.sqrt((hit1.x**2) + (hit1.y**2))
+                    r2 = np.sqrt((hit2.x**2) + (hit2.y**2))
+                    r3 = np.sqrt((hit3.x**2) + (hit3.y**2))
+                    r4 = np.sqrt((hit4.x**2) + (hit4.y**2))
+                    r5 = np.sqrt((hit5.x**2) + (hit5.y**2))
+                    r6 = np.sqrt((hit6.x**2) + (hit6.y**2))
+                    if args.psf != 0: # Same logic as in double event
+                        if r1 <= PSF_radius or r2 <= PSF_radius or r3 <= PSF_radius or r4 <= PSF_radius or r5 <= PSF_radius or r6 <= PSF_radius:
+                            for hit in [hit1, hit2, hit3, hit4, hit5, hit6]:
+                                process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+                                                  instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                            n_mult_compton += 1
+                        else:
+                            continue
+                    else:
+                        for hit in [hit1, hit2, hit3, hit4, hit5, hit6]:
+                            process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+                                              instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                        n_mult_compton += 1
+                
+                elif event.sequence_length == 7:
+                    # SEPTUPLE COMPTON
+                    hit1, hit2, hit3, hit4, hit5, hit6, hit7 = event.hits[0], event.hits[1], event.hits[2], event.hits[3], event.hits[4], event.hits[5], event.hits[6]
+                    r1 = np.sqrt((hit1.x**2) + (hit1.y**2))
+                    r2 = np.sqrt((hit2.x**2) + (hit2.y**2))
+                    r3 = np.sqrt((hit3.x**2) + (hit3.y**2))
+                    r4 = np.sqrt((hit4.x**2) + (hit4.y**2))
+                    r5 = np.sqrt((hit5.x**2) + (hit5.y**2))
+                    r6 = np.sqrt((hit6.x**2) + (hit6.y**2))
+                    r7 = np.sqrt((hit7.x**2) + (hit7.y**2))
+                    if args.psf != 0: # Same logic as in double event
+                        if r1 <= PSF_radius or r2 <= PSF_radius or r3 <= PSF_radius or r4 <= PSF_radius or r5 <= PSF_radius or r6 <= PSF_radius or r7 <= PSF_radius:
+                            for hit in [hit1, hit2, hit3, hit4, hit5, hit6, hit7]:
+                                process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+                                                  instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                            n_mult_compton += 1
+                        else:
+                            continue
+                    else:
+                        for hit in [hit1, hit2, hit3, hit4, hit5, hit6, hit7]:
+                            process_single_hit(event, hit, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+                                              instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+                        n_mult_compton += 1
+
+
+
+            #hit1, hit2 = event.hits[0], event.hits[1]  # First=Si scatter, Second=CdTe absorb
+            #
+            #process_single_hit(event, hit1, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+            #                  instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+            #process_single_hit(event, hit2, dist, instrument_size_si, pix_size_si, pix_matrix_size_si,
+            #                  instrument_size_cdte, pix_size_cdte, pix_matrix_size_cdte, output_folder)
+
 
     df = pd.DataFrame({
                     'Event': event_lst,
@@ -400,10 +577,8 @@ if __name__ == '__main__':
 
     ## efficiencies
     si_only = []; cdte_only = []; si_cdte = []; total_events = []
-    N_generated = 1e6  # Total MC events per energy
     e = []
     n = []
-    n_events = 0
     n_compton = 0
     n_2site = 0
     
@@ -414,13 +589,10 @@ if __name__ == '__main__':
     cdte_only.append(counts['CdTe-only']) 
     si_cdte.append(counts['Si+CdTe'])
     total_events.append(counts['Si-only'] + counts['CdTe-only'] + counts['Si+CdTe'])
-    
-    print(filename)
-    print(f"Si eff = {counts['Si-only']/N_generated*100:.2f}%")
-    print(f"CdTe eff = {counts['CdTe-only']/N_generated*100:.2f}%")
-    print(f"Si+CdTe eff = {counts['Si+CdTe']/N_generated*100:.2f}%")
-    print(f"Other eff = {counts['Other']/N_generated*100:.2f}%")
+    print_final_table(filename, n_events, n_singles, n_double_compton, n_mult_compton, counts)
 
+    with open(f"{output_folder}/parse_event_counter.txt", 'w') as f:
+        f.write(f"# Total events : {n_events}\n# Total singles : {n_singles}\n# Total double Compton : {n_double_compton}\n# Total mult Compton : {n_mult_compton}")
     #si_eff = np.array(si_only) / N_generated
     #cdte_eff = np.array(cdte_only) / N_generated  
     #si_cdte_eff = np.array(si_cdte) / N_generated

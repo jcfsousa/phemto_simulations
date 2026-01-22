@@ -1,4 +1,4 @@
-import mdp as mdp
+import mdp_collimated as mdp
 import matplotlib.pyplot as plt
 import os
 import manalysis.comptons as compton
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     
     # Getting Q, abs compton eff from polarimetry simulations #
     base_polarimetry_folder = '/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/polarimetry_results'
-    result_polarimetry = f"{base_polarimetry_folder}/{source_type}_{Emin}-{Emax}keV_config{HED_config}x{HED_config}_{distance_dets}cm"
+    result_polarimetry = f"{base_polarimetry_folder}/{source_type}_{Emin}-{Emax}keV_config{HED_config}x{HED_config}_{distance_dets}cm/bin_{Emin}-{Emax}"
     folder_result_polarimetry = os.path.join(result_polarimetry, f'{angle_bin_str}bin_md{min_dist_str}_maxd{max_dist_str}')
     Q, Q_uncer = compton.get_Q(folder_result_polarimetry) 
     n_comptons = compton.get_n_comptons(folder_result_polarimetry)
@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     mdp_dict = {}
     mcrab_lst = [1, 0.1, 0.01, 0.001]
-    time_lst = np.arange(1000, 1e5+1000,1000)
+    time_lst = [1e4, 1e5, 1e6]
     for idx, mcrab in enumerate(mcrab_lst):
         for delta_t in time_lst:  # Skip n=0 directly in range
             mdp_lst = []
@@ -144,7 +144,7 @@ if __name__ == '__main__':
             mdp_computed = mdp.compute_MDP(compton_crab_cnts_s, Q, compton_background_cnts_s, delta_t)
             mdp_dict[mcrab, delta_t] = mdp_computed
 
-        print('')
+        print('##################################################')
         print(f'Source Flux: {mcrab} Crab')
         print(f'Q: {Q}')
         print(f'Abs Compton eff: {abs_eff}')
@@ -160,32 +160,86 @@ if __name__ == '__main__':
 
     x = []
     y = []
-    plt.figure(figsize=(8, 6))
-    plt.title(f'Q={Q}, compt_eff={abs_eff}')
+    #plt.figure(figsize=(6, 5))
+    #plt.title(f'Q={Q}, compt_eff={abs_eff}')
     linestyles = ['-', '-', '-', '-']
-    colors = ['#0072B2', '#D55E00', '#009E73', 'red']
-    markers = ['o', 's', '^', 'o']  # circle, square, triangle
-    for delta_t in time_lst:
-        if delta_t != 1e5:
-            continue
+    colors = ['#000000', '#E69F00', '#56B4E9', '#009E73']  # Black, Orange, SkyBlue, BluishGreen
+    colors = ['green', 'red', 'orange', 'blue']
+    markers = ['s', '^', 'D', 'x']      # Square, Triangle, Diamond, X
+    markers = ['s', '^', 'D', 'd']  # 'd' = filled diamond instead of 'x'
+    #for delta_t, linestyle, color in zip(time_lst, linestyles, colors):
+    #    for mcrab, marker in zip(mcrab_lst, markers):
+    #        plt.scatter(delta_t, mdp_dict[mcrab,delta_t] * 100, color=color, label=mdp.format_flux_label(mcrab), s=80, marker=marker) # MDP %
+    #        plt.plot(x,y, linewidth = 2, linestyle=linestyle, alpha=0.3, c=color)
 
-        for mcrab, linestyle, color, marker in zip(mcrab_lst, linestyles, colors, markers):
-            plt.scatter(mcrab, mdp_dict[mcrab,delta_t] * 100, color=color, label=mdp.format_flux_label(mcrab)) # MDP %
-            plt.plot(x,y, linewidth = 2, linestyle=linestyle, alpha=0.3, c=color)
+    #plt.xlabel('Observation Time [s]', fontsize=13)
+    #exp = int(np.log10(delta_t))
+    #coeff = delta_t / (10**exp)
+    ##plt.ylabel(f'MDP [%] (t = 10$^{{{exp}}}$ s)', fontsize=13)
+    #plt.ylabel(f'MDP [%])', fontsize=13)
+    #plt.yscale('log')
+    #plt.xscale('log')
+    #plt.axhline(5, color='darkred', linestyle='--', linewidth=2)
+    ##plt.title('Minimum Detectable Polarization', fontsize=14)
+    #plt.legend(fontsize=11 ,frameon=False, loc='best')
 
-        plt.xlabel('Flux [mCrab]', fontsize=13)
-        exp = int(np.log10(delta_t))
-        coeff = delta_t / (10**exp)
-        plt.ylabel(f'MDP [%] (t = 10$^{{{exp}}}$ s)', fontsize=13)
-        plt.yscale('log')
-        plt.xscale('log')
-        plt.axhline(1, color='darkred', linestyle='--', linewidth=2)
-        #plt.title('Minimum Detectable Polarization', fontsize=14)
-        plt.legend(fontsize=11 ,frameon=False, loc='best')
+    #plt.grid(which='both', linestyle='--', linewidth=1, alpha=0.5)
 
-        plt.grid(which='both', linestyle='--', linewidth=0.5, alpha=0.4)
+    #plt.tight_layout()
 
-        plt.tight_layout()
+
+
+    fig, ax = plt.subplots(figsize=(6, 5))
+
+# Plot all data first (no labels yet)
+    for delta_t, linestyle in zip(time_lst, linestyles):
+        for i, (mcrab, marker, color) in enumerate(zip(mcrab_lst, markers, colors)):
+            ax.scatter(delta_t, mdp_dict[(mcrab, delta_t)] * 100, 
+                      color=color, edgecolor='black', s=80, marker=marker, zorder=3)
+            # Connect points for this mcrab/time combo with faint line
+            ax.plot(delta_t, mdp_dict[(mcrab, delta_t)] * 100, 
+                    linewidth=1.5, linestyle=linestyle, alpha=0.6, 
+                    color=color, zorder=1)
+
+    
+    ax.set_xlabel('Observation Time [s]', fontsize=12)
+    ax.set_ylabel('MDP [%]', fontsize=12)
+    #ax.set_title(f'Crab light curve, 50-400 keV\nQ={Q},' + r'$\epsilon_{Compton}$=' + f'{abs_eff:.1%}', fontsize=13, pad=5)
+
+    ax.set_yscale('log')
+    ax.set_xscale('log')
+
+    ax.axhline(5, color='darkred', linestyle='--', linewidth=2, zorder=0)
+    ax.text(0.78, 0.563, 'SR-3', transform=ax.transAxes, 
+            color='darkred', fontsize=12, fontweight = 'bold', 
+            bbox=dict(facecolor='white', 
+                      edgecolor='darkred', pad = 5),
+            verticalalignment='center', horizontalalignment='right')
+
+    ax.text(0.26, 0.01, f'Crab light curve, 50-400 keV\nQ={Q},' + r'$\epsilon_{Compton}$=' + f'{abs_eff:.1%}', 
+            transform=ax.transAxes,
+            color='k', fontsize=12,
+            bbox=dict(facecolor='white', edgecolor='k', alpha=0, pad = 10),
+            verticalalignment='bottom',      # ← Already correct
+            horizontalalignment='center')    # ← Changed from 'right' to 'center'
+
+    from matplotlib.lines import Line2D
+    mcrab_handles = [
+        Line2D([0], [0], marker=markers[i], color='w', markerfacecolor=colors[i], 
+               markersize=8, label=mdp.format_flux_label(mcrab_lst[i]), 
+               markeredgecolor='k', markeredgewidth=0.5)
+        for i in range(len(mcrab_lst))
+    ]
+    mcrab_legend = ax.legend(handles=mcrab_handles, loc='upper right', 
+                            fontsize=11, frameon=True, framealpha=0.95, 
+                            edgecolor='gray', fancybox=False)
+
+
+    ax.grid(which='both', linestyle='--', linewidth=0.8, alpha=0.5, zorder=0)
+    ax.tick_params(axis='both', which='major', labelsize=11)
+    ax.tick_params(axis='both', which='minor', labelsize=9)
+
+    plt.tight_layout()
     plt.show()
 
 

@@ -19,7 +19,8 @@ for matrix_size in CdTe_matrix_size:
 Emin = 50 
 Emax = 400
 
-revan_config = ['EffectiveArea.revan.cfg', 'revan.cfg', 'Test.revan.cfg']
+revan_config = 'compton.revan.cfg'
+revan_config = 'comptons_klein-abs-comptEne.cfg'
 
 pol = input('Polarized, non-polarized or both (pol, non, both)')
 
@@ -100,10 +101,10 @@ for config in config_lst:
     with open(f"./runRevan{config}.sh", mode='w') as f:
         if pol == 'pol' or pol == 'both':
             source_file1=f'{output_path}/{SourceName}Pol_{Emin}-{Emax}keV_{config}'
-            f.write(f"revan -c revan.cfg -a -n -f {source_file1}.inc1.id1.sim.gz -g {geofile} \n")
+            f.write(f"revan -c {revan_config} -a -n -f {source_file1}.inc1.id1.sim.gz -g {geofile} \n")
         if pol == 'non' or pol == 'both':
             source_file2=f'{output_path}/{SourceName}NonPol_{Emin}-{Emax}keV_{config}'
-            f.write(f"revan -c revan.cfg -a -n -f {source_file2}.inc1.id1.sim.gz -g {geofile} \n")
+            f.write(f"revan -c {revan_config} -a -n -f {source_file2}.inc1.id1.sim.gz -g {geofile} \n")
 
 
 
@@ -112,6 +113,8 @@ with open(f"./runAll.sh", mode='w') as f:
     for config in config_lst:
         f.write(f'bash ./runCosima{config}.sh && echo "Cosima ended... Starting Revan..." && bash ./runRevan{config}.sh \n')
     f.close()
+
+print('Run ./runAll.sh to run Cosima and Revan')
 
 #with open(f"./runAll.sh", mode='w') as f:
 #    for config in config_lst:
@@ -143,8 +146,19 @@ with open(f"./runPolarimetry.sh", mode='w') as f:
 
 
             ###### Polarimetry Analysis ######
-            f.write(f'python3 {base_path_analysis_overall}/polarimetry/polarimetry.py -o {output_polarimetry} -ip {output_path_configPol} -inp {output_path_configNonPol} -b {Emin}-{Emax};')
+            ## perform polarimetry per energy bin
+            ## From 50-400keV:
+            f.write(f'python3 {base_path_analysis_overall}/polarimetry/polarimetry.py -o {output_polarimetry} -ip {output_path_configPol} -inp {output_path_configNonPol} -b {Emin}-{Emax} -p False;')
+            # From 50-150keV:
+            f.write(f'python3 {base_path_analysis_overall}/polarimetry/polarimetry.py -o {output_polarimetry} -ip {output_path_configPol} -inp {output_path_configNonPol} -b 50-150 -p False;')
+            # From 150-250keV:
+            f.write(f'python3 {base_path_analysis_overall}/polarimetry/polarimetry.py -o {output_polarimetry} -ip {output_path_configPol} -inp {output_path_configNonPol} -b 150-250 -p False;')
+            # From 250-350keV:
+            f.write(f'python3 {base_path_analysis_overall}/polarimetry/polarimetry.py -o {output_polarimetry} -ip {output_path_configPol} -inp {output_path_configNonPol} -b 250-350 -p False;')
+            # From 350-400keV:
+            f.write(f'python3 {base_path_analysis_overall}/polarimetry/polarimetry.py -o {output_polarimetry} -ip {output_path_configPol} -inp {output_path_configNonPol} -b 350-400 -p False;')
     f.close()
 
+print('Run ./runPolarimetry.sh to run .tra.gz -> .t3pa parser and Polarimetry analysis.')
 
 

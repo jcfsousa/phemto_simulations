@@ -4,3 +4,5 @@ input_polarimetry/
 *.tra*
 *.sim*
 output_polarimetry/
+polarimery_data/
+polarimetry_results/

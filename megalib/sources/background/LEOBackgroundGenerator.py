@@ -511,7 +511,7 @@ class LEOBackgroundGenerator:
     def SecondaryProtonsDownward(self, E):
         return self.SecondaryProtons(E)[2]
 
-    def AguilarElectronPositron(self,date=2021):
+    def AguilarElectronPositron(self,date=2014):
         """ Read Table I from Aguilar et al. 2014 or Aguilar et al. 2018 or Aguilar et al. 2019 or Aguilar 2021 (rescaled tom 2027)
             Return a dataframe to be used by
             PrimaryElectrons and PrimaryPositrons
@@ -522,9 +522,9 @@ class LEOBackgroundGenerator:
         filename_2021 = 'Data/AMS21_Electrons_Positrons_rescaledTo27.dat'
         
         data_2014 = pd.read_table(filename, sep='\s+')
-        data_2018 = pd.read_csv(filename_2018,sep=" ",skipinitialspace=True)
-        data_2019 = pd.read_csv(filename_2019,sep=" ",skipinitialspace=True)
-        data_2021 = pd.read_csv(filename_2021,sep="\s+",skipinitialspace=True)
+        #data_2018 = pd.read_csv(filename_2018,sep=" ",skipinitialspace=True)
+        #data_2019 = pd.read_csv(filename_2019,sep=" ",skipinitialspace=True)
+        #data_2021 = pd.read_csv(filename_2021,sep="\s+",skipinitialspace=True)
         
         data = pd.DataFrame({})
         
