@@ -191,7 +191,7 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots(figsize=(6, 5))
 
-# Plot all data first (no labels yet)
+
     for delta_t, linestyle in zip(time_lst, linestyles):
         for i, (mcrab, marker, color) in enumerate(zip(mcrab_lst, markers, colors)):
             ax.scatter(delta_t, mdp_dict[(mcrab, delta_t)] * 100, 
@@ -216,12 +216,12 @@ if __name__ == '__main__':
                       edgecolor='darkred', pad = 5),
             verticalalignment='center', horizontalalignment='right')
 
-    ax.text(0.26, 0.01, f'Crab light curve, 50-400 keV\nQ={Q},' + r'$\epsilon_{Compton}$=' + f'{abs_eff:.1%}', 
+    ax.text(0.26, 0.01, f'Crab light curve, 50-400 keV\nQ={Q},' + r' $\epsilon_{Compton}$=' + f'{abs_eff:.1%}', 
             transform=ax.transAxes,
             color='k', fontsize=12,
             bbox=dict(facecolor='white', edgecolor='k', alpha=0, pad = 10),
-            verticalalignment='bottom',      # ← Already correct
-            horizontalalignment='center')    # ← Changed from 'right' to 'center'
+            verticalalignment='bottom',      
+            horizontalalignment='center')    
 
     from matplotlib.lines import Line2D
     mcrab_handles = [
@@ -240,7 +240,16 @@ if __name__ == '__main__':
     ax.tick_params(axis='both', which='minor', labelsize=9)
 
     plt.tight_layout()
-    plt.show()
+    
+    with open('../../../results/megalib_v2/MDP_CrabFlux_50-400keVbin.csv', 'w') as f:
+        f.write(f'Notes:, time in seconds - mdp (0-1). MDP computed for Crab lightcurve. Integrated energy form 50-400 keV. Simulated 100% and random source. Determined Q100 and Compton efficiency for said energy range. Q={Q} Compton_eff={abs_eff}\n')
+        f.write('Version,2\n')
+        f.write('energy,mdp,mCrab\n')
+        for delta_t, linestyle in zip(time_lst, linestyles):
+            for i, (mcrab, marker, color) in enumerate(zip(mcrab_lst, markers, colors)):
+                f.write(f'{delta_t},{mdp_dict[(mcrab, delta_t)]}, {mcrab}\n')
+
+    plt.savefig(f'../../../results/megalib_v2/MDP_CrabFlux_50-400keVbin.png', dpi=600)
 
 
     

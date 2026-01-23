@@ -609,7 +609,7 @@ if __name__ == '__main__':
         plt.grid(which='both', linestyle='--', linewidth=0.5, alpha=0.4)
 
         plt.tight_layout()
-        plt.show()
+        plt.savefig("../../../results/megalib_v2/MDP_CrabFlux_100keVbin.png", dpi=600)
 
     sys.exit()    
 
