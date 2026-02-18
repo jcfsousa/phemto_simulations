@@ -439,20 +439,21 @@ def get_spectra_histCalib(parquet_folder, event_type='singles', output_file_name
     
     return bin_centers, cumulative_counts, observation_time
 
-def get_spectra_hist(parquet_folder, event_type='singles', output_file_name = 'spec_histogram.txt', min_spectra_range = 0, max_spectra_range = 1600, bin_step = 1, counts_normalized = False, chips = 'all'):
+def get_spectra_hist(parquet_folder, event_type='singles', output_file_name = 'spec_histogram.txt', min_spectra_range = 0, max_spectra_range = 500, bin_step = 1, counts_normalized = False, chip_id = 'all', chip_name = 'undefined'):
     '''
     parquet_folder: place where the .parquet folders are to analyse
     output_folder: place to put the spectra .txt
     counts_normalize: not operational atm......
     '''
     parquet_files = [f for f in os.listdir(parquet_folder) if f.endswith('.parquet')]
+    parquet_files.sort(key=lambda x: int(x.split('_')[-1].split('.')[0]))
     n_files = len(parquet_files)
     
     output_folder = os.path.join(parquet_folder, 'spectra')   
     os.makedirs(output_folder, exist_ok = True)
-    check_spect_file = [file for file in os.listdir(output_folder) if file.startswith('spec_hist') and file.endswith(f'chip{chips}.txt')]
+    check_spect_file = [file for file in os.listdir(output_folder) if file.startswith('spec_hist') and file.endswith(f'chip{chip_name}.txt')]
 
-    if len(check_spect_file) == 200:
+    if len(check_spect_file) == 200: #not used atm
     #histrogram already on the file path, go read the histogram instead of using the df to get new histogram 
         hist_data_file_path = os.path.join(output_folder, output_file_name)
          #print('I already have a spectra file.........')
@@ -476,10 +477,10 @@ def get_spectra_hist(parquet_folder, event_type='singles', output_file_name = 's
                 
                 df = pd.read_parquet(f"{parquet_folder}/{parquet_file}", columns = ['Event', 'Cluster', 'ToT (keV)','Overflow','Ns'])
                 max_ns_in_file = df['Ns'].max()
-                ns_cumulative = ns_cumulative + max_ns_in_file 
+                #ns_cumulative = ns_cumulative + max_ns_in_file # the .tra gives commulative time, review this to handle real data!!!
                 
-                if isinstance(chips, int):
-                    df = df[df['Overflow'] == chips]
+                if isinstance(chip_id, int):
+                    df = df[df['Overflow'] == chip_id]
                 #masking chips
                 df.fillna(0) ## in case NA appears in the data, idk why................
     
@@ -489,13 +490,13 @@ def get_spectra_hist(parquet_folder, event_type='singles', output_file_name = 's
                 cnts, _ = np.histogram(events['ToT (keV)'], bins = n_bins, range=(min_spectra_range,max_spectra_range))
                 cumulative_counts += cnts   
 
-        observation_time = ns_cumulative
+        observation_time = max_ns_in_file
 
-        output_file_preCalib = os.path.join(output_folder, f'preCalib_{output_file_name}')
+        output_file_preCalib = os.path.join(output_folder, f'{output_file_name}')
         os.makedirs(output_folder, exist_ok=True)      
         data_to_save_preCalib = np.column_stack((bin_centers, cumulative_counts))
         np.savetxt(output_file_preCalib, data_to_save_preCalib,
-                   header=f'ObsTimei(ns)\t{observation_time}\nBin(keV)\tcnts(1/s)', delimiter='\t') #pre Calib
+                   header=f'ObsTime(ns)\t{observation_time}\nBin size \t{bin_step} keV\nBin_center(keV),cnts(total)', delimiter=',') #pre Calib
 
         return bin_centers, cumulative_counts, observation_time
 

@@ -4,6 +4,63 @@ import os
 import manalysis.comptons as compton
 import numpy as np
 
+def integrate_product(area_dict, flux_func, E_min, E_max, n_points=1000):
+    """
+    Integrate the product of effective area and flux over energy range.
+    
+    Parameters:
+    -----------
+    area_dict : dict
+        Dictionary with energy keys and effective area values
+    flux_func : callable
+        Function that returns flux at given energy (ph/cm²/s/keV)
+    E_min, E_max : float
+        Energy range for integration
+    n_points : int
+        Number of points for integration grid
+    
+    Returns:
+    --------
+    total_rate : float
+        Integrated count rate (ph/s)
+    """
+    # Extract energies and areas from dictionary
+    energies = np.array(list(area_dict.keys()))
+    areas = np.array(list(area_dict.values()))
+    
+    # Sort by energy
+    sort_idx = np.argsort(energies)
+    energies = energies[sort_idx]
+    areas = areas[sort_idx]
+    
+    # Check range
+    if E_min < energies[0] or E_max > energies[-1]:
+        print(f"Warning: Integration range [{E_min}, {E_max}] extends beyond data range [{energies[0]}, {energies[-1]}]")
+        E_min = max(E_min, energies[0])
+        E_max = min(E_max, energies[-1])
+    
+    if E_min >= E_max:
+        return 0.0
+    
+    # Create interpolation function for area
+    from scipy.interpolate import interp1d
+    area_interp = interp1d(energies, areas, kind='linear', 
+                           bounds_error=False, fill_value=0)
+    
+    # Create fine grid for integration
+    fine_energies = np.linspace(E_min, E_max, n_points)
+    
+    # Evaluate area and flux on fine grid
+    fine_areas = area_interp(fine_energies)
+    fine_flux = flux_func(fine_energies)
+    
+    # Integrate the product
+    product = fine_areas * fine_flux
+    total_rate = np.trapezoid(product, fine_energies)
+    
+    return total_rate
+
+
 if __name__ == '__main__':
 
     Emin = 50
@@ -71,23 +128,24 @@ if __name__ == '__main__':
                 # Power law parameters
                 K = 14.44  # ph/cm²/s/keV
                 alpha = 2.169
-                
+                flux_func = lambda E: mcrab * K * (E/1.0)**(-alpha)
                 # Integrate power law flux
                 # arXiv:astro-ph/0406058v1 2 Jun 2004
                 # F(E) = k (E/1kev)^(-alpha) ph/cm2/s/keV
                 # We will Integrate flux over 50 kev Bin
-                integrated_flux_crab = mcrab * mdp.integrate_power_law(K, alpha, bin_min, bin_max) #ph/cm2/s
+                #integrated_flux_crab = mcrab * mdp.integrate_power_law(K, alpha, bin_min, bin_max) #ph/cm2/s
 
                 # Integrate the area then divide by bin size
-                total_area = mdp.integrate_area_from_dict(area_dict, bin_min, bin_max) / (bin_max-bin_min)
+                ####total_area = mdp.integrate_area_from_dict(area_dict, bin_min, bin_max) / (bin_max-bin_min)
                 #total_area = sum_areas_in_range(area_dict, E_min, E_max)
                 #print(f'Total Sensitive Area: {total_area} cm^2')
                 
-                total_crab_cnts_s = integrated_flux_crab * total_area #ph/s
+                ####total_crab_cnts_s = integrated_flux_crab * total_area #ph/s
 
+                ####bin_crab_cnts = bin_crab_cnts + total_crab_cnts_s
+
+                total_crab_cnts_s = integrate_product(area_dict, flux_func, bin_min, bin_max)
                 bin_crab_cnts = bin_crab_cnts + total_crab_cnts_s
-
-
 
                 ## for continuos source need to compute the flux and eff ares per bins of energy 
                 ## (to take into consideration the eff area with energy) then in the end sum ALL ->cnts/s 
@@ -96,6 +154,7 @@ if __name__ == '__main__':
 
                 #print(f'Total CRAB integrated flux from {bin_min} keV to {bin_max} keV: {integrated_flux_crab:.4e} ph/cm2/s')
                 #print(f'Total CRAB integrated flux from {bin_min} keV to {bin_max} keV: {total_crab_cnts_s:.4e} ph/s')
+
             
             
 
@@ -157,6 +216,7 @@ if __name__ == '__main__':
         cnts_s_to_mdp = cnts_to_mdp/delta_t
         print(f'Required Counts/s for 1% MDP for Q={Q}: {cnts_s_to_mdp}')
         print('##################################################')
+        breakpoint()
 
     x = []
     y = []

@@ -15,7 +15,7 @@ def integrate_flux(flux_dict, E_min, E_max, solid_angle):
 
     return integrated_flux * solid_angle # cnts cm-2 s-1
 
-Emin = 1.6
+Emin = 2
 Emax = 400
 
 # cm-2 s-1 kev-1 sr-1
@@ -35,7 +35,7 @@ with open(cosmic_background_file, 'r') as f:
             background_dict[energy] = flux
 
 
-# Solid angle in deg (apperture of cone) to integrate background
+# Solid angle in deg (half apperture of cone) to integrate background
 angle_min_deg = 0 
 angle_max_deg = 90
 def deg_to_rad(deg):
@@ -59,7 +59,8 @@ instruments_path = '/local/home/jf285468/documents/phd/phemto/phemto_simulations
 output_path = '/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/sources/simTra_files'
 sources_path = '/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/sources'
 
-SourceName = 'Background10ksec'
+SourceName = 'Background500sec'
+
 
 config_lst = []
 for matrix_size in CdTe_matrix_size:
@@ -73,6 +74,9 @@ for matrix_size in CdTe_matrix_size:
 revan_config = 'comptons_klein-abs-comptEne.cfg'
 
 ## ------------------------------------------------------------
+
+n_cores_run = 20 # idea is to use 20 cores to run 500s each making 10ksec, after need to concat, maybe on parse.py..... or after on analysis of spectra....
+
 
 for config in config_lst:
     geofile=f'{instruments_path}/PHEMTO_collimator_{config}.geo.setup'
@@ -91,7 +95,7 @@ for config in config_lst:
          \nDiscretizeHits    true\n
          \nRun {SourceName} \n  // Gauss (laue, xray focus), mono for Q100
          {SourceName}.FileName              {output_path}/{SourceName}_{Emin}-{Emax}keV_{config} 
-         \n{SourceName}.Time               10000\n\n
+         \n{SourceName}.Time               500\n\n
          \n{SourceName}.Source One 
          \nOne.ParticleType        1 
          \nOne.Beam                FarFieldAreaSource 0 90 0 360  // 
@@ -105,11 +109,13 @@ for config in config_lst:
         sf1.close()
         # For Cosima
         runCode1=f'{sources_path}/{SourceName}_{Emin}-{Emax}keV_{config}.source'
-        #f.write(f"mdelay cosima 22; cosima -z -v 0 {runCode1} >> /dev/null & sleep 1;")
-        f.write(f"cosima -z {runCode1}")
-        
-        #f.write('\necho "Waiting for Cosima to run...."')
-        #f.write('\nwait')
+
+        for n in range(n_cores_run+1): #write n_cores_run times to run the same simulation in parallel
+            f.write(f"mdelay cosima 22; cosima -z -v 0 {runCode1} >> /dev/null & sleep 1;")
+            #f.write(f"cosima -z {runCode1}")
+            
+        f.write('\necho "Waiting for Cosima to run...."')
+        f.write('\nwait')
 
 
 # Prep Revan
@@ -117,7 +123,8 @@ for config in config_lst:
     geofile=f'{instruments_path}/PHEMTO_collimator_{config}.geo.setup'
     with open(f"./runRevan{config}.sh", mode='w') as f:
         source_file2=f'{output_path}/{SourceName}_{Emin}-{Emax}keV_{config}'
-        f.write(f"revan -c {revan_config} -a -n -f {source_file2}.inc1.id1.sim.gz -g {geofile} \n")
+        for n in range(n_cores_run+1):
+            f.write(f"revan -c {revan_config} -a -n -f {source_file2}.inc{n+1}.id1.sim.gz -g {geofile} \n")
 
 
 
@@ -140,9 +147,15 @@ with open(f"./runParser.sh", mode='w') as f:
     for config in config_lst:
             ###### Parsing .tra -> .t3pa / Also countes events to compute bkg ph/s/kev ######
             # Background
-            tra_gz_filePathPol=f'{output_path}/{SourceName}_{Emin}-{Emax}keV_{config}.inc1.id1.tra.gz'
-            runPol_name = f"{SourceName}_{Emin}-{Emax}keV_{config}"
-            output_path_configPol = f"{output_parser}/{runPol_name}"
-            f.write(f'python3 {base_path_analysis_overall}/parse.py -f {tra_gz_filePathPol} -o {output_path_configPol} -p 0.075; ') # -p 0.075, 0.075cm PSF radius
+            for n in range(n_cores_run+1):
+                tra_gz_filePathPol=f'{output_path}/{SourceName}_{Emin}-{Emax}keV_{config}.inc{n+1}.id1.tra.gz'
+                runBackground_name = f"{SourceName}_{Emin}-{Emax}keV_{config}_inc{n+1}"
+                output_path_configBackgroud = f"{output_parser}/{runBackground_name}"
+                f.write(f'python3 {base_path_analysis_overall}/parse.py -f {tra_gz_filePathPol} -o {output_path_configBackgroud} -p 0.075; ') # -p 0.075, 0.075cm PSF radius
+                #f.write(f'python3 {base_path_analysis_overall}/parse.py -f {tra_gz_filePathPol} -o {output_path_configBackgroud}; ') # -p 0.075, 0.075cm PSF radius
 
-print('Run ./runParser.sh to run .tra.gz -> .t3pa parser')
+                f.write(f'python3 {base_path_analysis_overall}/polarimetry/pre_process.py -i {output_path_configBackgroud};') # Pre_process, single, double, mult, 
+
+                f.write(f'python3 {base_path_analysis_overall}/polarimetry/specMaker.py -i {output_path_configBackgroud} -o {output_path_configBackgroud};')
+
+print('Run ./runParser.sh to run .tra.gz -> .t3pa parser, pre_process.py and specMaker.py')

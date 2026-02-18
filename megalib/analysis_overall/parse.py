@@ -12,6 +12,7 @@ from math import acos, degrees
 from collections import Counter
 import argparse
 
+SI_HIGH_ENERGY_CUT = 20 #keV
 SI_Z = 0
 CDTE_Z = -1.625
 Z_TOL = 0.1  # cm, safe margin
@@ -63,7 +64,7 @@ def classify_event(event) -> str:
         return "CdTe-only"
 
     elif detectors == {"Si", "CdTe"}:
-        return "Si+CdTe"   # THIS is your good Compton event
+        return "Si+CdTe"   
 
     else:
         return "Other"
@@ -116,6 +117,9 @@ def parse_tra(filename: str) -> Iterator[TraEvent]:
                 elif tag == "PE":
                     energy = float(parts[1])
                 elif tag == "PP":  # SINGLE PHOTON: PP x y z
+                    if float(parts[3]) == SI_Z: # If event on the Si detector
+                        if energy > SI_HIGH_ENERGY_CUT: # remove events with energy deposited greater than the Si energy range
+                            continue # skip this event
                     hit = Interaction(
                         index=id,
                         x=float(parts[1]),
@@ -125,12 +129,16 @@ def parse_tra(filename: str) -> Iterator[TraEvent]:
                     )
                     event.hits.append(hit)
                 elif tag == "CH":  # COMPTON: CH N x y z E ...
+                    if float(parts[4]) == SI_Z: # If event on the Si detector
+                        if float(parts[5]) > SI_HIGH_ENERGY_CUT: # remove events with energy deposited greater than the Si energy range
+                            continue # skip this event
+                    energy = float(parts[5])
                     hit = Interaction(
                         index=int(parts[1]),
                         x=float(parts[2]),
                         y=float(parts[3]),
                         z=float(parts[4]),
-                        energy=float(parts[5])
+                        energy=energy
                     )
                     event.hits.append(hit)
                 else:
@@ -261,6 +269,7 @@ if __name__ == '__main__':
     instrument_size_si = 6.656 #6.4 x 6.4 cm2, 4x4 MC2
     pix_size_si = 0.013 # cm = 0.13mm
     pix_matrix_size_si = 512 # 512x512
+    max_energy_si = 20 # keV, actually WFI ASTENA is 15keV but ill assume 20keV - maybe technology will allow
 
     # CdTe detector constants
     single_det_size = 1.6 # 1.6x1.6 cm2
@@ -295,6 +304,12 @@ if __name__ == '__main__':
             pix_size = pix_si
             pix_matrix_size = matrix_si
         
+
+        # High energy CUT for Si detector, 20keV atm......
+        if detector == 0:
+            if hit.energy > max_energy_si:
+                return 
+
         # Transform coordinates
         x_detRef = coordinate_transform(hit.x, instrument_size)
         y_detRef = coordinate_transform(hit.y, instrument_size)
@@ -343,7 +358,8 @@ if __name__ == '__main__':
     n_double_compton = 0 
     n_mult_compton = 0
 
-    PSF_radius = 0.075 # cm
+    #PSF_radius = 0.075 # cm
+    PSF_radius = float(args.psf) # cm
     for event in tra_events:
         if event.event_type == "PH" and len(event.hits) == 1:
             # SINGLE PHOTON - existing logic (unchanged)
@@ -358,12 +374,12 @@ if __name__ == '__main__':
                 n_singles += 1
         
         ## IMPLEMENT A SEXY VERSION OF THE FOLLOWING BULLSHIT...............
+        # The idea is when PSF limit we save compton events that has at least one event inside PSF
         elif event.event_type == "CO":
             # Check if sequence length matches number of hits
             if event.sequence_length == len(event.hits):
                 if event.sequence_length == 2:
                     # DOUBLE COMPTON
-                    # The idea is when PSF limit we save compton events that has at least one event inside PSF
                     hit1, hit2 = event.hits[0], event.hits[1]
                     r1 = np.sqrt((hit1.x**2) + (hit1.y**2))
                     r2 = np.sqrt((hit2.x**2) + (hit2.y**2))
@@ -515,6 +531,7 @@ if __name__ == '__main__':
     df.to_csv(f"{output_folder}/{ouput_file_cntr}.t3pa", index=False)
 
     ##### Debug Plots #####
+    # plot det's pixels hits from last batch
     df_cdte = df[df['Overflow'] == 1] ## CdTe
     pixel_energy = df_cdte.groupby(['X', 'Y'])['ToT (keV)'].sum().reset_index()
     energy_map = np.zeros((pix_matrix_size_cdte, pix_matrix_size_cdte))

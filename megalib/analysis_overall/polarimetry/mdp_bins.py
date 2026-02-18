@@ -319,6 +319,63 @@ def format_flux_label(mcrab):
     else:
         return f'{int(mcrab * 1000)} mCrab'
 
+def integrate_product(area_dict, flux_func, E_min, E_max, n_points=1000):
+    """
+    Integrate the product of effective area and flux over energy range.
+    
+    Parameters:
+    -----------
+    area_dict : dict
+        Dictionary with energy keys and effective area values
+    flux_func : callable
+        Function that returns flux at given energy (ph/cm²/s/keV)
+    E_min, E_max : float
+        Energy range for integration
+    n_points : int
+        Number of points for integration grid
+    
+    Returns:
+    --------
+    total_rate : float
+        Integrated count rate (ph/s)
+    """
+    # Extract energies and areas from dictionary
+    energies = np.array(list(area_dict.keys()))
+    areas = np.array(list(area_dict.values()))
+    
+    # Sort by energy
+    sort_idx = np.argsort(energies)
+    energies = energies[sort_idx]
+    areas = areas[sort_idx]
+    
+    # Check range
+    if E_min < energies[0] or E_max > energies[-1]:
+        print(f"Warning: Integration range [{E_min}, {E_max}] extends beyond data range [{energies[0]}, {energies[-1]}]")
+        E_min = max(E_min, energies[0])
+        E_max = min(E_max, energies[-1])
+    
+    if E_min >= E_max:
+        return 0.0
+    
+    # Create interpolation function for area
+    from scipy.interpolate import interp1d
+    area_interp = interp1d(energies, areas, kind='linear', 
+                           bounds_error=False, fill_value=0)
+    
+    # Create fine grid for integration
+    fine_energies = np.linspace(E_min, E_max, n_points)
+    
+    # Evaluate area and flux on fine grid
+    fine_areas = area_interp(fine_energies)
+    fine_flux = flux_func(fine_energies)
+    
+    # Integrate the product
+    product = fine_areas * fine_flux
+    total_rate = np.trapezoid(product, fine_energies)
+    
+    return total_rate
+
+
 if __name__ == '__main__':
 
 
@@ -459,6 +516,7 @@ if __name__ == '__main__':
                 # Integrate power law flux
                 # arXiv:astro-ph/0406058v1 2 Jun 2004
                 # F(E) = k (E/1kev)^(-alpha) ph/cm2/s/keV
+                # Equation valid from 40keV - 8MeV
                 # We will Integrate flux over 50 kev Bin
                 integrated_flux_crab = integrate_power_law(K, alpha, E_min, E_max) #ph/cm2/s
 
@@ -475,8 +533,22 @@ if __name__ == '__main__':
                 ##then multiply by compton eff of that energy band and use Q of that energy band
             
 
-                print(f'Total CRAB integrated flux from {E_min} keV to {E_max} keV: {integrated_flux_crab:.4e} ph/cm2/s')
-                print(f'Total CRAB integrated flux from {E_min} keV to {E_max} keV: {total_crab_cnts_s:.4e} ph/s')
+                #A_eff = np.interp(E, energies, areas)
+                # Power law parameters
+                K = 14.44  # ph/cm²/s/keV
+                alpha = 2.169
+                flux_func = lambda E: mcrab * K * (E/1.0)**(-alpha)
+                # Integrate power law flux
+                # arXiv:astro-ph/0406058v1 2 Jun 2004
+                # F(E) = k (E/1kev)^(-alpha) ph/cm2/s/keV
+                # We will Integrate flux over 50 kev Bin
+
+                total_crab_cnts_s = integrate_product(area_dict, flux_func, E_min, E_max)
+                bin_crab_cnts = total_crab_cnts_s
+                #print(f'Total CRAB integrated flux from {E_min} keV to {E_max} keV: {integrated_flux_crab:.4e} ph/cm2/s')
+                #print(f'Total CRAB integrated flux from {E_min} keV to {E_max} keV: {total_crab_cnts_s:.4e} ph/s')
+                print(f'Total CRAB integrated flux from {E_min} keV to {E_max} keV: {bin_crab_cnts:.4e} ph/s')
+                breakpoint()
 
             
             #background_file = '/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/polarimetry/mdp/CosmicPhotonSpectrum.dat'

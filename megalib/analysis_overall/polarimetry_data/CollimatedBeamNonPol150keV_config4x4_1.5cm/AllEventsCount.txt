@@ -1,5 +1,0 @@
-#Peak events
-# Total Events : 481380
-# Single Events : 439405
-# Double Events : 39494
-# Multiple Events : 2481PEAK,False,False,481380,439405,39494,2481

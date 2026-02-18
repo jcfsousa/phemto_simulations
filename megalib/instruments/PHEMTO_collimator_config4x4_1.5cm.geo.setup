@@ -22,7 +22,7 @@ StoreScientific true 6
 
 // The code runs faster with a smaller sphere
 SurroundingSphere 		220.0 0.0 0.0 0.0 220.0		// Use for stowed or 1m mask
-ShowSurroundingSphere false
+ShowSurroundingSphere true
 
 Volume WorldVolume
 WorldVolume.Material Vacuum
@@ -51,7 +51,7 @@ SItrigger.Detector SiSDDet 1
 Volume Collimator
 Collimator.Material Lead
 Collimator.Shape TUBS 7.6 7.73 50 0. 360.                // change the thickness here if necessary
-Collimator.Position 0. 0. 60
+Collimator.Position 0. 0. 55
 Collimator.Visibility 1
 Collimator.Color 1
 Collimator.Mother WorldVolume

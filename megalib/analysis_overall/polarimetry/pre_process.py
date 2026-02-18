@@ -1,29 +1,47 @@
 import subprocess
+import argparse
+import manalysis.pathlib as pathlib
 import manalysis.specLib as specLib
 import manalysis.configlib as configlib
 
 import os
 import glob
 
+global_config = None
+
+class config:
+    output_folder: str = None
+    inputPol: str = None
+    inputNonPol: str = None
+
+def print_preprocess_ascii():
+    """Print PRE-PROCESS in ASCII art style"""
+    art = """
+██████╗ ██████╗ ███████╗    ██████╗ ██████╗  ██████╗  ██████╗███████╗███████╗███████╗
+██╔══██╗██╔══██╗██╔════╝    ██╔══██╗██╔══██╗██╔═══██╗██╔════╝██╔════╝██╔════╝██╔════╝
+██████╔╝██████╔╝█████╗      ██████╔╝██████╔╝██║   ██║██║     █████╗  ███████╗███████╗
+██╔═══╝ ██╔══██╗██╔══╝      ██╔═══╝ ██╔══██╗██║   ██║██║     ██╔══╝  ╚════██║╚════██║
+██║     ██║  ██║███████╗    ██║     ██║  ██║╚██████╔╝╚██████╗███████╗███████║███████║
+╚═╝     ╚═╝  ╚═╝╚══════╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝  ╚═════╝╚══════╝╚══════╝╚══════╝
+    """
+    print(art)
 
 if __name__ == '__main__':
-    current_dir = os.getcwd()
+                  
+
+    print_preprocess_ascii()
+
+    parser = argparse.ArgumentParser(description='This parser takes .tra.gz files from revan megalib and identifies single and double compton events in the data. It Parses the data to the PHEMTO 4x4 HED configuration and saves it into a .csv like file named *.t3pa.')
+    parser.add_argument('-i', '--inputSource', required=True, help='FULL path of the location of the .t3pa Source')
+
+    args = parser.parse_args()
     
-    parent_dir = os.path.dirname(current_dir)
 
-    selected_config = configlib.initialconfig(parent_dir)
-    print(selected_config)
-    
-    specLib.global_config = specLib.Config(selected_config)              
+    global_config = config()
+    global_config.inputSource = args.inputSource
 
-
-    sources = specLib.global_config.sources
-    chip_dict = specLib.global_config.chip_dict
-    
-    print('Chip configuration loaded:')
-    print(chip_dict)
+    input_folder = global_config.inputSource
 
 
-    for source in sources:
-        specLib.pre_process_source(source)
-        specLib.process_event_multiplicity(source)
+    specLib.pre_process_source(input_folder)
+    specLib.process_event_multiplicity(input_folder)
