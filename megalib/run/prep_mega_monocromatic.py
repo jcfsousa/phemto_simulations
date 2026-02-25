@@ -1,3 +1,4 @@
+import numpy as np
 ## ------------------------------------------------------------
 # Change Parameters
 
@@ -16,7 +17,11 @@ for matrix_size in CdTe_matrix_size:
 
 # Energy list
 #Log_E=[4,8,15,30,50,80,100,120,150,200,250,300,350,400,500,600,700]
-Log_E=[4, 10, 30, 50, 100, 150, 200, 250, 300, 350, 400]
+Log_E=[1, 10, 30, 50, 100, 150, 200, 250, 300, 350, 400]
+Log_E = np.arange(10, 410,10)
+Log_E = np.concatenate([[1],Log_E])
+print(Log_E)
+
 
 #revan_config = 'comptons.revan.cfg'
 revan_config = 'comptons_klein-abs-comptEne.cfg'
@@ -26,7 +31,7 @@ pol = input('Polarized, non-polarized or both (pol, non, both)')
 ## ------------------------------------------------------------
 
 for config in config_lst:
-    geofile=f'{instruments_path}/PHEMTO_{config}.geo.setup'
+    geofile=f'{instruments_path}/PHEMTO_collimator_{config}.geo.setup'
 
     with open(f"./runCosima{config}.sh", mode='w') as f:
 
@@ -48,7 +53,7 @@ for config in config_lst:
                  {SourceName}Pol.NEvents               1000000\n\n\n
                  {SourceName}Pol.Source One \n
                  One.ParticleType        1 \n
-                 One.Beam                HomogeneousBeam  0 0 20 0 0 -1 0.075  // psf diameter = 1.5mm\n
+                 One.Beam                HomogeneousBeam  0 0 10 0 0 -1 0.075  // psf diameter = 1.5mm\n
                  One.Spectrum            Mono  {myene}\n
                  One.Flux                1\n 
                  One.Polarization RelativeX 1.0 90"""
@@ -79,7 +84,7 @@ for config in config_lst:
                  \n{SourceName}NonPol.Source One 
                  \nOne.ParticleType        1 
                  \n
-                 \nOne.Beam                HomogeneousBeam  0 0 20 0 0 -1 0.075 // psf diameter = 1.5mm 
+                 \nOne.Beam                HomogeneousBeam  0 0 10 0 0 -1 0.075 // psf diameter = 1.5mm 
                  \nOne.Spectrum            Mono  {myene}
                  \nOne.Flux                1
                  \nOne.Polarization Random """
@@ -154,3 +159,26 @@ with open(f"./runPolarimetry.sh", mode='w') as f:
 
 
 print('Run ./runPolarimetry.sh to run .tra.gz -> .t3pa parser and Polarimetry analysis.')
+
+
+# Prep Parse for event effs
+output_parser = '/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/analysis_overall/monochromatic_data'
+
+with open(f"./runParser.sh", mode='w') as f:
+    f.write(f'source {base_path_analysis_overall}/env-phemto/bin/activate ;') # Activate python3 virtual environment
+    for config in config_lst:
+            ###### Parsing .tra -> .t3pa ######
+            for myene in Log_E:
+                tra_gz_filePathPol=f'{output_path}/{SourceName}NonPol{myene}keV_{config}.inc1.id1.tra.gz'
+                runNonPol_name = f"{SourceName}NonPol{myene}keV_{config}"
+                output_path_configNonPol = f"{output_parser}/{runNonPol_name}"
+                #f.write(f'python3 {base_path_analysis_overall}/parse.py -f {tra_gz_filePathPol} -o {output_path_configBackgroud} -p 0.075; ') # -p 0.075, 0.075cm PSF radius
+                f.write(f'python3 {base_path_analysis_overall}/parse.py -f {tra_gz_filePathPol} -o {output_path_configNonPol}; ') # whole detector
+
+                f.write(f'python3 {base_path_analysis_overall}/polarimetry/pre_process.py -i {output_path_configNonPol};') # Pre_process, single, double, mult, 
+
+                f.write(f'python3 {base_path_analysis_overall}/polarimetry/specMaker.py -i {output_path_configNonPol} -o {output_path_configNonPol};')
+
+                f.write(f'cp {output_path_configNonPol}/parquet/masked/spectra/*.txt /local/home/jf285468/documents/phd/phemto/phemto_simulations/results/megalib_v2.2/input_for_rmf/;')
+
+print('Run ./runParser.sh to run .tra.gz -> .t3pa parser, pre_process.py and specMaker.py')

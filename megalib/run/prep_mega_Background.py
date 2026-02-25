@@ -36,8 +36,8 @@ with open(cosmic_background_file, 'r') as f:
 
 
 # Solid angle in deg (half apperture of cone) to integrate background
-angle_min_deg = 0 
-angle_max_deg = 90
+angle_min_deg = 5.21  # Only considering backgorund that passes the collimator
+angle_max_deg = 46.33
 def deg_to_rad(deg):
     return deg * (np.pi/180)
 angle_max_rad = deg_to_rad(angle_max_deg) # in rad
@@ -47,7 +47,7 @@ solid_angle = 2*np.pi * (1 - np.cos(angle_rad))
 
 #print(f'Solid Angle: {solid_angle} rad')
 total_flux_cosmic_background = integrate_flux(background_dict, Emin, Emax, solid_angle) #ph/cm2/s
-print(f'Total BACKGROUND integrated flux from {Emin} keV to {Emax} keV {solid_angle} sr: {total_flux_cosmic_background:.20e} ph/s/cm^2')
+print(f'Total BACKGROUND integrated flux from {Emin} keV to {Emax} keV \n Angle min: {angle_min_deg}deg\n Angle max: {angle_max_deg}deg\n Solid angle:{solid_angle} sr\n Total Cosmic flux: {total_flux_cosmic_background:.4e} ph/s/cm^2')
 
 
 ## ------------------------------------------------------------
@@ -55,11 +55,14 @@ print(f'Total BACKGROUND integrated flux from {Emin} keV to {Emax} keV {solid_an
 
 CdTe_matrix_size = [4]
 dists = [1.5]
+Total_obs_time = 1e5
+n_cores_run = 20 # idea is to use 20 cores to run 500s each making 10ksec, after need to concat, maybe on parse.py..... or after on analysis of spectra....
+Observation_time_s = str(int(round(Total_obs_time/n_cores_run,0)))
 instruments_path = '/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/instruments'
 output_path = '/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/sources/simTra_files'
 sources_path = '/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/sources'
 
-SourceName = 'Background500sec'
+SourceName = f'Background{Observation_time_s}sec'
 
 
 config_lst = []
@@ -75,7 +78,6 @@ revan_config = 'comptons_klein-abs-comptEne.cfg'
 
 ## ------------------------------------------------------------
 
-n_cores_run = 20 # idea is to use 20 cores to run 500s each making 10ksec, after need to concat, maybe on parse.py..... or after on analysis of spectra....
 
 
 for config in config_lst:
@@ -95,10 +97,10 @@ for config in config_lst:
          \nDiscretizeHits    true\n
          \nRun {SourceName} \n  // Gauss (laue, xray focus), mono for Q100
          {SourceName}.FileName              {output_path}/{SourceName}_{Emin}-{Emax}keV_{config} 
-         \n{SourceName}.Time               500\n\n
+         \n{SourceName}.Time               {Observation_time_s}\n\n
          \n{SourceName}.Source One 
          \nOne.ParticleType        1 
-         \nOne.Beam                FarFieldAreaSource 0 90 0 360  // 
+         \nOne.Beam                FarFieldAreaSource {angle_min_deg} {angle_max_deg} 0 360  // 
          \nOne.Spectrum            File {cosmic_background_file}
          \nOne.Flux                {total_flux_cosmic_background}"""
             
