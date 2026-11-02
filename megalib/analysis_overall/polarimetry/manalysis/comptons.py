@@ -948,7 +948,7 @@ def process_comptons(args):
         sigma_theta_deg = 1.0   # geometrical x,y sigma position resolution
         # Can use very large fom_max to take into consideration all comptons
 
-        fom_max = 9999     # Accept all events from Revan!!
+        fom_max = 99999999999     # Accept all events from Revan!!
         df_comptons = select_compton_events(df,
                                             sigma_theta_deg=sigma_theta_deg,
                                             fom_max=fom_max)
@@ -1246,7 +1246,7 @@ def get_n_total_all(df):
     row = df[df["type"] == "ALL"]
     return int(row["total"].iloc[0]) if not row.empty else None
 
-def count_finalComptons(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, concat_df, min_dist, max_dist, angle_bin, residual=False, pol_both = False, bin_min = None, bin_max = None, energy_peak_filter = False):
+def count_finalComptons(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, concat_df, min_dist, max_dist, angle_bin, bin_min = None, bin_max = None, energy_peak_filter = False, det='Both'):
     n_comptons = 0
     
     angle_bin_str = str(angle_bin).replace('.','-')
@@ -1284,7 +1284,7 @@ def count_finalComptons(folder_input_polarimetry_pol, folder_input_polarimetry_N
     angle_bin = str(angle_bin).replace('.', '_')
     min_dist = str(min_dist).replace('.','-')
 
-    with open(f'{folder_result_polarimetry}/ComptonsEventsCount.txt', 'w') as f:
+    with open(f'{folder_result_polarimetry}/ComptonsEventsCount_DETECTOR{det}.txt', 'w') as f:
         f.write(f"# Compton Events Used: {n_comptons}")
 
     
@@ -1298,13 +1298,15 @@ def count_finalComptons(folder_input_polarimetry_pol, folder_input_polarimetry_N
     else:
         total_events = get_n_total_all(df_n_events)
 
+    try:
+        compton_eff = n_comptons/total_events
+    except Exception:
+        compton_eff = 0
 
-    compton_eff = n_comptons/total_events
-
-    with open(f'{folder_result_polarimetry}/ComptonsEventsCount.txt', 'a') as f:
+    with open(f'{folder_result_polarimetry}/ComptonsEventsCount_DETECTOR{det}.txt', 'a') as f:
         f.write(f"\n# Compton eff: {compton_eff}")
    
-    file_path_fits = f'{folder_result_polarimetry}/Fit_Values.txt'
+    file_path_fits = f'{folder_result_polarimetry}/Fit_Values_DETECTOR{det}.txt'
 
     with open(file_path_fits, 'r') as file:
         for line in file:
@@ -1319,7 +1321,7 @@ def count_finalComptons(folder_input_polarimetry_pol, folder_input_polarimetry_N
 
     merit_figure = (Q**2)*compton_eff
 
-    with open(f'{folder_result_polarimetry}/ComptonsEventsCount.txt', 'a') as f:
+    with open(f'{folder_result_polarimetry}/ComptonsEventsCount_DETECTOR{det}.txt', 'a') as f:
         f.write(f"\n# Merit Figure: {merit_figure}")
 
     del concat_df
@@ -2070,10 +2072,11 @@ def get_energy_from_source_name(filename: str) -> int:
     CollimatedBeamPol100keV_config4x4_0.5cm
     """
     name = Path(filename).name  # strip path
-    m = re.search(r'(\d+)keV', name)
+    #m = re.search(r'(\d+)keV', name)
+    m = re.search(r'(\d+(?:\.\d+)?)keV', name)
     if not m:
         raise ValueError(f"No energy found in filename: {filename}")
-    return int(m.group(1))
+    return float(m.group(1))
 
 def get_pol_type_from_source_name(filename: str) -> str:
     """
@@ -2098,35 +2101,51 @@ def get_rot_from_source_name(source):
             rot = float(item.split('deg')[0].replace('-', '.'))
             return rot
 
-def get_n_comptons(source_folder):
-    file= f'{source_folder}/ComptonsEventsCount.txt'
-    try:
-        with(open(file, 'r')) as f:
-             for line in f:
-                 print(line)
-                 if "Compton Events Used" in line:
-                     n = line.split(':')[-1].strip()
-                     return int(n)
-    except Exception as e: 
-        print(f"ERROR: {source_folder}/ComptonsEventsCount.txt doesnt exist - Try run polarimetry.py first - {e}")
-        sys.exit(1)
+def get_n_comptons(source_folder, detector):
+    files_to_try = [
+        f"{source_folder}/ComptonsEventsCount_DETECTOR{detector}.txt",
+        f"{source_folder}/ComptonsEventsCount.txt",
+    ]
 
-def get_Q(source_folder):
+    for file in files_to_try:
+        try:
+            with open(file, "r") as f:
+                for line in f:
+                    print(line)
+                    if "Compton Events Used" in line:
+                        n = line.split(":")[-1].strip()
+                        return int(n)
+        except FileNotFoundError as e:
+            print(
+                f"ERROR: {file} doesnt exist - Try run polarimetry.py first - {e}"
+            )
+
+    # If we reach here, nothing was found
+    raise FileNotFoundError(f"No 'Compton Events Used' line found in any ComptonsEventsCount file in {source_folder}")
+
+
+def get_Q(source_folder, detector=''):
     '''
     Give path to results polarimetry, returns Q on Fit_Values.txt file
     '''
-    file= f'{source_folder}/Fit_Values.txt'
-    try:
-        with(open(file, 'r')) as f:
-             for line in f:
-                if "Q =" in line:
-                    q_whole = line.split('=')[-1].strip()
-                    q = abs(round(float(q_whole.split('±')[0].strip()),4))
-                    q_uncertanty = abs(round(float(q_whole.split('±')[-1].strip()),4))
-                    return q, q_uncertanty
-    except Exception as e: 
-        print(f"ERROR: {source_folder}/Fit_Values.txt doesnt exist - Try run polarimetry.py first - {e}")
-        sys.exit(1)
+    files_to_try = [
+        f"{source_folder}/Fit_Values_DETECTOR{detector}.txt",
+        f"{source_folder}/Fit_Values.txt",
+    ]
+
+    for file in files_to_try:
+        try:
+            with open(file, "r") as f:
+                for line in f:
+                    if "Q =" in line:
+                        q_whole = line.split("=")[-1].strip()
+                        q = abs(round(float(q_whole.split("±")[0].strip()), 4))
+                        q_uncertainty = abs(round(float(q_whole.split("±")[-1].strip()), 4))
+                        return q, q_uncertainty
+        except FileNotFoundError as e:
+            print(f"ERROR: {file} doesnt exist - Try run polarimetry.py first - {e}")
+
+    raise FileNotFoundError(f"No Q line found in any Fit_Values file in {source_folder}")
 
 def get_PA(source_folder, min_dist, angle_bin, max_dist):
     angle_bin_str = str(angle_bin).replace('.','-')
@@ -2180,25 +2199,31 @@ def get_MeritFigure(source_folder, min_dist, angle_bin, max_dist):
                     merit_figure = float(line.split(' ')[-1])
                     return merit_figure
 
-def get_AbsMeritFigure(source_folder):
+def get_AbsMeritFigure(source_folder, detector=''):
     '''
     Give path to result_polarimetry, returns ABSOLUTE merit figure and simga from ComptonsEventsCount.txt
     '''
 
-    file= f'{source_folder}/ComptonsEventsCount.txt'
     
-    try:
-        with(open(file, 'r')) as f:
-            for line in f:
-                if "# Merit Figure Abs:" in line:
-                    merit_figure = float(line.split(' ')[-1])
-                if "# Sigma Merit Figure Abs:" in line:
-                    sigma = float(line.split(' ')[-1])
-            return merit_figure, sigma
+    files_to_try = [
+        f"{source_folder}/ComptonsEventsCount_DETECTOR{detector}.txt",
+        f"{source_folder}/ComptonsEventsCount.txt",
+    ]
 
-    except Exception as e:
-        print(f"ERROR: {source_folder}/Fit_Values.txt doesnt exist - Try run polarimetry.py first - {e}")
-        sys.exit(1)
+    for file in files_to_try:
+
+        try:
+            with(open(file, 'r')) as f:
+                for line in f:
+                    if "# Merit Figure Abs:" in line:
+                        merit_figure = float(line.split(' ')[-1])
+                    if "# Sigma Merit Figure Abs:" in line:
+                        sigma = float(line.split(' ')[-1])
+                return merit_figure, sigma
+
+        except Exception as e:
+            print(f"ERROR: {source_folder}/Fit_Values_DETECTOR{detector}.txt doesnt exist - Try run polarimetry.py first - {e}")
+    raise FileNotFoundError(f"No Q line found in any Fit_Values file in {source_folder}")
 
 
 def get_relativeComptonEff(source_folder):
@@ -2218,23 +2243,28 @@ def get_relativeComptonEff(source_folder):
         print(f"ERROR: {source_folder}/Fit_Values.txt doesnt exist - Try run polarimetry.py first - {e}")
         sys.exit(1)
 
-def get_absoluteComptonEff(source_folder):
+def get_absoluteComptonEff(source_folder, detector=''):
     '''
     Give path to result polarimetry, returns ABSOLUTE compton_eff and sigma
     '''
-    file= f'{source_folder}/ComptonsEventsCount.txt'
+    files_to_try = [
+        f"{source_folder}/ComptonsEventsCount_DETECTOR{detector}.txt",
+        f"{source_folder}/ComptonsEventsCount.txt",
+    ]
 
-    try:
-        with(open(file, 'r')) as f:
-            for line in f:
-                if "# Compton Abs eff:" in line:
-                    compton_eff = float(line.split(' ')[-1])
-                if "# Sigma Compton Abs eff:" in line:
-                    sigma = float(line.split(' ')[-1])
-            return compton_eff, sigma
-    except Exception as e:
-        print(f"ERROR: {source_folder}/ComptonsEventsCount.txt doesnt exist - Try run polarimetry.py first - {e}")
-        sys.exit(1)
+    for file in files_to_try:
+        try:
+            with(open(file, 'r')) as f:
+                for line in f:
+                    if "# Compton Abs eff:" in line:
+                        compton_eff = float(line.split(' ')[-1])
+                    if "# Sigma Compton Abs eff:" in line:
+                        sigma = float(line.split(' ')[-1])
+                return compton_eff, sigma
+        except FileNotFoundError as e:
+            print(f"ERROR: {source_folder}/ComptonsEventsCount_DETECTOR{detector}.txt doesnt exist - Try run polarimetry.py first - {e}")
+
+    raise FileNotFoundError(f"No Q line found in any Fit_Values file in {source_folder}")
 
 
 def plot_MeritFigurevrsEnergy(outputFolder_base, sources, min_dist_list, angle_bin_list, max_dist):
@@ -2997,14 +3027,21 @@ def compute_polarimetry_phi(data):
 
 def polarimetry_task(args):
     folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, min_dist, angle_bin, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min, bin_max, energy_peak_filter= args
-    try:
-        concat_df = fits.fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, angle_bin, min_dist, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min=bin_min, bin_max=bin_max, energy_peak_filter = energy_peak_filter)
-        count_finalComptons(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, concat_df, min_dist, max_dist, angle_bin, bin_min=bin_min, bin_max=bin_max, energy_peak_filter = energy_peak_filter)
+
+    #Polarimetry individual detectors
+    detectors = [0,1]
+    for det in detectors: 
+        concat_df = fits.fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, angle_bin, min_dist, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min, bin_max, energy_peak_filter, det)
+        count_finalComptons(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, concat_df, min_dist, max_dist, angle_bin, bin_min, bin_max, energy_peak_filter, det)
         #plot_compton_events_used_characteristics(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, concat_df, energy, max_dist, min_dist, angle_bin)
         del concat_df
         gc.collect()
-    except Exception as e:
-        print(f"ERROR: Impossible to perform polarimetry (probably no Comptons), ref Pol {folder_input_polarimetry_pol}. Info: {e}")
+    
+    #Polarimetry Both detectors
+    concat_df = fits.fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, angle_bin, min_dist, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min=bin_min, bin_max=bin_max, energy_peak_filter=energy_peak_filter, det='Both')
+    count_finalComptons(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, concat_df, min_dist, max_dist, angle_bin, bin_min=bin_min, bin_max=bin_max, energy_peak_filter=energy_peak_filter, det='Both')
+
+
 
 def polarimetry_task_residual(args):
     min_dist, angle_bin, output_folder, energy, max_dist, z_cdte, z_si= args

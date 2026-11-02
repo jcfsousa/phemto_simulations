@@ -1,0 +1,78 @@
+Name PHEMTO_config1
+Version 1.0
+
+####################
+#  Model options   #
+####################
+
+// Choose Materials.geo to include passive material
+// Choose Materials_v.geo to remove passive material
+#Include Materials.geo
+Include ../detectors/geometry/Materials_v.geo
+
+Include ../detectors/geometry/si.geo
+Include ../detectors/geometry/cdte3x3Big.geo
+
+#Include ACD.det
+Include ../detectors/CdTe3x3detectorBig.det
+Include ../detectors/Sidetector.det
+
+DefaultRangeCut 0.000002
+StoreScientific true 6
+
+// The code runs faster with a smaller sphere
+// Small sphere: only the detector needs enclosing (ring beams are near-field)
+SurroundingSphere 		120.0 0.0 0.0 0.0 120.0
+ShowSurroundingSphere true
+
+Volume WorldVolume
+WorldVolume.Material Vacuum
+WorldVolume.Visibility 0
+WorldVolume.Shape BRIK 200. 200. 2100.
+WorldVolume.Mother 0
+
+####################
+#  Lead Collimator #
+####################
+#Volume Collimator
+#Collimator.Material Lead
+#Collimator.Shape TUBS 2.5 3.5 8.975 0. 360.   // radius 2.5cm, thickness 1cm, 11.7747 hight, mass = 3.8368 kg             // change the thickness here if necessary
+#Collimator.Position 0. 0. 14.225 // 5cm above Si
+#Collimator.Visibility 1
+#Collimator.Color 1
+#Collimator.Mother WorldVolume
+
+####################
+#     Triggers     #
+####################
+// Include trigger information
+Trigger CdTetrigger1
+CdTetrigger1.Veto false
+CdTetrigger1.TriggerByDetector true
+CdTetrigger1.Detector CdTecal_U 1
+
+Trigger SItrigger
+SItrigger.Veto False
+SItrigger.TriggerByDetector true
+SItrigger.Detector SiSDDet 1
+
+
+####################
+#  Detector layout #
+####################
+
+// ----- Si -----
+Si.Mother WorldVolume
+Si.Position 0. 0. 0.
+
+// ----- CdTe -----
+CdTe3x3Big.Mother WorldVolume
+CdTe3x3Big.Position 0. 0. -1.125 // Bottom Si <-> Top CdTe = 1cm
+
+# ----- ACD -----
+#ACD.Position 0 0 1.25
+#ACD.Mother WorldVolume
+
+#ACDsupport.Position 0 0 0.5
+#ACDsupport.Mother WorldVolume
+

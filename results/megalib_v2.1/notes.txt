@@ -1,1 +1,0 @@
-- updated max energy deposited on Si = 20 keV. This change is on the parser.py

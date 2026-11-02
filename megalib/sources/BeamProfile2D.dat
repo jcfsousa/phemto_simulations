@@ -1,0 +1,46 @@
+
+# Linear interpolation
+IP LIN
+
+# Bin centers x
+XA -0.55 -0.45 -0.35 -0.25 -0.15 -0.05 0.05 0.15 0.25 0.35 0.45 0.55
+
+# Bin centers y
+YA -0.1 -0.05 0 0.05 0.1 
+
+# Data points: x-bin, y-bin, bin content
+# Axes bins start at zero, they can be in random order 
+AP 1 1 1
+AP 2 1 1
+AP 3 1 1
+AP 4 1 1
+AP 5 1 1
+AP 6 1 1
+AP 7 1 1
+AP 8 1 1
+AP 9 1 1
+AP 10 1 1
+
+AP 1 2 1
+AP 2 2 1
+AP 3 2 1
+AP 4 2 1
+AP 5 2 1
+AP 6 2 1
+AP 7 2 1
+AP 8 2 1
+AP 9 2 1
+AP 10 2 1
+
+AP 1 3 1
+AP 2 3 1
+AP 3 3 1
+AP 4 3 1
+AP 5 3 1
+AP 6 3 1
+AP 7 3 1
+AP 8 3 1
+AP 9 3 1
+AP 10 3 1
+
+

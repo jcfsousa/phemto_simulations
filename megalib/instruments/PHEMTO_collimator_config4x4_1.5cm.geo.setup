@@ -17,17 +17,20 @@ Include ../detectors/geometry/cdte4x4.geo
 Include ../detectors/CdTe4x4detector.det
 Include ../detectors/Sidetector.det
 
+#Include LaueLenses
+Include ../optics/PHEMTO_LaueLens.geo
+
 DefaultRangeCut 0.000002
 StoreScientific true 6
 
 // The code runs faster with a smaller sphere
-SurroundingSphere 		220.0 0.0 0.0 0.0 220.0		// Use for stowed or 1m mask
-ShowSurroundingSphere true
+SurroundingSphere 		1015.0 0.0 0.0 1000.0 1015.0		// Use for stowed or 1m mask
+#ShowSurroundingSphere true
 
 Volume WorldVolume
 WorldVolume.Material Vacuum
 WorldVolume.Visibility 0
-WorldVolume.Shape BRIK 1000. 1000. 1000.
+WorldVolume.Shape BRIK 2100. 2100. 2100.
 WorldVolume.Mother 0
 
 ####################
@@ -50,13 +53,43 @@ SItrigger.Detector SiSDDet 1
 ####################
 Volume Collimator
 Collimator.Material Lead
-Collimator.Shape TUBS 7.6 7.73 50 0. 360.                // change the thickness here if necessary
-Collimator.Position 0. 0. 55
+Collimator.Shape TUBS 7.6 7.73 47.5 0. 360.                // change the thickness here if necessary
+Collimator.Position 0. 0. 52.5 // 5cm above Si
 Collimator.Visibility 1
 Collimator.Color 1
 Collimator.Mother WorldVolume
 
+#Volume Collimator_topShield
+#Collimator_topShield.Material Lead
+#Collimator_topShield.Shape TUBS 7.74 12 0.065 0. 360.                // change the thickness here if necessary
+#Collimator_topShield.Position 0. 0. 5
+#Collimator_topShield.Visibility 1
+#Collimator_topShield.Color 1
+#Collimator_topShield.Mother WorldVolume
+#
+#Volume Collimator_sideShield
+#Collimator_sideShield.Material Lead
+#Collimator_sideShield.Shape TUBS 11.87 12 5 0. 360.                // change the thickness here if necessary
+#Collimator_sideShield.Position 0. 0. 0
+#Collimator_sideShield.Visibility 1
+#Collimator_sideShield.Color 1
+#Collimator_sideShield.Mother WorldVolume
 
+#Volume inner_cone
+#inner_cone.Material Lead
+#inner_cone.Shape CONE 5011.87 12 5 0. 360.                // change the thickness here if necessary
+#inner_cone.Position 0. 0. 0
+#inner_cone.Visibility 1
+#inner_cone.Color 1
+#inner_cone.Mother WorldVolume
+
+#Volume Collimator_bottomShield
+#Collimator_bottomShield.Material Lead
+#Collimator_bottomShield.Shape TUBS 0 12 0.065 0. 360.                // change the thickness here if necessary
+#Collimator_bottomShield.Position 0. 0. -5
+#Collimator_bottomShield.Visibility 1
+#Collimator_bottomShield.Color 1
+#Collimator_bottomShield.Mother WorldVolume
 ####################
 #  Detector layout #
 ####################

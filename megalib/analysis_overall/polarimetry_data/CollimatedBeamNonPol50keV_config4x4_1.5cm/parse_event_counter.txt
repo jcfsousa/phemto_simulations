@@ -1,4 +1,0 @@
-# Total events : 998378
-# Total singles : 929200
-# Total double Compton : 5924
-# Total mult Compton : 3

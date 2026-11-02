@@ -12,9 +12,13 @@ from math import acos, degrees
 from collections import Counter
 import argparse
 
-SI_HIGH_ENERGY_CUT = 20 #keV
+SI_HIGH_ENERGY_CUT = 100 #keV
+CDTE_TRIGGER_THRESHOLD = 4  # keV, per-pixel trigger threshold on CdTe. The sim was run
+                            # with NoiseThreshold 0.5, so hits in [0.5, 4) keV (sub-trigger
+                            # Compton-partner sites) were stored; drop them here to emulate
+                            # the 4 keV trigger threshold.
 SI_Z = 0
-CDTE_Z = -1.625
+CDTE_Z = -1.125
 Z_TOL = 0.1  # cm, safe margin
 
 
@@ -151,7 +155,7 @@ def parse_tra(filename: str) -> Iterator[TraEvent]:
 def detector_from_z(z: float) -> str:
     if float(z) == 0:        
         return "Si"
-    elif z == -1.625:
+    elif z == CDTE_Z:
         return "CdTe"
     else:
         return "Other"
@@ -172,7 +176,7 @@ def get_pixel_id(x, pixel_size):
     '''
     Returns pix ID, for a given x,y coordinate. Need to compute coordinate_transform() first to be on the correct reference frame.
     '''
-    ix = np.floor(x / pixel_size).astype(int) -1
+    ix = np.floor(x / pixel_size).astype(int) 
     return ix
 
 def get_matrix_id(x_pix, y_pix, matrix_size):
@@ -261,22 +265,26 @@ if __name__ == '__main__':
     tra_events = list(parse_tra(filename))
     n_events = len(tra_events)
     ######################################
+    print('End First Parse')
 
 
     #Si: https://www.sciencedirect.com/science/article/pii/S0168900219310812
     #Si detector is the same for all configs
-    dist = 1.5
-    instrument_size_si = 6.656 #6.4 x 6.4 cm2, 4x4 MC2
-    pix_size_si = 0.013 # cm = 0.13mm
-    pix_matrix_size_si = 512 # 512x512
-    max_energy_si = 20 # keV, actually WFI ASTENA is 15keV but ill assume 20keV - maybe technology will allow
+    dist = 1
+    instrument_size_si = 6.4 #6.4 x 6.4 cm2
+    pix_size_si = 0.025 # cm = 0.13mm
+    pix_matrix_size_si = 256 # 256x256
+    max_energy_si = SI_HIGH_ENERGY_CUT # keV, actually WFI ASTENA is 15keV but ill assume 20keV - maybe technology will allow
 
     # CdTe detector constants
-    single_det_size = 1.6 # 1.6x1.6 cm2
+    single_det_size = 2.45 # 1.6x1.6 cm2
     pix_size_cdte = 0.025 # cm = 0.25mm
-    pix_per_det = 64 # 64x64 matrix
-    instrument_size_cdte = single_det_size * 4# 1.6cm x cdte matrix_size 
-    pix_matrix_size_cdte = pix_per_det * 4     # 64 pixels per det x cdte matrix_size
+    pix_per_det = 96 # 64x64 matrix
+    #instrument_size_cdte = single_det_size * 3# 1.6cm x cdte matrix_size 
+    instrument_size_cdte = pix_per_det * 3 * pix_size_cdte
+    pix_matrix_size_cdte = pix_per_det * 3     # 64 pixels per det x cdte matrix_size
+    print(f'instrument_size_cdte {instrument_size_cdte}')
+    print(f'pix_matrix_size_cdte {pix_matrix_size_cdte}')
     
 
     event_lst, time_lst, energy_lst = [], [], []
@@ -308,7 +316,12 @@ if __name__ == '__main__':
         # High energy CUT for Si detector, 20keV atm......
         if detector == 0:
             if hit.energy > max_energy_si:
-                return 
+                return
+
+        # Low energy CUT for CdTe: emulate the 4 keV trigger threshold (sim ran at 0.5 keV noise)
+        if detector == 1:
+            if hit.energy < CDTE_TRIGGER_THRESHOLD:
+                return
 
         # Transform coordinates
         x_detRef = coordinate_transform(hit.x, instrument_size)
@@ -589,6 +602,7 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     plt.savefig(f"{output_folder}/0_imgDebug.png")
+    #plt.show()
     plt.close()
 
 

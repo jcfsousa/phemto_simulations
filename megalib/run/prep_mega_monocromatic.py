@@ -2,12 +2,12 @@ import numpy as np
 ## ------------------------------------------------------------
 # Change Parameters
 
-CdTe_matrix_size = [4]
-dists = [1.5]
+CdTe_matrix_size = [3]
+dists = [1]
+#dists = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
 instruments_path = '/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/instruments'
 output_path = '/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/sources/simTra_files'
 sources_path = '/local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/sources'
-SourceName = 'CollimatedBeam'
 
 config_lst = []
 for matrix_size in CdTe_matrix_size:
@@ -17,10 +17,18 @@ for matrix_size in CdTe_matrix_size:
 
 # Energy list
 #Log_E=[4,8,15,30,50,80,100,120,150,200,250,300,350,400,500,600,700]
-Log_E=[1, 10, 30, 50, 100, 150, 200, 250, 300, 350, 400]
-Log_E = np.arange(10, 410,10)
-Log_E = np.concatenate([[1],Log_E])
-print(Log_E)
+#Log_E=[1, 10, 30, 50, 100, 150, 200, 250, 300, 350, 400]
+#Log_E = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 80]
+#Log_E = [100, 125, 150, 175, 200, 250, 300, 350, 400]
+#Log_E = [450, 500, 550, 600]
+#Log_E = [100]
+#Log_E = [15, 25, 35, 45, 55, 75, 100, 150, 200, 300, 400, 500, 600]
+Log_E = [400]
+n_events = 1000000
+SourceName = 'CollimatedBeam'
+#Log_E = np.arange(1, 11, 1)
+#Log_E = np.concatenate([[1],Log_E])
+#print(Log_E)
 
 
 #revan_config = 'comptons.revan.cfg'
@@ -31,7 +39,7 @@ pol = input('Polarized, non-polarized or both (pol, non, both)')
 ## ------------------------------------------------------------
 
 for config in config_lst:
-    geofile=f'{instruments_path}/PHEMTO_collimator_{config}.geo.setup'
+    geofile=f'{instruments_path}/PHEMTO_{config}.geo.setup'
 
     with open(f"./runCosima{config}.sh", mode='w') as f:
 
@@ -48,9 +56,9 @@ for config in config_lst:
                  StoreCalibrated   true\n
                  StoreSimulationInfoIonization true\n
                  DiscretizeHits    true\n
-                 \nRun {SourceName}Pol \n  // Gauss (laue, xray focus), mono for Q100
+                 \nRun {SourceName}Pol \n  //(laue, xray focus), mono for Q100
                  {SourceName}Pol.FileName              {output_path}/{SourceName}Pol{myene}keV_{config} \n
-                 {SourceName}Pol.NEvents               1000000\n\n\n
+                 {SourceName}Pol.NEvents               {n_events}\n\n\n
                  {SourceName}Pol.Source One \n
                  One.ParticleType        1 \n
                  One.Beam                HomogeneousBeam  0 0 10 0 0 -1 0.075  // psf diameter = 1.5mm\n
@@ -80,7 +88,7 @@ for config in config_lst:
                  \nDiscretizeHits    true\n
                  \nRun {SourceName}NonPol 
                  \n{SourceName}NonPol.FileName              {output_path}/{SourceName}NonPol{myene}keV_{config} 
-                 \n{SourceName}NonPol.NEvents               1000000
+                 \n{SourceName}NonPol.NEvents              {n_events} 
                  \n{SourceName}NonPol.Source One 
                  \nOne.ParticleType        1 
                  \n
@@ -153,12 +161,16 @@ with open(f"./runPolarimetry.sh", mode='w') as f:
 
 
                     ###### Polarimetry Analysis ######
-                    f.write(f'python3 {base_path_analysis_overall}/polarimetry/polarimetry.py -o {output_polarimetry} -ip {output_path_configPol} -inp {output_path_configNonPol} -p False ;')
+                    f.write(f'python3 {base_path_analysis_overall}/polarimetry/polarimetry.py -o {output_polarimetry} -ip {output_path_configPol} -inp {output_path_configNonPol} ;')
+
+                    f.write(f'python3 {base_path_analysis_overall}/polarimetry/specMaker.py -i {output_path_configPol} -o {output_path_configPol};')
+
+                    f.write(f'python3 {base_path_analysis_overall}/polarimetry/specMaker.py -i {output_path_configNonPol} -o {output_path_configNonPol};')
     f.close()
 
 
 
-print('Run ./runPolarimetry.sh to run .tra.gz -> .t3pa parser and Polarimetry analysis.')
+print('Run ./runPolarimetry.sh to run .tra.gz -> .t3pa parser, Polarimetry analysis, SpecMaker.')
 
 
 # Prep Parse for event effs
@@ -179,6 +191,6 @@ with open(f"./runParser.sh", mode='w') as f:
 
                 f.write(f'python3 {base_path_analysis_overall}/polarimetry/specMaker.py -i {output_path_configNonPol} -o {output_path_configNonPol};')
 
-                f.write(f'cp {output_path_configNonPol}/parquet/masked/spectra/*.txt /local/home/jf285468/documents/phd/phemto/phemto_simulations/results/megalib_v2.2/input_for_rmf/;')
+                #f.write(f'cp {output_path_configNonPol}/parquet/masked/spectra/*.txt /local/home/jf285468/documents/phd/phemto/phemto_simulations/results/megalib_v3/input_for_rmf/;')
 
 print('Run ./runParser.sh to run .tra.gz -> .t3pa parser, pre_process.py and specMaker.py')

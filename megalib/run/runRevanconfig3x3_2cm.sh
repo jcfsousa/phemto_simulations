@@ -1,0 +1,1 @@
+revan -c comptons_klein-abs-comptEne.cfg -a -n -f /local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/sources/simTra_files/CollimatedBeamNonPol400keV_config3x3_2cm.inc1.id1.sim.gz -g /local/home/jf285468/documents/phd/phemto/phemto_simulations/megalib/instruments/PHEMTO_config3x3_2cm.geo.setup 

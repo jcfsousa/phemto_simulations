@@ -439,7 +439,7 @@ def get_spectra_histCalib(parquet_folder, event_type='singles', output_file_name
     
     return bin_centers, cumulative_counts, observation_time
 
-def get_spectra_hist(parquet_folder, event_type='singles', output_file_name = 'spec_histogram.txt', min_spectra_range = 0, max_spectra_range = 500, bin_step = 1, counts_normalized = False, chip_id = 'all', chip_name = 'undefined'):
+def get_spectra_hist(parquet_folder, event_type='singles', output_file_name = 'spec_histogram.txt', min_spectra_range = 0, max_spectra_range = 1200, bin_step = 1, counts_normalized = False, chip_id = 'all', chip_name = 'undefined'):
     '''
     parquet_folder: place where the .parquet folders are to analyse
     output_folder: place to put the spectra .txt
@@ -453,7 +453,7 @@ def get_spectra_hist(parquet_folder, event_type='singles', output_file_name = 's
     os.makedirs(output_folder, exist_ok = True)
     check_spect_file = [file for file in os.listdir(output_folder) if file.startswith('spec_hist') and file.endswith(f'chip{chip_name}.txt')]
 
-    if len(check_spect_file) == 200: #not used atm
+    if len(check_spect_file) == 9999999999999: #not used atm
     #histrogram already on the file path, go read the histogram instead of using the df to get new histogram 
         hist_data_file_path = os.path.join(output_folder, output_file_name)
          #print('I already have a spectra file.........')
@@ -526,7 +526,11 @@ def plot_energy_spectra_sources(outputFolder, bin_centers, counts,
             ax = plt.gca()
 
     ax.plot(bin_centers, counts, c=colour, linewidth = 2, drawstyle='steps-mid', label=plotLabel)
-    ax.set_xlim(min_spectra_range, max_spectra_range)
+    try:
+        ax.set_xlim(min_spectra_range, max_spectra_range)
+    except:
+        print('Maybe no data.....')
+        ax.set_xlim(0,1000)
     ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
     ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
     ax.set_xlabel('Energy (keV)')
@@ -566,7 +570,7 @@ def plot_energy_spectra_sources(outputFolder, bin_centers, counts,
             print(f"\033[33m WARNING: Could not use log scale, will use linear, {e}.\033[0m")
             ax.set_yscale('linear')
             ax.set_ylabel('Counts')
-
+    
     ax.figure.savefig(f'{outputFolder}/Energy_Spectrum_{custom_name}.png')
     if show:
         ax.figure.show()

@@ -341,7 +341,7 @@ if __name__ == '__main__':
     parser.add_argument('-ip', '--inputPol', required=True, help='FULL path of the location of the .t3pa Polarized source')
     parser.add_argument('-inp', '--inputNonPol', required=True, help='FULL path of the location of the .t3pa Non-Polarized source')
     parser.add_argument( '-b', '--bin', help='Bin range to perform polarimetry ie: 50-400. If you use this argument, the argument --peak -p will be ignored.')
-    parser.add_argument( '-p', '--peak', required=True, default='False', help='Usage: <-p True>, <-p False> .If True it will use source energy peak (present on source name _400keV_) and use only events with E-res<=E<=E+res (NOT YET IMPLEMEMNTED). If not use DEFAULT = False, Will use All events without energy cuts (IMPLEMENTED).')
+    parser.add_argument( '-p', '--peak', action='store_true', help='Usage: <-p > If used it will use source energy peak (present on source name _400keV_) and use only events with E-res<=E<=E+res (NOT YET IMPLEMEMNTED). If not use DEFAULT = False, Will use All events without energy cuts (IMPLEMENTED).')
 
     args = parser.parse_args()
     
@@ -375,18 +375,20 @@ if __name__ == '__main__':
     # CdTe
     z_cdte = -float((sourcePol.split("_")[-1]).split('c')[0]) #distance form source name, negative value
     cdte_matrix = int((sourcePol.split("config")[1]).split('x')[0])   # cdte matrix from source name, ex:GaussBeamPol50keV_config4x4_0.5cm
-    cdte_single_det_size = 1.6 # 1.6x1.6 cm2
-    cdte_detSize = cdte_single_det_size * cdte_matrix # cm
+    cdte_single_det_size = 2.45 # 1.6x1.6 cm2
+    pix_per_det = 96 # 64x64 matrix
     cdte_pixSize = 0.025 # cm
+    cdte_detSize = pix_per_det * 3 * cdte_pixSize # cm
+
     # Si
     z_si = 0 # position of Si detector
     si_detSize = 6.656 # cm
-    si_pixSize = 0.013 # cm
+    si_pixSize = 0.025 # cm
     #############################
 
     # Polarimetry constants
     min_dist_list = [0.025, 0.05, 0.075]
-    angle_bin_list = [1,2,3,5,10, 15, 36]  #bin size for polarimetry
+    angle_bin_list = [5, 10, 15, 20]  #bin size for polarimetry
     max_dist_list = [100000]  # max dist between compton events, cm
     max_dist_list = np.round(max_dist_list, 3)
     max_dist_on_list = max_dist_list[-1]

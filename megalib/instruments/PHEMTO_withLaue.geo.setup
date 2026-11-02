@@ -1,0 +1,113 @@
+Name PHEMTO_config1_withLaue
+Version 1.0
+
+# =====================================================================
+#  PHEMTO detector + collimator + Laue lens (Si(111) rings 50-400 keV).
+#  Dedicated setup for LENS (near-field ring-source) simulations.
+#  The enlarged WorldVolume / SurroundingSphere below are needed to
+#  contain the lens at z = 2000 cm; do NOT reuse this big sphere for
+#  far-field background runs (it makes them much slower).
+# =====================================================================
+
+####################
+#  Model options   #
+####################
+
+// Choose Materials.geo to include passive material
+// Choose Materials_v.geo to remove passive material
+#Include Materials.geo
+Include ../detectors/geometry/Materials_v.geo
+
+Include ../detectors/geometry/si.geo
+Include ../detectors/geometry/cdte4x4.geo
+
+#Include ACD.det
+Include ../detectors/CdTe4x4detector.det
+Include ../detectors/Sidetector.det
+
+#  Laue lens crystal rings
+Include ../optics/PHEMTO_LaueLens.geo
+
+DefaultRangeCut 0.000002
+StoreScientific true 6
+
+// Enlarged to contain the lens at z = 2000 cm (farthest tile ~ r=158.6, z=2000)
+SurroundingSphere 		1015.0 0.0 0.0 1000.0 1015.0
+#ShowSurroundingSphere true
+
+Volume WorldVolume
+WorldVolume.Material Vacuum
+WorldVolume.Visibility 0
+WorldVolume.Shape BRIK 2100. 2100. 2100.
+WorldVolume.Mother 0
+
+####################
+#     Triggers     #
+####################
+
+// Include trigger information
+Trigger CdTetrigger1
+CdTetrigger1.Veto false
+CdTetrigger1.TriggerByDetector true
+CdTetrigger1.Detector CdTecal_U 1
+
+Trigger SItrigger
+SItrigger.Veto False
+SItrigger.TriggerByDetector true
+SItrigger.Detector SiSDDet 1
+
+####################
+#  Lead Collimator #
+####################
+Volume Collimator
+Collimator.Material Lead
+Collimator.Shape TUBS 2.5 3.5 8.975 0. 360.   // radius 2.5cm, thickness 1cm, 11.7747 hight, mass = 3.8368 kg             // change the thickness here if necessary
+Collimator.Position 0. 0. 14.225 // 5cm above Si
+Collimator.Visibility 1
+Collimator.Color 1
+Collimator.Mother WorldVolume
+
+#Volume Collimator_topShield
+#Collimator_topShield.Material Lead
+#Collimator_topShield.Shape TUBS 7.74 12 0.065 0. 360.                // change the thickness here if necessary
+#Collimator_topShield.Position 0. 0. 5
+#Collimator_topShield.Visibility 1
+#Collimator_topShield.Color 1
+#Collimator_topShield.Mother WorldVolume
+#
+#Volume Collimator_sideShield
+#Collimator_sideShield.Material Lead
+#Collimator_sideShield.Shape TUBS 11.87 12 5 0. 360.                // change the thickness here if necessary
+#Collimator_sideShield.Position 0. 0. 0
+#Collimator_sideShield.Visibility 1
+#Collimator_sideShield.Color 1
+#Collimator_sideShield.Mother WorldVolume
+#
+##Volume inner_cone
+##inner_cone.Material Lead
+##inner_cone.Shape CONE 5011.87 12 5 0. 360.                // change the thickness here if necessary
+##inner_cone.Position 0. 0. 0
+##inner_cone.Visibility 1
+##inner_cone.Color 1
+##inner_cone.Mother WorldVolume
+#
+#Volume Collimator_bottomShield
+#Collimator_bottomShield.Material Lead
+#Collimator_bottomShield.Shape TUBS 0 12 0.065 0. 360.                // change the thickness here if necessary
+#Collimator_bottomShield.Position 0. 0. -5
+#Collimator_bottomShield.Visibility 1
+#Collimator_bottomShield.Color 1
+#Collimator_bottomShield.Mother WorldVolume
+
+
+####################
+#  Detector layout #
+####################
+
+// ----- Si -----
+Si.Mother WorldVolume
+Si.Position 0. 0. 0.
+
+// ----- CdTe -----
+CdTe4x4.Mother WorldVolume
+CdTe4x4.Position 0. 0. -1.625 // Bottom Si <-> Top CdTe = 1.5cm

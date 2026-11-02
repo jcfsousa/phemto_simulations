@@ -7,3 +7,7 @@
 *.so
 *.so*
 megalib/analysis_overall/env-phemto/
+*.txt
+!README.txt
+*.png
+*.fits

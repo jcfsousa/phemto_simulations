@@ -270,7 +270,7 @@ def parallelize_identifyEvent_Cluster(args):
     data = pd.read_parquet(f'{outputFolder_csv}/df_sorted_{abc}.parquet')
 
     # Step 3: Cluster the events
-    cluster_dict, global_cluster_id = cluster(data, global_cluster_id) #spatial cluster, ADD: check different detectors (z pos)
+    cluster_dict, global_cluster_id = cluster(data, global_cluster_id) #spatial cluster, it checks if its on different detectors
     data['Cluster'] = data.index.map(cluster_dict)
     #data['Cluster'] = data['Event'] #time cluster
 

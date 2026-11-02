@@ -243,16 +243,6 @@ def plot_fit_binned_counts(outputFolder, data, phi_fit, counts_fit, popt, perr, 
         plt.grid(False)
         plt.tight_layout()
 
-    # Save or show the plot
-    if multiple_plots:
-        path_components = outputFolder.split(os.sep)
-        root_dir = os.sep.join(path_components[:-1])
-        grenoble_conlcusions_folder = f'{root_dir}/3-GrenobleGeneralConclusions'
-        plt.savefig(f'{grenoble_conlcusions_folder}/polarimetry_{source_energy}kev_example.png', bbox_inches='tight')
-    else:
-        plt.savefig(f'{outputFolder}/FIT_correctedpolarization_source_{energy}keV.png')
-    plt.close()
-
     del data
 
 
@@ -528,7 +518,7 @@ def plot_detector_hits(df, z_cdte, z_si, cdte_detSize, si_detSize, detector='bot
     if detector != 'both':
         axes = [axes]
     
-    # CdTe hits (z=0)
+    # CdTe hits 
     if detector in ['cdte', 'both']:
         cdte_mask = dfp['E_photon_Z0'] == z_cdte
         if cdte_mask.sum() > 0:
@@ -541,7 +531,7 @@ def plot_detector_hits(df, z_cdte, z_si, cdte_detSize, si_detSize, detector='bot
             axes[0].set_ylabel('Y (cm)')
             plt.colorbar(axes[0].collections[0], ax=axes[0], label='Energy (keV)')
     
-    # Si hits (z=5)
+    # Si hits 
     if detector in ['si', 'both']:
         si_mask = dfp['E_photon_Z0'] == z_si
         if si_mask.sum() > 0:
@@ -558,7 +548,7 @@ def plot_detector_hits(df, z_cdte, z_si, cdte_detSize, si_detSize, detector='bot
     plt.tight_layout()
 
 
-def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, angle_bin, min_dist, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min = None, bin_max = None, energy_peak_filter = False):
+def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpol, result_polarimetry, angle_bin, min_dist, max_dist, z_cdte, z_si, cdte_detSize, si_detSize, bin_min = None, bin_max = None, energy_peak_filter = False, det='Both'):
     '''
     Returns the Df of the polarized source to count the number of comptons downtream
     '''
@@ -608,8 +598,14 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
     # Result polarimetry path for each bin, min_dist, max_dist condition
     folder_result_polarimetry = os.path.join(result_polarimetry_type, f'{angle_bin_str}bin_md{min_dist_str}_maxd{max_dist_str}')
     pathlib.creat_dir(folder_result_polarimetry)
-  
-    ## POLARIZED SOURCE
+
+
+    ## need to put the following in config file that is shared between everything, parse.py, idcomptons etc etc...  and read from global variables..............................
+
+    
+    # Perform polarimetry per detector and both
+    
+    # POLARIZED SOURCE
     final_filtered_df_pol = []
     for filename in os.listdir(f'{folder_input_polarimetry_pol_parquet_doublesPeakCompton}/'):
         if filename.startswith('comptons') and filename.endswith(".parquet"):
@@ -618,8 +614,13 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
                 
                 df = pd.read_parquet(filepath)
 
-                #print(df)
-                
+                if det == 0:
+                    df = df[((df['E_photon_overflow'] == 0) & (df['E_elect_overflow'] == 0))] # only Si events
+                elif det == 1:
+                    df = df[((df['E_photon_overflow'] == 1) & (df['E_elect_overflow'] == 1))] # only CdTe events
+                else:
+                    df = df
+
                 compton_data_phi = compton.compute_polarimetry_phi(df)
                 ## limit xmax and xmin
 
@@ -633,7 +634,7 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
                 #plot_all_events_3d(filtered_df)
                 final_filtered_df_pol.append(filtered_df)
             except Exception as e:
-                print(f"ERROR: Impossible to perform polarimetry (probably no Comptons), ref Pol {filename}. Info: {e}")
+                print(f"ERROR: Computing phis. Impossible to perform polarimetry (probably no Comptons), ref Pol {filename}. Info: {e}")
 
      
     concatenated_df_pol = pd.concat(final_filtered_df_pol, ignore_index=True)
@@ -641,49 +642,58 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
 
     energy = folder_input_polarimetry_pol.split('/')[-1]
     plot_detector_hits(concatenated_df_pol, z_cdte, z_si, cdte_detSize, si_detSize, detector='both', bins = 256)
-    plt.savefig(f'{folder_input_polarimetry_pol_polarimetry_binDist}/DEBUG-2DHIST_{energy}keV_BEST_{angle_bin_str}bin_md{min_dist_str}.png')
+    plt.savefig(f'{folder_input_polarimetry_pol_polarimetry_binDist}/DEBUG-2DHIST_{energy}keV_BEST_{angle_bin_str}bin_md{min_dist_str}_DETECTOR{det}.png')
     plt.close()
     plot_all_events_3d(concatenated_df_pol, z_cdte, z_si, cdte_detSize, si_detSize) 
-    plt.savefig(f'{folder_input_polarimetry_pol_polarimetry_binDist}/DEBUG-3D_{energy}keV_BEST_{angle_bin_str}bin_md{min_dist_str}.png')
+    plt.savefig(f'{folder_input_polarimetry_pol_polarimetry_binDist}/DEBUG-3D_{energy}keV_BEST_{angle_bin_str}bin_md{min_dist_str}_DETECTOR{det}.png')
     plt.close()
 
     # NON-POLARIZED SOURCE
     final_filtered_df_Nonpol = []
     for filename in os.listdir(f'{folder_input_polarimetry_Nonpol_parquet_doublesPeakCompton}/'):
         if filename.startswith('comptons') and filename.endswith(".parquet"):
-            filepath = os.path.join(folder_input_polarimetry_Nonpol_parquet_doublesPeakCompton, filename)
-            
-            df = pd.read_parquet(filepath)
+            try:
+                filepath = os.path.join(folder_input_polarimetry_Nonpol_parquet_doublesPeakCompton, filename)
+                
+                df = pd.read_parquet(filepath)
 
-            #print(df)
-            
-            compton_data_phi = compton.compute_polarimetry_phi(df)
-            ## limit xmax and xmin
+                if det == 0:
+                    df = df[((df['E_photon_overflow'] == 0) & (df['E_elect_overflow'] == 0))] # only Si events
+                elif det == 1:
+                    df = df[((df['E_photon_overflow'] == 1) & (df['E_elect_overflow'] == 1))] # only CdTe events
+                else:
+                    df = df
+                #print(df)
+                
+                compton_data_phi = compton.compute_polarimetry_phi(df)
+                ## limit xmax and xmin
 
-            compton_data_phi = limit_dist_photon_travel(compton_data_phi, min_dist, max_dist)
-            #print(compton_data_phi)
+                compton_data_phi = limit_dist_photon_travel(compton_data_phi, min_dist, max_dist)
+                #print(compton_data_phi)
 
 
-            filtered_df = add_xyz(compton_data_phi, z_si=z_si, z_cdte=z_cdte)
-            #plot_all_events_3d(filtered_df) 
+                filtered_df = add_xyz(compton_data_phi, z_si=z_si, z_cdte=z_cdte)
+                #plot_all_events_3d(filtered_df) 
 
-            #plot_all_events_3d(filtered_df)
-            final_filtered_df_Nonpol.append(filtered_df)
+                #plot_all_events_3d(filtered_df)
+                final_filtered_df_Nonpol.append(filtered_df)
+            except Exception as e:
+                print(f"ERROR: Computing phis. Impossible to perform polarimetry (probably no Comptons), ref Pol {filename}. Info: {e}")
 
      
     concatenated_df_Nonpol = pd.concat(final_filtered_df_Nonpol, ignore_index=True)
 
     plot_detector_hits(concatenated_df_Nonpol, z_cdte, z_si, cdte_detSize, si_detSize, detector='both', bins = 256)
-    plt.savefig(f'{folder_input_polarimetry_Nonpol_polarimetry_binDist}/DEBUG-2DHIST_{energy}keV_BEST_{angle_bin_str}bin_md{min_dist_str}.png')
+    plt.savefig(f'{folder_input_polarimetry_Nonpol_polarimetry_binDist}/DEBUG-2DHIST_{energy}keV_BEST_{angle_bin_str}bin_md{min_dist_str}_DETECTOR{det}.png')
     plt.close()
     plot_all_events_3d(concatenated_df_Nonpol, z_cdte, z_si, cdte_detSize, si_detSize) 
-    plt.savefig(f'{folder_input_polarimetry_Nonpol_polarimetry_binDist}/DEBUG-3D_{energy}keV_BEST_{angle_bin_str}bin_md{min_dist_str}.png')
+    plt.savefig(f'{folder_input_polarimetry_Nonpol_polarimetry_binDist}/DEBUG-3D_{energy}keV_BEST_{angle_bin_str}bin_md{min_dist_str}_DETECTOR{det}.png')
     plt.close()
 
 
     # Give Pol and Non-Pol df, It returns df with corrected polarimetric responce to non-polarized beam
     phi_counts_corrected_df, phi_counts_binned_df_pol, phi_counts_binned_df_Nonpol, bin_pol_centers = compton.binning_polarimetry(concatenated_df_pol, concatenated_df_Nonpol, energy, angle_bin)
-    
+     
     pol_cnts = phi_counts_binned_df_pol['Counts_Norm'].values
     pol_cnts_error = phi_counts_binned_df_pol['Error_Norm'].values
     Nonpol_cnts = phi_counts_binned_df_Nonpol['Counts_Norm'].values
@@ -700,7 +710,7 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
     plt.title(f'Polarimetry: Polarized Source (Energy: {energy} keV)')
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.savefig(f"{folder_result_polarimetry}/polarized_source_{energy}keV.png")
+    plt.savefig(f"{folder_result_polarimetry}/polarized_source_{energy}keV_DETECTOR{det}.png")
     plt.close()
 
     plt.figure(figsize=(10, 6))
@@ -711,7 +721,7 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
     plt.title(f'Polarimetry: NonPolarized Source (Energy: {energy} keV)')
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.savefig(f"{folder_result_polarimetry}/nonpolarized_source_{energy}keV.png")
+    plt.savefig(f"{folder_result_polarimetry}/nonpolarized_source_{energy}keV_DETECTOR{det}.png")
     plt.close()
 
     plt.figure(figsize=(10, 6))
@@ -722,7 +732,7 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
     plt.title(f'Polarimetry: Pol vs NonPol vs Corrected (Energy: {energy} keV)')
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.savefig(f"{folder_result_polarimetry}/correctedpolarization_source_{energy}keV.png")
+    plt.savefig(f"{folder_result_polarimetry}/correctedpolarization_source_{energy}keV_DETECTOR{det}.png")
     plt.close()
 
     #data = data_concatenated_df.groupby('Phi_bin', as_index=True).sum().reset_index()
@@ -749,16 +759,19 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
     'Counts_fit': counts_fit  # Fitted counts
 })
     plot_data.to_csv(
-        f'{folder_result_polarimetry}/DATA_correctedpolarization_source_{energy}keV.csv',
+        f'{folder_result_polarimetry}/DATA_correctedpolarization_source_{energy}keV_DETECTOR{det}.csv',
         index=False  # Do not save the index
     )
     plot_data_fit.to_csv(
-        f'{folder_result_polarimetry}/DATA_correctedpolarization_source_{energy}keV.csv',
+        f'{folder_result_polarimetry}/DATA_correctedpolarization_source_{energy}keV_DETECTOR{det}.csv',
         index=False  # Do not save the index
     )
 
     plot_fit_binned_counts(folder_result_polarimetry, data, phi_fit, counts_fit, popt, perr, counts_norm, phi, energy, angle_bin, min_dist, chi2)
     
+    plt.savefig(f'{folder_result_polarimetry}/FIT_correctedpolarization_source_{energy}keV_DETECTOR{det}.png')
+    plt.close()
+
     A = popt[0]
     A_err = perr[0]
 
@@ -775,7 +788,7 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
     PA = B-90
     PA_err = B_err
 
-    with open(f'{folder_result_polarimetry}/Fit_Values.txt', 'w') as f:
+    with open(f'{folder_result_polarimetry}/Fit_Values_DETECTOR{det}.txt', 'w') as f:
         f.write(f'A = {A} ± {A_err}\nB = {B} ± {B_err}\nC = {C} ± {C_err}\nQ = {Q} ± {Q_err}\nPA = {PA} ± {PA_err}\nchi2 = {chi2}')
 
     # Convert phi_fit to radians for polar plot
@@ -805,7 +818,7 @@ def fit_radial_plot(folder_input_polarimetry_pol, folder_input_polarimetry_Nonpo
     plt.tight_layout()
     #plt.title(f'{energy}keV Events Radial Bin Count ({angle_bin_str}° BinsCounts)')
 
-    plt.savefig(f'{folder_result_polarimetry}/POLARFIT_correctedpolarization_source_{energy}keV.png')
+    plt.savefig(f'{folder_result_polarimetry}/POLARFIT_correctedpolarization_source_{energy}keV_DETECTOR{det}.png')
     plt.close()
     
     gc.collect()

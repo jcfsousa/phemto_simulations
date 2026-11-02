@@ -14,7 +14,7 @@ import manalysis.pathlib as pathlib
 import manalysis.comptons as comptons
 
 custom_specRange = False
-max_spectra_range = None
+max_spectra_range = 1000
 min_spectra_range = 0
 
 fontsize = 20
@@ -168,8 +168,10 @@ def spectra(args):
         bin_step = 0.1 #keV
     elif chip_id == 1: # CdTe
         bin_step = 0.1
+    elif chip_id == 'all': # Both
+        bin_step = 0.1
     else:
-        bin_step = 1
+        bin_step = 0.1
 
     bins, cnts, obs_time = specLib.get_spectra_hist(event_type_folder,
                                                     bin_step = bin_step,
@@ -177,13 +179,11 @@ def spectra(args):
                                                     output_file_name=f'{source}_spec_hist-{event_type}_Det-{chip_name}.txt',
                                                     chip_id = chip_id,
                                                     chip_name = chip_name)
-    
     if custom_specRange == False:
         try:
             max_spectra_range = source_energy  * 1.2
         except:
             x, y = specLib.search_peaks(bins, cnts)
-            
             if len(x) == 0:
                 x = [1400]
 
@@ -196,9 +196,9 @@ def spectra(args):
                                         min_spectra_range = min_spectra_range,
                                         max_spectra_range = max_spectra_range,
                                         plotLabel= f"Uncalibrated Data: {event_type}") 
-    if defaultFigure == True:
+    if defaultFigure == True and plt_show == False:
         plt.close()
-    plt.close()
+    #plt.close()
 
 
 '''
@@ -422,23 +422,28 @@ def print_specmaker_ascii():
 
 
 if __name__ == '__main__':
-                  
 
     print_specmaker_ascii()
 
     parser = argparse.ArgumentParser(description='This parser takes .tra.gz files from revan megalib and identifies single and double compton events in the data. It Parses the data to the PHEMTO 4x4 HED configuration and saves it into a .csv like file named *.t3pa.')
-    parser.add_argument('-o', '--output', required=True, help='Base file for output of polarimetry analysis')
-    parser.add_argument('-i', '--inputSource', required=True, help='FULL path of the location of the .t3pa Source')
-    parser.add_argument('-s', '--show', action='store_true', help='Show plots. Code will wait untill plot is closed')
-    parser.add_argument('-l', '--log', action='store_true', help='Plots are y log scale')
-    parser.add_argument('-r', '--range', help='Provide spectra range ie: 0-600 . If not provided it will use the _<energy>keV_ present on name of source from 0-<energy>*1.2. If this is also not provided it will try to find a peak in the spectra and adjust to this range')
 
-    args = parser.parse_args()
-    
+    parser.add_argument('-i', '--inputSource', required=True, help='...')
+    parser.add_argument('-s', '--show', action='store_true', help='...')
+    parser.add_argument('-l', '--log', action='store_true', help='...')
+    parser.add_argument('-r', '--range', help='...')
+    parser.add_argument('-o', '--output', default=None,
+                        help='Base file for output of polarimetry analysis '
+                             '(defaults to the input source path)')
+
+    args = parser.parse_args()          
 
     global_config = config()
-    global_config.output_folder = args.output
     global_config.inputSource = args.inputSource
+    source = global_config.inputSource.split('/')[-1]
+    input_folder = global_config.inputSource
+
+# resolve the default now that input_folder is known
+    global_config.output_folder = args.output if args.output is not None else input_folder   
 
     source = global_config.inputSource.split('/')[-1]
 
@@ -446,14 +451,13 @@ if __name__ == '__main__':
 
     output_folder_base = global_config.output_folder
     input_folder = global_config.inputSource
-
-
     pathlib.creat_dir(output_folder_base)
     
     
-    chip_config = {0:"Si", 1:'CdTe'} #Overflow 0 on .t3pa is Si, Overflow on .t3pa is CdTe
+    chip_config = {0:"Si", 1:'CdTe', 'all':'Both'} #Overflow 0 on .t3pa is Si, Overflow on .t3pa is CdTe, 'all' is used to perform hist of both detectors behaving as one, shared events on the detectors get their energy summed
 
     source_energy = comptons.get_energy_from_source_name(source)
+    print(f"Source: {source}\n Energy: {source_energy} keV")
 
     current_dir = os.getcwd()
     parent_dir = os.path.dirname(current_dir)
@@ -491,14 +495,16 @@ if __name__ == '__main__':
     multiples_folder = os.path.join(resultFolder_parquet, 'multiples')
     masked_folder = os.path.join(resultFolder_parquet, 'masked')
 
-    event_type_folder = (masked_folder, singles_folder, doubles_folder, multiples_folder)
+    #event_type_folder = (masked_folder, singles_folder, doubles_folder, multiples_folder)
+    event_type_folder = (masked_folder, singles_folder) # at the just works with all events. One needs to update and distinguish double shared events from double events in Si and double events in CdTe, etc.....
     
     defaultFigure = True
     if defaultFigure == False:
         plt.figure(figsize=(10,4))
 
 
-    event_type = ('masked', 'singles', 'doubles', 'multiples')
+    #event_type = ('masked', 'singles', 'doubles', 'multiples')
+    event_type = ('masked','singles')
     chips = [0,1] # 0=Si, 1=CdTe
 
 
@@ -516,9 +522,15 @@ if __name__ == '__main__':
         #                 total=len(process_args),
         #                 desc='Spectra'):
         #    spectra_preCalib(task)
-        with Pool() as pool:
-            for _ in tqdm(pool.imap_unordered(spectra, process_args), total=len(process_args), desc=f"Plotting Spectra Chip-{chip_name}"):
-                pass
+        if args.show:
+            # Serial: GUI windows only work in the main process (a Pool worker
+            # cannot display/keep a plot). Figures are kept open and shown at the end.
+            for task in tqdm(process_args, total=len(process_args), desc=f"Plotting Spectra Chip-{chip_name}"):
+                spectra(task)
+        else:
+            with Pool() as pool:
+                for _ in tqdm(pool.imap_unordered(spectra, process_args), total=len(process_args), desc=f"Plotting Spectra Chip-{chip_name}"):
+                    pass
             
             #with Pool() as pool:
             #    for _ in tqdm(pool.imap_unordered(spectra_Calib, process_args), total=len(process_args), desc=f'Plotting Spectra Calibrated Chip-{chip}'):
@@ -536,6 +548,10 @@ if __name__ == '__main__':
         #compare_chips_peaks(args)
         #except Exception as e:
         #    print(f'\033[31m ERROR: {e}. Maybe try to run pre_process.py script first.\033[0m')
+
+    if args.show:
+        # Block here so every spectrum window stays open until the user closes them.
+        plt.show()
 
 
 

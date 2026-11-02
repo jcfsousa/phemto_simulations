@@ -1,3 +1,0 @@
-# Compton Events Used: 6545
-# Compton eff: 0.006802685735667068
-# Merit Figure: 0.0005553396439191131

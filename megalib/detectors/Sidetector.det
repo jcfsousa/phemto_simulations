@@ -2,7 +2,7 @@
 // Si strip detector information:
 Voxel3D                  SiSDDet
 SiSDDet.SensitiveVolume    Si
-SiSDDet.VoxelNumber			512 512 1
+SiSDDet.VoxelNumber			256 256 1
 SiSDDet.Offset			0 0 0
 
 // Threshold in keV
